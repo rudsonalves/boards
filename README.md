@@ -78,6 +78,66 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/11/27 - version: 0.0.01+02
+
+### Integrating Firebase configuration and functionality to the project.
+
+This commit introduces the Firebase setup, including necessary files, dependencies, and configurations to enable Firebase services in the project. Key additions include Firebase core, authentication support, Firestore rules, and FlutterFire setup.
+
+### Changes made:
+
+1. **`.firebaserc`**:
+   - Added the Firebase project configuration with the default project set to `boards-fc3e5`.
+
+2. **`.gitignore`**:
+   - Ignored the `google-services.json` file to prevent sensitive information from being exposed.
+
+3. **`android/app/build.gradle`**:
+   - Included the `com.google.gms.google-services` plugin for Firebase.
+   - Adjusted SDK versions to match Firebase requirements (`minSdk = 23`, `targetSdk = 34`).
+   - Configured release signing using the `key.properties` file.
+
+4. **`android/settings.gradle`**:
+   - Added the `com.google.gms.google-services` plugin setup.
+
+5. **`firebase.json`**:
+   - Added Firebase platform configurations, including Android app credentials, Firestore, and storage emulators.
+
+6. **`firestore.indexes.json`**:
+   - Created an empty indexes file for Firestore.
+
+7. **`firestore.rules`**:
+   - Added default Firestore rules allowing unrestricted access until December 27, 2024.
+
+8. **`functions/.eslintrc.js`**:
+   - Configured ESLint rules for the Firebase functions directory.
+
+9. **`functions/.gitignore`**:
+   - Added ignore rules for `node_modules` and local files in the Firebase functions directory.
+
+10. **`functions/index.js`**:
+    - Added a placeholder for Firebase functions with an example setup.
+
+11. **`functions/package-lock.json` & `functions/package.json`**:
+    - Configured Node.js dependencies for Firebase functions, including `firebase-admin` and `firebase-functions`.
+
+12. **`lib/firebase_options.dart`**:
+    - Generated Firebase options file for platform-specific configurations using the FlutterFire CLI.
+
+13. **`lib/main.dart`**:
+    - Initialized Firebase and configured the authentication emulator for local development.
+
+14. **`pubspec.lock` & `pubspec.yaml`**:
+    - Added dependencies for `firebase_core` and `firebase_auth` to support Firebase services in the Flutter application.
+
+15. **`storage.rules`**:
+    - Added default Firebase Storage rules denying all read and write operations.
+
+### Conclusion:
+
+These changes establish a solid Firebase foundation, enabling core functionalities like authentication, Firestore, and storage management. This integration provides a seamless path for future enhancements, such as adding Firebase functions and advanced database security rules.
+
+
 ## 2024/11/27 - version: 0.0.01+01
 
 This commit includes major updates to rebrand the application from `bgbazzar` to `boards`, impacting namespaces, identifiers, and test imports. It also updates dependencies in the `pubspec.lock` file and resolves minor import issues for consistency.

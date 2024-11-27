@@ -1,0 +1,70 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "boards-fc3e5",
+          "appId": "1:549566189735:android:9fd3ce824f08a6a3598b82",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "boards-fc3e5",
+          "configurations": {
+            "android": "1:549566189735:android:9fd3ce824f08a6a3598b82",
+            "ios": "1:549566189735:ios:7dee114366300723598b82",
+            "web": "1:549566189735:web:814fbf22adc3da24598b82"
+          }
+        }
+      }
+    }
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "database": {
+      "port": 9000
+    },
+    "storage": {
+      "port": 9199
+    },
+    "tasks": {
+      "port": 9499
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ],
+  "storage": {
+    "rules": "storage.rules"
+  }
+}
