@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   height="600"
+   viewBox="0 -960 24000 24000"
+   width="600"
+   fill="#e8eaed"
+   version="1.1"
+   id="svg51"
+   sodipodi:docname="image_error.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   inkscape:export-filename="/home/rudson/Documents/Projects/Flutter/Apps/bgbazzar/bgbazzar/assets/images/image_not_found.png"
+   inkscape:export-xdpi="124.215"
+   inkscape:export-ydpi="124.215"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs55" />
+  <sodipodi:namedview
+     id="namedview53"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     units="px"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="1.0286458"
+     inkscape:cx="266.8557"
+     inkscape:cy="228.4557"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="Layer 1"
+     style="opacity:0.73157133">
+    <path
+       d="M 23059.916,14604.87 20774.453,12672.122 V 1897.0491 H 8032.9942 L 5747.5313,-35.699878 H 20774.453 q 942.752,0 1614.107,567.745218 671.356,567.74446 671.356,1365.00376 z m -1371.28,4300.364 -1828.368,-1546.199 H 4776.209 q -942.7528,0 -1614.1079,-567.743 -671.3551,-567.746 -671.3551,-1365.005 V 2670.1478 L 662.37577,1123.9489 2262.1997,-228.97454 23288.462,17552.311 Z M 5918.9409,13493.538 9347.1358,9628.0424 11918.282,12527.166 12861.036,11464.152 4776.209,4627.0555 V 15426.287 H 17546.236 L 15260.773,13493.538 Z M 14403.723,7284.5846 Z m -3228.217,2730.0074 z"
+       id="path49"
+       style="fill:#ff4141;stroke-width:26.2716"
+       inkscape:export-filename="/home/rudson/Documents/Projects/Flutter/Apps/bgbazzar/bgbazzar/assets/images/image_not_found.png"
+       inkscape:export-xdpi="133.46796"
+       inkscape:export-ydpi="133.46796" />
+    <text
+       xml:space="preserve"
+       style="font-size:2019.21px;line-height:1.25;font-family:Audiowide;-inkscape-font-specification:'Audiowide, Normal';fill:#ff4141;stroke-width:84.1337"
+       x="1254.8131"
+       y="20960.475"
+       id="text8741"
+       inkscape:export-filename="/home/rudson/Documents/Projects/Flutter/Apps/bgbazzar/bgbazzar/assets/images/image_not_found.png"
+       inkscape:export-xdpi="133.46796"
+       inkscape:export-ydpi="133.46796"
+       transform="scale(0.9818916,1.0184424)"><tspan
+         sodipodi:role="line"
+         id="tspan8739"
+         style="fill:#ff4141;stroke-width:84.1337"
+         x="1254.8131"
+         y="20960.475">IMAGE NOT FOUND</tspan></text>
+  </g>
+</svg>

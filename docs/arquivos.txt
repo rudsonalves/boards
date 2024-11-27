@@ -1,0 +1,270 @@
+lib/
+├── common
+│   ├── abstracts
+│   │   └── data_result.dart - Declaração das classes Failure e DataResult (Result Data/Error wrapper in Dart for Flutter) 
+│   ├── app_info.dart - Classe auto-gerada por uma script para pegar informações gerais do app de seus arquivos de configuração, como pubspec.yaml. O seu uso é para evitar o uso de pacotes externos para recolher estas informações.
+│   ├── models
+│   │   ├── ad.dart - modelo anúcio de jogo
+│   │   ├── address.dart - modela de endereço
+│   │   ├── bg_name.dart - modelo para armazenamento de nome de jogos
+│   │   ├── boardgame.dart - modelo para cadastro de jogos
+│   │   ├── city.dart - modelo para cidade, usado nas APIs de endereço
+│   │   ├── favorite.dart - modelo para favorito
+│   │   ├── filter.dart - modelo para declaração de filtro
+│   │   ├── mechanic.dart - modelo para mecânicas de jogo
+│   │   ├── payment.dart - modelo para pagamento
+│   │   ├── state.dart - modelo para estado, usado nas APIs de endereço
+│   │   ├── user.dart - modelo para usuário
+│   │   └── viacep_address.dart - modelo de leitura de informações de endereço pelo CPE, usado nas APIs de endereço.
+│   ├── others
+│   │   └── validators.dart - validador geral empregado por diversos fomulários
+│   ├── singletons
+│   │   ├── app_settings.dart - armazena status da aplicação como Brightness, DBVersion
+│   │   ├── current_user.dart - armazena dados do usuário logado.
+│   │   ├── search_filter.dart - armazena informações do filtro de de busca de produto
+│   │   └── search_history.dart - armazena dados dos histórico de busca por nomes de jogos
+│   ├── state_store
+│   │   └── state_store.dart - classe básica para controle de estado de página. Todas as páginas possuem um state controlados por esta classe. Por isto ela é estendida nos arquivos "..._store.dart" das páginas.
+│   ├── theme
+│   │   ├── app_text_style.dart - configurações de estilos para as fontes do app
+│   │   ├── theme.dart - configurações de cor do app (construídas no Material Theme Builder)
+│   │   └── util.dart - gerado automaticamente pelo Material Theme Builder. Declara a função createTextTheme para gerar um TextTheme.
+│   └── utils
+│       ├── extensions.dart - declaração de extension: formatMoney() em num para gerar saída R$ ###0.00; formatDate() em DateTime para gerar data formatada em pt_BR; onlyNumbers() em String para remover qualquer caracter diferente de número.
+│       └── utils.dart - Define alguns métodos úteis como: title(String text) para elevar a caixa do 1o caractere de cada palavra; normalizeFileName(String fileName) para remover caracteres acentuados de nomes de arquivos; 
+├── components
+│   ├── buttons
+│   │   └── big_button.dart - um botão grande para a tela.
+│   ├── custom_drawer
+│   │   ├── custom_drawer.dart - um drawer para ser usado em algumas páginas
+│   │   └── widgets
+│   │       └── custom_drawer_header.dart - header do drawer
+│   ├── customs_text
+│   │   └── read_more_text.dart - uma adaptação do 'readmore' de jonataslaw para trabalhar textos longos
+│   ├── custon_field_controllers
+│   │   ├── currency_text_controller.dart - uma extensão do TextEditingController para trabalhar com valores monetários
+│   │   ├── masked_text_controller.dart - uma extensão do TextEditingController para trabalhar com valores em máscaras como formatação para CPF, CEP, ...
+│   │   └── numeric_edit_controller.dart - uma extensão do TextEditingController para trabalhar com valores numéricos inteiros ou double.
+│   ├── dialogs
+│   │   ├── simple_message.dart - um diálogo simples para padronizar mensagens de erro e warnings
+│   │   └── simple_question.dart - um diálogo simples de sim/não para questões gerais
+Estes diálogos são classes StatelessWidget com método estático open(...) para abrir os diálogos.
+│   ├── form_fields
+│   │   ├── custom_form_field.dart - um custom TextFormField formatado para uso geral no aplicativo
+│   │   ├── custom_mask_field.dart - um custom TextFormField para ser usado com o MaskedTextController
+│   │   ├── custom_names_form_field.dart - um custom TextFormField para seleção de valor em uma lista de nomes
+│   │   ├── dropdown_form_field.dart - um custom TextFormField com um PopupMenuButton de seleção
+│   │   └── password_form_field.dart - um custom TextFormField especializado para senhas, com botão de ocultação de texto
+│   └── others_widgets
+│       ├── ad_list_view - Esta classe declara uma widget que retorna uma lista de anúncios
+│       │   ├── ad_list_view.dart
+│       │   └── widgets
+│       │       ├── ad_card_view.dart - card do anúncio
+│       │       ├── dismissible_ad.dart - um dismissible geralmente empregado em edit/delete actions
+│       │       └── show_image.dart - mostra um carrossel com as imagens do anúncio
+│       ├── base_dismissible_container.dart - declara uma função que retorna Containers para ser empregado na base dos dismissible
+│       ├── bottom_message.dart - cria o BottomSheet para apresentar mensagens como erro e outras
+│       ├── favorite_button.dart - adiciona uma linha transparente com o botão de favorito, para favoritar produtos.
+│       ├── fitted_button_segment.dart - Um widget de segmento de botão personalizado que garante que o texto do rótulo se ajuste ao espaço disponível.
+│       ├── image_view.dart - esta classe cria uma Image de um arquivo local ou de cache da rede
+│       ├── or_row.dart - cria uma linha com um "ou" ao centro. Usada para separar alguns elementos de tela.
+│       ├── shop_grid_view - retorna um grid de anúncios para ser apresentados na página Shop e talvez outras.
+│       │   ├── shop_grid_view.dart
+│       │   └── widgets
+│       │       ├── ad_shop_view.dart
+│       │       ├── owner_rating.dart
+│       │       ├── shop_text_price.dart
+│       │       ├── shop_text_title.dart
+│       │       └── show_image.dart
+│       ├── spin_box_field.dart - retorna um SpinBox com contrles para incremento e decremento de um inteiro. Uma pressão longa acelera os incrementos.
+│       ├── state_count_loading_message.dart - retorna contador incremental
+│       ├── state_error_message.dart - implementa uma mensagem de erro para o BottomSheet
+│       └── state_loading_message.dart - implementa uma mensagem de genérica para o BottomSheet
+├── features
+│   ├── address - tela para a cadastro, edição e seleção de endereços
+│   │   ├── address_controller.dart - controla a lógica de negócio, gerenciando a tela
+│   │   ├── address_screen.dart - UI
+│   │   ├── address_store.dart - controle os elementos de reatividade da tela
+│   │   └── widgets - outras widgets expecíficas de usi exclusivo
+│   │       └── destiny_address_dialog.dart
+│   ├── boardgame - tela de cadastro, edição e seleção de boardgame. Esta tela gerencia informações gerais dos jogos, como números de jogadores, idade, tempo, descrição, mecânicas, ... Os anúncios referenciam estes boardgame a fim de não repetir informções no banco de dados.
+│   │   ├── boardgame_controller.dart - controla a lógica de negócio, gerenciando a tela
+│   │   ├── boardgame_screen.dart - UI
+│   │   ├── boardgame_store.dart - controle os elementos de reatividade da tela
+│   │   └── widgets - outras widgets expecíficas de usi exclusivo
+│   │       ├── bg_info_card.dart
+│   │       ├── custom_floating_action_bar.dart
+│   │       ├── search_card.dart
+│   │       └── view_boardgame.dart
+│   ├── chat - o chat ainda não foi implementado.
+│   │   └── chat_screen.dart
+│   ├── check_mechanics - uma tela para verificar se as mecânicas na cópia local (SQFLite) correspondem ao do servidor (Parse Server). Isto é mais um sistema para remover consultas ao servidor, copiando localmente alguns dados.
+│   │   ├── check_controller.dart
+│   │   ├── check_page.dart
+│   │   └── check_store.dart
+│   ├── edit_ad - tela para a criação e edição de um anúncio
+│   │   ├── edit_ad_form - cria a widget do formulário do anúncio
+│   │   │   ├── edit_ad_form_controller.dart - controla a lógica de negócio, gerenciando do formulário
+│   │   │   └── edit_ad_form.dart - UI. Esta ui utiliza o store geral geral edit_ad_store.dart para gerencia de estados, quando necessário.
+│   │   ├── edit_ad_screen.dart - Ui geral
+│   │   ├── edit_ad_store.dart - gerencia de estado
+│   │   ├── image_list - gera a widget com um carrocel das imagens do anúncio
+│   │   │   ├── image_list_controller.dart
+│   │   │   └── image_list_view.dart
+│   │   └── widgets
+│   │       ├── horizontal_image_gallery.dart
+│   │       └── photo_origin_bottom_sheet.dart
+│   ├── edit_boardgame - esta tela permite editar e alterar um boardgame
+│   │   ├── edit_boardgame_controller.dart
+│   │   ├── edit_boardgame_form
+│   │   │   ├── edit_boardgame_form_controller.dart
+│   │   │   └── edit_boardgame_form.dart
+│   │   ├── edit_boardgame_screen.dart
+│   │   ├── edit_boardgame_store.dart
+│   │   ├── get_image
+│   │   │   └── get_image.dart
+│   │   └── widgets
+│   │       └── custom_filled_button.dart
+│   ├── favorites - esta tela apresenta os anúncios marcados como favoitos
+│   │   ├── favorites_controller.dart
+│   │   ├── favorites_screen.dart
+│   │   └── favorite_store.dart
+│   ├── filters - tela de filtro que permite selecionar fitragem por data, nome, número de jogadores, ... Este módulo ainda usa o padrão antigo (controller, screen, state). Ainda tem de ser ajustado.
+│   │   ├── filters_controller.dart
+│   │   ├── filters_screen.dart
+│   │   ├── filters_states.dart
+│   │   └── widgets
+│   │       ├── text_form_dropdown.dart
+│   │       └── text_title.dart
+│   ├── mechanics - esta tela permite adicionar, editar e remover uma mecânica.
+│   │   ├── mechanics_controller.dart
+│   │   ├── mechanics_screen.dart
+│   │   ├── mechanics_store.dart
+│   │   └── widgets
+│   │       ├── mechanic_dialog.dart - esta widget abre um diálogo simples para a edição/adição de uma nova mecânica.
+│   │       ├── search_mechs_delegate.dart
+│   │       ├── show_all_mechs.dart
+│   │       └── show_only_selected_mechs.dart
+│   ├── my_account - esta tela mostra diversos entradas para telas de dados pessoais, telas de admin (mecânica, boardgame e check de boardgame), favoritos, anúncios, ...
+│   │   ├── my_account_screen.dart
+│   │   └── widgets - estes hooks são os menus para diferentes partes da tela.
+│   │       ├── admin_hooks.dart
+│   │       ├── config_hooks.dart
+│   │       ├── sales_hooks.dart
+│   │       └── shopping_hooks.dart
+│   ├── my_ads - permide editar, criar e alterar status dos anúncios
+│   │   ├── my_ads_controller.dart
+│   │   ├── my_ads_screen.dart
+│   │   ├── my_ads_store.dart
+│   │   └── widgets
+│   │       ├── my_tab_bar.dart
+│   │       └── my_tab_bar_view.dart
+│   ├── my_data - permite alterar dados pessoais, como senha, telefone e endereços.
+│   │   ├── my_data_controller.dart
+│   │   └── my_data_screen.dart
+│   ├── new_address - permite alterar os endereços.
+│   │   ├── new_address_controller.dart
+│   │   ├── new_address_screen.dart
+│   │   ├── new_address_state.dart
+│   │   └── widgets
+│   │       └── address_form.dart
+│   ├── payment_web_view - esta é a tela de pagamentos. Ainda esta sendo trabalhada
+│   │   ├── payment_controller.dart
+│   │   ├── payment_page.dart
+│   │   └── payment_store.dart
+│   ├── product - apresenta uma tela com detalhes do produto selecionado na loja
+│   │   ├── product_screen.dart
+│   │   └── widgets
+│   │       ├── description_product.dart
+│   │       ├── duo_segmented_button.dart
+│   │       ├── game_data.dart
+│   │       ├── image_carousel.dart
+│   │       ├── location_product.dart
+│   │       ├── price_product.dart
+│   │       ├── sub_title_product.dart
+│   │       ├── title_product.dart
+│   │       └── user_card_product.dart
+│   ├── shop - apresenta os anúncios em um grid
+│   │   ├── shop_controller.dart
+│   │   ├── shop_screen.dart
+│   │   ├── shop_store.dart
+│   │   └── widgets
+│   │       ├── ad_text_info.dart
+│   │       ├── ad_text_price.dart
+│   │       ├── ad_text_subtitle.dart
+│   │       ├── ad_text_title.dart
+│   │       └── search
+│   │           └── search_dialog.dart
+│   ├── signin - tela de login
+│   │   ├── signin_controller.dart
+│   │   ├── signin_screen.dart
+│   │   ├── signin_store.dart
+│   │   └── widgets
+│   │       └── signin_form.dart
+│   └── signup - tela de cadastro
+│       ├── signup_controller.dart
+│       ├── signup_screen.dart
+│       ├── signup_store.dart
+│       └── widgets
+│           └── signup_form.dart
+├── get_it.dart - registros do get-it
+├── main.dart
+├── manager - estes são gerenciadores de elementos do app. Estes mantem alguns elementos carregados e são a camada entre a Ui e os Repositories
+│   ├── address_manager.dart - gerencia os endereços
+│   ├── boardgames_manager.dart - gerencia os boardgames. Estes são backpeados no banco de dados local para serem utilizados nos detalhes dos produtos
+│   ├── favorites_manager.dart - regenria os favoritos do usuário ativo
+│   ├── mechanics_manager.dart - gerencia as mecânicas. Estes também são backpeados no banco de dados local para serem utilizados nos detalhes dos produtos
+│   └── state_manager.dart
+├── my_material_app.dart
+├── repository
+│   ├── gov_api - estes repositórios são para APIs do IBGE e VIACEP. Como não devem ter serviços concorrentes não fiz interfaces para eles
+│   │   ├── ibge_repository.dart
+│   │   └── viacep_repository.dart
+│   ├── parse_server - estas são o acesso ao servidor Parse Server (PS) back4app
+│   │   ├── common
+│   │   │   ├── constants.dart - chaver das classes do Parse Server e outras constantes
+│   │   │   ├── errors_mensages.dart - classe com a tradução de algumas mensagens de erro do PS
+│   │   │   ├── parse_to_model.dart - esta classe estática (não instanciável) agrupa métodos para transadar de um ParseObject para modelos do app
+│   │   │   └── ps_functions.dart
+│   │   ├── interfaces - interfaces
+│   │   │   ├── i_address_repository.dart
+│   │   │   ├── i_ad_repository.dart
+│   │   │   ├── i_boardgame_repository.dart
+│   │   │   ├── i_favorite_repository.dart
+│   │   │   ├── i_mechanic_repository.dart
+│   │   │   └── i_user_repository.dart
+│   │   ├── ps_address_repository.dart - repositórios de endereços, anúncios, boardgame, ...
+│   │   ├── ps_ad_repository.dart
+│   │   ├── ps_boardgame_repository.dart
+│   │   ├── ps_favorite_repository.dart
+│   │   ├── ps_mechanics_repository.dart
+│   │   └── ps_user_repository.dart
+│   ├── share_preferences - repositórios do Share Preferences
+│   │   ├── app_share_preferences_repository.dart - classe do repositório
+│   │   └── i_app_preferences_repository.dart - interface
+│   └── sqlite - repositório 
+│       ├── bg_names_repository.dart - repositório dos nomes e das ids dos boardgames no PS
+│       ├── mechanic_repository.dart - repositório das mecânicas
+│       └── interfaces
+│           ├── i_bg_names_repository.dart
+│           └── i_local_mechanic_repository.dart
+│        
+├── services - esta é a primeir implementação do pagamento. Ainda está sendo desenvolvida e tenho algumas questóes a serem resolvidas. Em princípio será usado o Mercado Pago (MP) e os Brick para efetuar o processo de pagamento, através de funções JS na Cloude do back4app
+│   ├── parse_server_server.dart - por agora é uma classe stática com os métodos do pagamento.
+│   └── payment
+│       └── payment_service.dart - recolhe as credenciais do pagamento
+└── store - esta camada store é uma abstração entre o banco de dados SQFLite e os elementos do dart. A tradução para os modelos do aplicativo está do repository.
+    ├── constants
+    │   ├── constants.dart - constantes como nomes das tabelas e colunas, nome do banco de dados, versão de esquema, ...
+    │   ├── migration_sql_scripts.dart - scripts de migração
+    │   └── sql_create_table.dart - classe com os métodos de criação das tabelas
+    ├── database
+    │   ├── database_backup.dart - classe com métodos de backup e restauração
+    │   ├── database_manager.dart - gerente do banco de dados local
+    │   ├── database_migration.dart - classe com métodos de migração
+    │   ├── database_provider.dart - inicialização do banco de dados
+    │   └── database_util.dart - classe com outras funções auxiliares como getApplicationDocumentsDirectory
+    └── stores
+        ├── bg_names_store.dart - classe para as operações CRUD nos nomes dos boardgames
+        └── mechanics_store.dart - classe para as operações CRUP nas mecânicas dos boardgames
+

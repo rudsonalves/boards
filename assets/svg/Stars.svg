@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="78.841461mm"
+   height="66.841461mm"
+   viewBox="0 0 78.841461 66.841461"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   sodipodi:docname="Stars.svg"
+   inkscape:export-filename="/home/rudson/Documents/Projects/Flutter/Apps/bgbazzar/assets/images/star_full.png"
+   inkscape:export-xdpi="27.41"
+   inkscape:export-ydpi="27.41"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="6"
+     fit-margin-right="6"
+     fit-margin-bottom="0"
+     inkscape:zoom="1.8116734"
+     inkscape:cx="44.986032"
+     inkscape:cy="91.076016"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer2" />
+  <defs
+     id="defs2">
+    <linearGradient
+       id="linearGradient5174"
+       inkscape:swatch="solid">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop5172" />
+    </linearGradient>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:none"
+     transform="translate(-98.192488,-3.2397619)">
+    <g
+       style="fill:#c0bfbc"
+       id="g18-4"
+       transform="matrix(0.08355183,0,0,0.08355183,97.508342,80.107446)">
+      <path
+         d="m 384,-334 96,-74 96,74 -36,-122 90,-64 H 518 l -38,-124 -38,124 H 330 l 90,64 z M 233,-120 326,-424 80,-600 h 304 l 96,-320 96,320 h 304 l -246,176 93,304 -247,-188 z m 247,-369 z"
+         id="path9-6"
+         style="fill:#c0bfbc" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Layer 4"
+     style="display:none;opacity:0.5">
+    <path
+       style="display:inline;opacity:1;fill:#deddda"
+       d="m 137.61322,3.2397624 -8.02098,26.7365846 h -25.39975 l 20.55375,14.705123 -7.77032,25.399757 20.6373,-15.707746 v -8.355182 l -8.02098,6.182836 3.00787,-10.193324 -7.51967,-5.347317 h 9.35781 l 3.17497,-10.360427 V 3.2397624"
+       id="path2118"
+       inkscape:export-filename="/home/rudson/Documents/Projects/Flutter/Apps/bgbazzar/assets/images/star-empty.png"
+       inkscape:export-xdpi="27.41"
+       inkscape:export-ydpi="27.41"
+       transform="translate(-98.192487,-3.2397618)" />
+    <path
+       style="display:inline;opacity:1;fill:#deddda"
+       d="m 137.61322,3.2397621 8.02098,26.7365849 h 25.39975 l -20.55375,14.705123 7.77032,25.399757 -20.6373,-15.707746 v -8.355182 l 8.02098,6.182836 -3.00787,-10.193324 7.51967,-5.347317 h -9.35781 L 137.61322,26.300067 V 3.2397621"
+       id="path2118-9"
+       inkscape:export-filename="/home/rudson/Documents/Projects/Flutter/Apps/bgbazzar/assets/images/star-half.png"
+       inkscape:export-xdpi="27.41"
+       inkscape:export-ydpi="27.41"
+       transform="translate(-98.192487,-3.2397618)" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Layer 3"
+     style="display:inline;opacity:1">
+    <path
+       style="display:inline;opacity:1;fill:#f8e45c"
+       d="m 137.61322,3.2397621 8.02098,26.7365849 h 25.39975 l -20.55375,14.705123 7.77032,25.399757 -20.6373,-15.707746 v -8.355182 l 8.02098,6.182836 -3.00787,-10.193324 7.51967,-5.347317 h -9.35781 L 137.61322,26.300067 V 3.2397621"
+       id="path2118-9-6"
+       inkscape:export-filename="/home/rudson/Documents/Projects/Flutter/Apps/bgbazzar/assets/images/star-half.png"
+       inkscape:export-xdpi="27.41"
+       inkscape:export-ydpi="27.41"
+       transform="translate(-98.192487,-3.2397618)" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Layer 2"
+     transform="translate(-98.192488,-3.2397619)"
+     style="display:inline;opacity:1">
+    <path
+       style="display:inline;fill:#f8e45c"
+       d="m 137.61322,3.2397624 -8.02098,26.7365846 h -25.39975 l 20.55375,14.705123 -7.77032,25.399757 20.6373,-15.707746 v -8.355182 l -8.02098,6.182836 3.00787,-10.193324 -7.51967,-5.347317 h 9.35781 l 3.17497,-10.360427 V 3.2397624"
+       id="path2118-3"
+       inkscape:export-filename="/home/rudson/Documents/Projects/Flutter/Apps/bgbazzar/assets/images/star-empty.png"
+       inkscape:export-xdpi="27.41"
+       inkscape:export-ydpi="27.41" />
+  </g>
+</svg>
