@@ -54,38 +54,6 @@ class PSUserRepository implements IUserRepository {
   }
 
   @override
-  Future<DataResult<void>> removeByEmail(String userEmail) async {
-    try {
-      final query = QueryBuilder<ParseUser>(ParseUser.forQuery())
-        ..whereEqualTo(keyUserEmail, userEmail);
-      final response = await query.query();
-
-      if (!response.success ||
-          response.result == null ||
-          response.results!.isEmpty) {
-        throw Exception(response.error?.toString() ??
-            'User with email $userEmail not found.');
-      }
-
-      // get user object
-      final user = response.results!.first as ParseUser;
-
-      // try remove user
-      final deleteResponse = await user.delete();
-
-      if (!deleteResponse.success) {
-        throw UserRepositoryException(
-          deleteResponse.error?.message ?? 'Failed to delete user.',
-        );
-      }
-
-      return DataResult.success(null);
-    } catch (err) {
-      return _handleError<UserModel>('removeByEmail', err);
-    }
-  }
-
-  @override
   Future<DataResult<UserModel>> signInWithEmail(UserModel user) async {
     try {
       // Create a ParseUser using the provided email and password for sign in.
@@ -156,7 +124,7 @@ class PSUserRepository implements IUserRepository {
   }
 
   @override
-  Future<DataResult<void>> update(UserModel user) async {
+  Future<DataResult<void>> updatePassword(UserModel user) async {
     try {
       // Create a new ParseUser with the user ID to update.
       final parseUser = ParseUser(null, null, null)..objectId = user.id;
@@ -207,7 +175,7 @@ class PSUserRepository implements IUserRepository {
   }
 
   @override
-  Future<DataResult<void>> resetPassword(String email) async {
+  Future<DataResult<void>> requestResetPassword(String email) async {
     try {
       final user = ParseUser(null, null, email.trim());
       final ParseResponse response = await user.requestPasswordReset();
@@ -224,40 +192,6 @@ class PSUserRepository implements IUserRepository {
     }
   }
 
-  // Future<void> _assignUserToRole(ParseUser user, String roleName) async {
-  //   try {
-  //     // ;search for the Role by name
-  //     final query = QueryBuilder<ParseObject>(ParseObject(keyRoleTable))
-  //       ..whereEqualTo(keyRoleName, roleName);
-  //     final response = await query.query();
-
-  //     if (!response.success ||
-  //         response.results == null ||
-  //         response.results!.isEmpty) {
-  //       throw UserRepositoryException(
-  //           'Role "$roleName" not found or query failed.');
-  //     }
-
-  //     // Get the Role found
-  //     final role = response.results!.first as ParseObject;
-
-  //     // Add the user to the Role relationship
-  //     final relation = role.getRelation<ParseObject>(keyRoleUsers);
-  //     relation.add(user);
-
-  //     // Save the Role with the new relationship
-  //     final saveResponse = await role.save();
-  //     if (!saveResponse.success) {
-  //       throw UserRepositoryException(
-  //           'Failed to save role "$roleName": ${saveResponse.error?.message ?? 'Unknown error'}');
-  //     }
-  //   } catch (err) {
-  //     // Log the error and wrap it in a specific exception
-  //     throw UserRepositoryException(
-  //         'Failed to assign user to role "$roleName": $err');
-  //   }
-  // }
-
   Future<void> _checksPermissions(ParseUser parseUser) async {
     final parseAcl = parseUser.getACL();
     if (parseAcl.getPublicReadAccess() == true) return;
@@ -268,12 +202,26 @@ class PSUserRepository implements IUserRepository {
     parseUser.setACL(parseAcl);
     final aclResponse = await parseUser.save();
     if (!aclResponse.success) {
-      throw UserRepositoryException(
-          'error setting ACL permissions: ${aclResponse.error?.message ?? 'unknown error'}');
+      throw UserRepositoryException('error setting ACL permissions:'
+          ' ${aclResponse.error?.message ?? 'unknown error'}');
     }
   }
 
   DataResult<T> _handleError<T>(String module, Object error) {
     return PsFunctions.handleError<T>('UserRepository', module, error);
+  }
+
+  @override
+  Future<DataResult<PhoneVerificationInfo>> sendPhoneVerificationSMS(
+      String phoneNumber) {
+    // TODO: implement sendPhoneVerificationSMS
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<DataResult<void>> submitPhoneVerificationCode(
+      String verificationId, String smsCode) {
+    // TODO: implement submitVerificationCode
+    throw UnimplementedError();
   }
 }

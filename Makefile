@@ -38,3 +38,15 @@ build_profile:
 	flutter clean
 	flutter pub get
 	flutter run --profile
+
+firebase_emu:
+	firebase emulators:start --import=./emulator_data
+
+firebase_emu_debug:
+	firebase emulators:start --import=./emulator_data --debug
+
+firebase_emusavecache:
+	firebase emulators:export ./emulator_data -f
+
+firebase_functions_deploy:
+	firebase deploy --only functions
