@@ -78,6 +78,64 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/11/28 - version: 0.0.01+03
+
+This commit introduces several updates and refactors, including Firebase integration enhancements, new repositories, and adjustments for modularized user management.
+
+### **Changes**
+1. **`.gitignore`**
+   - Added `+/emulator_data` for excluding Firebase emulator cache data.
+   
+2. **`Makefile`**
+   - Added `firebase_emu`, `firebase_emu_debug`, `firebase_emusavecache`, and `firebase_functions_deploy` tasks for Firebase emulators and deployment management.
+
+3. **`AndroidManifest.xml`**
+   - Introduced `android:usesCleartextTraffic="true"` for Firebase emulator compatibility. *(FIXME: Change to `false` in production).*
+
+4. **`firebase.json`**
+   - Changed `functions` source from `functions` to `functions-go` to align with the transition to Go-based Firebase functions.
+
+5. **`functions-go`**
+   - Created a new folder structure for Firebase Cloud Functions using Go:
+     - **`add_role.go`**: Implements the function to add a custom user role.
+     - **`firebase_init.go`**: Initializes Firebase Auth client with the provided credentials.
+     - **`main.go`**: Entry point to register the HTTP function and start the server.
+     - **`go.mod` and `go.sum`**: Configured Go module dependencies for Firebase and related libraries.
+
+6. **Removed `functions` (Node.js-based implementation)**
+   - Deleted the following files:
+     - `functions/.eslintrc.js`
+     - `functions/.gitignore`
+     - `functions/index.js`
+     - `functions/package-lock.json`
+     - `functions/package.json`
+
+7. **Flutter Integration**
+   - **`lib/features/account/my_data/my_data_controller.dart`**
+     - Updated `update` method to `updatePassword` for clarity.
+   - **`lib/features/signin/signin_controller.dart`**
+     - Renamed `resetPassword` to `requestResetPassword` for explicit context.
+
+   - **`lib/main.dart`**
+     - Added Firebase emulator configuration for authentication, Firestore, and Cloud Functions when in `kDebugMode`.
+     - Logged emulator usage for debugging.
+
+8. **Dependency Injection**
+   - **`lib/get_it.dart`**
+     - Replaced `PSUserRepository` with `FbUserRepository` for Firebase compatibility.
+
+9. **Repositories**
+   - **`FbUserRepository`**: New Firebase-based user repository added in `lib/repository/data/firebase`.
+     - Handles user authentication, email sign-in, password reset, and phone verification.
+     - Introduced modular methods with detailed error handling and Firebase Auth integration.
+   - **`i_user_repository.dart`**
+     - Added `PhoneVerificationInfo` model for structured phone verification data.
+     - Enhanced documentation for clarity and maintainability.
+
+### **Conclusion**
+This commit refactors the Firebase integration and user management structure to align with modular principles and introduces support for Firebase emulators in development. Future changes will include addressing production-specific configurations like `CleartextTraffic`.
+
+
 ## 2024/11/27 - version: 0.0.01+02
 
 ### Integrating Firebase configuration and functionality to the project.

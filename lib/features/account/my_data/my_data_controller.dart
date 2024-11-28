@@ -75,7 +75,7 @@ class MyDataController extends ChangeNotifier {
             : null;
         newUser.password = newPass.isNotEmpty ? newPass : null;
 
-        final result = await userRepository.update(newUser);
+        final result = await userRepository.updatePassword(newUser);
         if (result.isFailure) {
           throw Exception(result.error!.message);
         }

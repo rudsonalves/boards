@@ -1,7 +1,7 @@
 name: boards
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.0.01+02
+version: 0.0.01+03
 
 environment:
   sdk: '>=3.4.1 <4.0.0'
@@ -37,6 +37,8 @@ dependencies:
   csv: ^6.0.0
   firebase_core: ^3.8.0
   firebase_auth: ^5.3.3
+  cloud_firestore: ^5.5.0
+  cloud_functions: ^5.1.5
 
 dev_dependencies:
   intl_utils: ^2.8.7

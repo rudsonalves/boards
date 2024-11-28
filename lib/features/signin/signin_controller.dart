@@ -47,7 +47,7 @@ class SignInController {
       store.setStateSuccess();
       return RecoverStatus.fail;
     }
-    final result = await userRepository.resetPassword(store.email!);
+    final result = await userRepository.requestResetPassword(store.email!);
     if (result.isFailure) {
       store.setError(result.error!.message!);
       return RecoverStatus.error;
