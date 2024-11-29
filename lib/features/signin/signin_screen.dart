@@ -7,7 +7,6 @@ import '../signup/signup_screen.dart';
 import 'signin_controller.dart';
 import 'signin_store.dart';
 import 'widgets/signin_form.dart';
-import '../../components/widgets/or_row.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -105,14 +104,14 @@ class _SignInScreenState extends State<SignInScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            BigButton(
-                              color: Colors.blue,
-                              label: 'Entrar com Facebook',
-                              onPressed: () {
-                                throw Exception('Has not yet been implemented');
-                              },
-                            ),
-                            const OrRow(),
+                            // BigButton(
+                            //   color: Colors.blue,
+                            //   label: 'Entrar com Facebook',
+                            //   onPressed: () {
+                            //     throw Exception('Has not yet been implemented');
+                            //   },
+                            // ),
+                            // const OrRow(),
                             SignInForm(
                               store: store,
                               userLogin: _userLogin,
