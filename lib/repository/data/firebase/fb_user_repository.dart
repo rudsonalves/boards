@@ -3,11 +3,11 @@ import 'dart:developer';
 
 import 'package:boards/core/abstracts/data_result.dart';
 import 'package:boards/core/models/user.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../interfaces/i_user_repository.dart';
 import '../parse_server/common/ps_functions.dart';
+import 'functions/fb_functions.dart';
 
 extension ToUserModel on User {
   UserModel get toUserModel => UserModel(
@@ -80,164 +80,6 @@ class FbUserRepository implements IUserRepository {
     }
   }
 
-  Future<UserModel> _getUserFrom(User user) async {
-    await user.reload();
-
-    return UserModel(
-      id: user.uid,
-      email: user.email!,
-      phone: user.phoneNumber,
-      createdAt: user.metadata.creationTime,
-    );
-  }
-
-  Future<UserModel> _getClaims(User firebaseUser, UserModel user) async {
-    final idTokenResult = await firebaseUser.getIdTokenResult(true);
-    final claims = idTokenResult.claims!;
-    final roleName = claims['role'] as String;
-    return user.copyWith(
-      role: UserRole.values.firstWhere((role) => role.name == roleName),
-    );
-  }
-
-  @override
-  Future<DataResult<void>> signOut() async {
-    try {
-      await firebaseAuth.signOut();
-      return DataResult.success(null);
-    } catch (err) {
-      return _handleError('signOut', err);
-    }
-  }
-
-  @override
-  Future<DataResult<PhoneVerificationInfo>> sendPhoneVerificationSMS(
-    String phoneNumber,
-  ) async {
-    try {
-      final completer = Completer<DataResult<PhoneVerificationInfo>>();
-
-      await firebaseAuth.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          // Automatic verification successful
-          completer.complete(
-            _handleAutomaticVerification(credential),
-          );
-        },
-        verificationFailed: (FirebaseAuthException err) {
-          // Handling verification failure
-          completer.complete(
-            _handleError('verificationFailed', err.message ?? 'Unknow error!'),
-          );
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          // SMS code sent successfully
-          completer.complete(
-            DataResult.success(
-              PhoneVerificationInfo(
-                verificationId: verificationId,
-                resendToken: resendToken,
-              ),
-            ),
-          );
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          // Auto-recovery timeout
-          completer.complete(
-            DataResult.success(
-              PhoneVerificationInfo(verificationId: verificationId),
-            ),
-          );
-        },
-      );
-
-      return completer.future;
-    } catch (err) {
-      return _handleError('sendVerificationSMS', err);
-    }
-  }
-
-  /// Handles the automatic phone verification process when it is successfully
-  /// completed.
-  ///
-  /// This method is used internally to handle the scenario where the phone
-  /// verification is automatically completed by Firebase without the user
-  /// needing to manually input an SMS code. It returns a success result
-  /// indicating that the verification was completed automatically.
-  ///
-  /// - [credential]: The `PhoneAuthCredential` provided by Firebase upon
-  ///   successful automatic verification.
-  ///
-  /// Returns a `DataResult<PhoneVerificationInfo>`:
-  /// - `PhoneVerificationInfo` with a placeholder `verificationId` indicating
-  ///   that the process was automatically verified.
-  DataResult<PhoneVerificationInfo> _handleAutomaticVerification(
-      PhoneAuthCredential credential) {
-    // Return a success result indicating automatic verification was completed.
-    return DataResult.success(PhoneVerificationInfo(
-      verificationId: 'AUTO_VERIFIED',
-    ));
-  }
-
-  @override
-  Future<DataResult<void>> submitPhoneVerificationCode(
-    String verificationId,
-    String smsCode,
-  ) async {
-    try {
-      final credential = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: smsCode,
-      );
-
-      return _updatePhoneNumber(credential);
-    } catch (err) {
-      return _handleError('submitVerificationCode', err);
-    }
-  }
-
-  /// Updates the current user's phone number using the provided phone
-  /// authentication credential.
-  ///
-  /// This method attempts to update the phone number of the currently
-  /// authenticated user by using the `PhoneAuthCredential` provided. It checks
-  /// if a user is currently logged in and proceeds to update their phone
-  /// number. In case of any failure, it returns an appropriate error result.
-  ///
-  /// - [credential]: The `PhoneAuthCredential` containing the necessary
-  ///   information for verification and phone number update.
-  ///
-  /// Returns a `Future<DataResult<void>>`:
-  /// - `DataResult.success()`: Indicates that the phone number was successfully
-  ///   updated.
-  /// - `DataResult.failure()`: If an error occurs during the process, such as
-  ///   no user being logged in or an issue with the Firebase operation.
-  ///
-  /// Possible Errors:
-  /// - `FirebaseAuthException`: If there is an issue during the phone number
-  ///   update, such as an invalid credential or a network problem.
-  /// - Custom Error: If no user is logged in when trying to update the phone
-  ///   number.
-  Future<DataResult<void>> _updatePhoneNumber(
-      PhoneAuthCredential credential) async {
-    try {
-      final currentUser = firebaseAuth.currentUser;
-      // Ensure there is a user currently logged in before proceeding.
-      if (currentUser == null) {
-        _handleError('updatePhoneNumber', 'No user is currently logged in.');
-      }
-
-      // Update the current user's phone number using the provided credential.
-      await currentUser!.updatePhoneNumber(credential);
-      return DataResult.success(null);
-    } on FirebaseAuthException catch (err) {
-      return _handleError('updatePhoneNumber', err);
-    } catch (err) {
-      return _handleError('_updatePhoneNumber', err);
-    }
-  }
-
   @override
   Future<DataResult<UserModel>> signUp(UserModel user) async {
     try {
@@ -254,8 +96,11 @@ class FbUserRepository implements IUserRepository {
       // Reload user
       await newUser.reload();
 
+      // Send verification email
+      await newUser.sendEmailVerification();
+
       // Call to add the custom claim via Cloud Function
-      await _addUserRoleClaim(newUser.uid);
+      await FbFunctions.addUserRoleClaim(newUser.uid);
 
       // sign out
       await signOut();
@@ -279,14 +124,13 @@ class FbUserRepository implements IUserRepository {
     }
   }
 
-  // Method to call Cloud Function that adds the custom claim 'role' = 'user´;
-  Future<void> _addUserRoleClaim(String uid) async {
+  @override
+  Future<DataResult<void>> signOut() async {
     try {
-      final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('AddUserRoleClaim');
-      await callable.call({'userId': uid, 'role': 'user'});
+      await firebaseAuth.signOut();
+      return DataResult.success(null);
     } catch (err) {
-      log('Failed to add role claim to user: $uid');
+      return _handleError('signOut', err);
     }
   }
 
@@ -339,6 +183,154 @@ class FbUserRepository implements IUserRepository {
       return DataResult.success(null);
     } catch (err) {
       return _handleError('requestResetPassword', err);
+    }
+  }
+
+  @override
+  Future<DataResult<PhoneVerificationInfo>> sendPhoneVerificationSMS(
+    String phoneNumber,
+  ) async {
+    try {
+      final completer = Completer<DataResult<PhoneVerificationInfo>>();
+
+      await firebaseAuth.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          // Automatic verification successful
+          completer.complete(
+            _handleAutomaticVerification(credential),
+          );
+        },
+        verificationFailed: (FirebaseAuthException err) {
+          // Handling verification failure
+          completer.complete(
+            _handleError('verificationFailed', err.message ?? 'Unknow error!'),
+          );
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          // SMS code sent successfully
+          completer.complete(
+            DataResult.success(
+              PhoneVerificationInfo(
+                verificationId: verificationId,
+                resendToken: resendToken,
+              ),
+            ),
+          );
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          // Auto-recovery timeout
+          completer.complete(
+            DataResult.success(
+              PhoneVerificationInfo(verificationId: verificationId),
+            ),
+          );
+        },
+      );
+
+      return completer.future;
+    } catch (err) {
+      return _handleError('sendVerificationSMS', err);
+    }
+  }
+
+  @override
+  Future<DataResult<void>> submitPhoneVerificationCode(
+    String verificationId,
+    String smsCode,
+  ) async {
+    try {
+      final credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsCode,
+      );
+
+      return _updatePhoneNumber(credential);
+    } catch (err) {
+      return _handleError('submitVerificationCode', err);
+    }
+  }
+
+  Future<UserModel> _getUserFrom(User user) async {
+    await user.reload();
+
+    return UserModel(
+      id: user.uid,
+      email: user.email!,
+      phone: user.phoneNumber,
+      createdAt: user.metadata.creationTime,
+    );
+  }
+
+  Future<UserModel> _getClaims(User firebaseUser, UserModel user) async {
+    final idTokenResult = await firebaseUser.getIdTokenResult(true);
+    final claims = idTokenResult.claims!;
+    final roleName = claims['role'] as String;
+    return user.copyWith(
+      role: UserRole.values.firstWhere((role) => role.name == roleName),
+    );
+  }
+
+  /// Handles the automatic phone verification process when it is successfully
+  /// completed.
+  ///
+  /// This method is used internally to handle the scenario where the phone
+  /// verification is automatically completed by Firebase without the user
+  /// needing to manually input an SMS code. It returns a success result
+  /// indicating that the verification was completed automatically.
+  ///
+  /// - [credential]: The `PhoneAuthCredential` provided by Firebase upon
+  ///   successful automatic verification.
+  ///
+  /// Returns a `DataResult<PhoneVerificationInfo>`:
+  /// - `PhoneVerificationInfo` with a placeholder `verificationId` indicating
+  ///   that the process was automatically verified.
+  DataResult<PhoneVerificationInfo> _handleAutomaticVerification(
+      PhoneAuthCredential credential) {
+    // Return a success result indicating automatic verification was completed.
+    return DataResult.success(PhoneVerificationInfo(
+      verificationId: 'AUTO_VERIFIED',
+    ));
+  }
+
+  /// Updates the current user's phone number using the provided phone
+  /// authentication credential.
+  ///
+  /// This method attempts to update the phone number of the currently
+  /// authenticated user by using the `PhoneAuthCredential` provided. It checks
+  /// if a user is currently logged in and proceeds to update their phone
+  /// number. In case of any failure, it returns an appropriate error result.
+  ///
+  /// - [credential]: The `PhoneAuthCredential` containing the necessary
+  ///   information for verification and phone number update.
+  ///
+  /// Returns a `Future<DataResult<void>>`:
+  /// - `DataResult.success()`: Indicates that the phone number was successfully
+  ///   updated.
+  /// - `DataResult.failure()`: If an error occurs during the process, such as
+  ///   no user being logged in or an issue with the Firebase operation.
+  ///
+  /// Possible Errors:
+  /// - `FirebaseAuthException`: If there is an issue during the phone number
+  ///   update, such as an invalid credential or a network problem.
+  /// - Custom Error: If no user is logged in when trying to update the phone
+  ///   number.
+  Future<DataResult<void>> _updatePhoneNumber(
+      PhoneAuthCredential credential) async {
+    try {
+      final currentUser = firebaseAuth.currentUser;
+      // Ensure there is a user currently logged in before proceeding.
+      if (currentUser == null) {
+        _handleError('updatePhoneNumber', 'No user is currently logged in.');
+      }
+
+      // Update the current user's phone number using the provided credential.
+      await currentUser!.updatePhoneNumber(credential);
+      return DataResult.success(null);
+    } on FirebaseAuthException catch (err) {
+      return _handleError('updatePhoneNumber', err);
+    } catch (err) {
+      return _handleError('_updatePhoneNumber', err);
     }
   }
 

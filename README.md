@@ -78,11 +78,53 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/11/29 - version: 0.0.01+05
+
+This commit introduces significant updates to the Firebase Cloud Functions and repository structure, adding new methods for role management, verification email handling, and user password features. The changes also include improvements in error handling, restructuring of existing methods, and introduction of new utility functions for better modularization.
+
+### Changes made:
+
+1. **README.md**:
+   - Corrected a header from "#### **Files Modified and Details**" to "### **Files Modified and Details**" for consistent styling.
+
+2. **go-functions/function.go**:
+   - Added SMTP setup and verification email sending functionality.
+   - Introduced `SendVerificationEmail` HTTP function and updated the `AddUserRoleClaim` to be callable.
+   - Updated payload handling for Cloud Functions to support nested data.
+   - Enhanced response handling for both `AddUserRoleClaim` and `SendVerificationEmail` functions.
+   - Improved logging and error handling throughout the code.
+
+3. **go-functions/go.mod**:
+   - Added new dependencies including `github.com/GoogleCloudPlatform/functions-framework-go`, `github.com/json-iterator/go`, and `go.uber.org/zap`.
+   - Updated the version of several indirect dependencies to support the new features.
+
+4. **go-functions/go.sum**:
+   - Updated with checksums for newly added dependencies.
+
+5. **lib/features/signin/signin_screen.dart**:
+   - Removed unused import (`or_row.dart`).
+   - Commented out Facebook login button and the separator row (`OrRow`) as these functionalities have not been implemented yet.
+
+6. **lib/repository/data/firebase/fb_user_repository.dart**:
+   - Removed the in-file method `_addUserRoleClaim` and created a new utility class `FbFunctions` for Firebase function calls.
+   - Refactored `signUp` method to include email verification and update the handling of role claims using `FbFunctions`.
+   - Added new methods for password reset (`requestResetPassword`) and phone verification management (`submitPhoneVerificationCode`).
+   - Removed redundant code related to user role claims and password management, consolidating responsibilities.
+
+7. **lib/repository/data/firebase/functions/fb_functions.dart** (New file):
+   - Created a utility class `FbFunctions` to handle Cloud Functions calls for Firebase.
+   - Added methods `addUserRoleClaim` and `sendVerificationEmail` to modularize function calls, improve reusability, and centralize error handling.
+
+### Conclusion:
+
+These updates enhance modularity by centralizing Firebase function interactions within a dedicated utility class. The improvements to error handling, restructuring of the `signUp` workflow, and the addition of new methods make the repository more maintainable and scalable. Additionally, email verification and custom claim management have been streamlined, improving the overall reliability of user management features.
+
+
 ## 2024/11/29 - version: 0.0.01+04
 
 This commit introduces changes and enhancements to the Go-based Firebase functions for managing user roles, local testing, and dependencies. Below is a detailed breakdown of the modifications:
 
-#### **Files Modified and Details**
+### **Files Modified and Details**
 
 1. **`.gcloudignore`**  
    - Added a new file to exclude the `go-tests/` directory from being uploaded to Google Cloud.  
