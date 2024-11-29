@@ -37,17 +37,17 @@ class UserModel {
     String? email,
     String? phone,
     String? password,
+    UserRole? role,
     DateTime? createdAt,
-    UserRole? userType,
   }) {
     return UserModel(
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
       phone: phone ?? this.phone,
+      role: role ?? this.role,
       password: password ?? this.password,
       createdAt: createdAt ?? this.createdAt,
-      role: userType ?? this.role,
     );
   }
 }

@@ -78,6 +78,58 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/11/29 - version: 0.0.01+04
+
+This commit introduces changes and enhancements to the Go-based Firebase functions for managing user roles, local testing, and dependencies. Below is a detailed breakdown of the modifications:
+
+#### **Files Modified and Details**
+
+1. **`.gcloudignore`**  
+   - Added a new file to exclude the `go-tests/` directory from being uploaded to Google Cloud.  
+
+     ```txt
+     # Exclude local test directory
+     go-tests/
+     ```
+
+2. **`Makefile`**  
+   - Removed the GPL license header for brevity.  
+   - Updated targets for Firebase emulator commands and added new deployment commands for Go functions:
+     - `firebase_emu_stop`: Added a script to stop the emulator.
+     - `go_functions_deploy`: Added a deployment command for Go-based Firebase functions.
+   - Commented out previously defined Firebase emulator targets (`firebase_emu`, `firebase_emu_debug`, `firebase_functions_deploy`).
+
+3. **Removed Old Go Functions Directory**  
+   - Deleted the `functions-go` directory, including:
+     - `add_role.go`: Previously handled HTTP requests to assign custom user roles.
+     - `firebase_init.go`: Initialized Firebase for the functions.
+     - Supporting files such as `go.mod`, `go.sum`, and `main.go`.
+
+4. **Created New Go Functions in `go-functions` Directory**  
+   - Reorganized and refactored the Firebase functions:
+     - Moved the code for setting custom claims to the new `go-functions/function.go`.
+     - Simplified the logic and updated the Firebase initialization.
+     - Added structured logging for better debugging and insights during execution.
+     - Introduced a cleaner `go.mod` file with updated dependencies.
+     - Added detailed comments in the code to improve readability and maintainability.
+
+5. **Introduced Local Testing for Functions**  
+   - Added a `go-tests` directory to house local tests for the functions:
+     - Created `functions/function.go` for testing role assignment locally.
+     - Configured a new `go.mod` file for managing dependencies in tests.
+     - Added `go.sum` for dependency resolution.
+
+#### **Key Improvements**
+- The Go functions were reorganized into a new directory structure for better maintainability.
+- Updated Firebase initialization to remove the reliance on hardcoded credentials.
+- Enhanced modularization and removed redundant or outdated dependencies.
+- Introduced local testing infrastructure for efficient debugging without deploying to production.
+
+### Conclusion
+
+These changes provide a more streamlined structure for the Go-based Firebase functions, improving their clarity, maintainability, and testability.
+
+
 ## 2024/11/28 - version: 0.0.01+03
 
 This commit introduces several updates and refactors, including Firebase integration enhancements, new repositories, and adjustments for modularized user management.

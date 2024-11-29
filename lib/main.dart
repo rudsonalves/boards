@@ -26,12 +26,12 @@ void main() async {
   await Firebase.initializeApp();
 
   // If you are in development mode, connect to the Firestore emulator
-  if (kDebugMode) {
-    await FirebaseAuth.instance.useAuthEmulator('127.0.0.1', 9099);
-    FirebaseFirestore.instance.useFirestoreEmulator('127.0.0.1', 8080);
-    FirebaseFunctions.instance.useFunctionsEmulator('127.0.0.1', 5001);
-    log('Using firebase emulator...');
-  }
+  // if (kDebugMode) {
+  //   await FirebaseAuth.instance.useAuthEmulator('127.0.0.1', 9099);
+  //   FirebaseFirestore.instance.useFirestoreEmulator('127.0.0.1', 8080);
+  //   FirebaseFunctions.instance.useFunctionsEmulator('127.0.0.1', 5001);
+  //   log('Using firebase emulator...');
+  // }
 
   setupDependencies();
 
