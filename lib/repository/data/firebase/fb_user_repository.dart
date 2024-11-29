@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:boards/core/abstracts/data_result.dart';
 import 'package:boards/core/models/user.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../interfaces/i_user_repository.dart';
@@ -41,12 +42,26 @@ class FbUserRepository implements IUserRepository {
   @override
   Future<DataResult<UserModel>> signInWithEmail(UserModel user) async {
     try {
-      final credential = await firebaseAuth.createUserWithEmailAndPassword(
+      final credential = await firebaseAuth.signInWithEmailAndPassword(
         email: user.email,
         password: user.password!,
       );
+      if (credential.user == null) {
+        return DataResult.failure(GenericFailure(
+          message:
+              'FirebaseAuthRepository.signIn error: unknown FirebaseAuth error',
+          code: 201,
+        ));
+      }
 
-      return DataResult.success(user.copyWith(id: credential.user!.uid));
+      // Mount loged UserModel
+      final firebaseUser = credential.user!;
+      UserModel logedUser = await _getUserFrom(firebaseUser);
+
+      // Recover cunstom claims
+      logedUser = await _getClaims(firebaseUser, logedUser);
+
+      return DataResult.success(logedUser);
     } on FirebaseAuthException catch (err) {
       if (err.code == 'user-not-found') {
         return _handleError(
@@ -55,14 +70,34 @@ class FbUserRepository implements IUserRepository {
         );
       } else if (err.code == 'wrong-password') {
         return _handleError(
-          'email-already-in-use',
+          'wrong-password',
           'Wrong password provided for that user.',
         );
       }
-      return _handleError('email-already-in-use', err);
+      return _handleError('unknow-error', err);
     } catch (err) {
       return _handleError('signInWithEmail', err);
     }
+  }
+
+  Future<UserModel> _getUserFrom(User user) async {
+    await user.reload();
+
+    return UserModel(
+      id: user.uid,
+      email: user.email!,
+      phone: user.phoneNumber,
+      createdAt: user.metadata.creationTime,
+    );
+  }
+
+  Future<UserModel> _getClaims(User firebaseUser, UserModel user) async {
+    final idTokenResult = await firebaseUser.getIdTokenResult(true);
+    final claims = idTokenResult.claims!;
+    final roleName = claims['role'] as String;
+    return user.copyWith(
+      role: UserRole.values.firstWhere((role) => role.name == roleName),
+    );
   }
 
   @override
@@ -219,6 +254,9 @@ class FbUserRepository implements IUserRepository {
       // Reload user
       await newUser.reload();
 
+      // Call to add the custom claim via Cloud Function
+      await _addUserRoleClaim(newUser.uid);
+
       // sign out
       await signOut();
 
@@ -238,6 +276,17 @@ class FbUserRepository implements IUserRepository {
       return _handleError('unknow-error', err);
     } catch (err) {
       return _handleError('signInWithEmail', err);
+    }
+  }
+
+  // Method to call Cloud Function that adds the custom claim 'role' = 'user´;
+  Future<void> _addUserRoleClaim(String uid) async {
+    try {
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('AddUserRoleClaim');
+      await callable.call({'userId': uid, 'role': 'user'});
+    } catch (err) {
+      log('Failed to add role claim to user: $uid');
     }
   }
 

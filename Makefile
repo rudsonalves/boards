@@ -1,20 +1,3 @@
-# Copyright (C) 2024 Rudson Alves
-# 
-# This file is part of bgbazzar.
-# 
-# bgbazzar is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# bgbazzar is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with bgbazzar.  If not, see <https://www.gnu.org/licenses/>.
-
 docker_up:
 	docker compose up -d
 
@@ -40,13 +23,22 @@ build_profile:
 	flutter run --profile
 
 firebase_emu:
-	firebase emulators:start --import=./emulator_data
+	bash go-tests/start-go-functions.sh
 
-firebase_emu_debug:
-	firebase emulators:start --import=./emulator_data --debug
+firebase_emu_stop:
+	bash go-tests/stop-go-functions.sh
+
+go_functions_deploy:
+	cd go-functions && gcloud functions deploy AddUserRoleClaim --runtime go122 --trigger-http --allow-unauthenticated
+
+# firebase_emu:
+# 	firebase emulators:start --import=./emulator_data
+
+# firebase_emu_debug:
+# 	firebase emulators:start --import=./emulator_data --debug
 
 firebase_emusavecache:
 	firebase emulators:export ./emulator_data -f
 
-firebase_functions_deploy:
-	firebase deploy --only functions
+# firebase_functions_deploy:
+# 	firebase deploy --only functions
