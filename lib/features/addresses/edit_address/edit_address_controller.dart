@@ -102,7 +102,7 @@ class EditAddressController extends ChangeNotifier {
       final newAddress = AddressModel(
         name: nameController.text,
         zipCode: zipCodeController.text,
-        userId: user.userId,
+        ownerId: user.userId,
         street: streetController.text,
         number: numberController.text,
         complement: complementController.text,

@@ -24,10 +24,17 @@ class PsFunctions {
   /// A [DataResult.failure] with a [GenericFailure] that includes a detailed
   /// message.
   static DataResult<T> handleError<T>(
-      String className, String module, Object error) {
+    String className,
+    String module,
+    Object error, [
+    int? code,
+  ]) {
     final fullMessage = '$className.$module: $error';
     log(fullMessage);
-    return DataResult.failure(GenericFailure(message: fullMessage));
+    return DataResult.failure(GenericFailure(
+      message: fullMessage,
+      code: code ?? 0,
+    ));
   }
 
   /// Fetches the current logged-in user from Parse Server.

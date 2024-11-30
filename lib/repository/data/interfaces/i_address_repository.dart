@@ -1,3 +1,4 @@
+import '../../../core/abstracts/data_result.dart';
 import '/core/models/address.dart';
 
 class AddressRepositoryException implements Exception {
@@ -9,7 +10,7 @@ class AddressRepositoryException implements Exception {
 }
 
 abstract class IAddressRepository {
-  Future<AddressModel?> save(AddressModel address);
-  Future<bool> delete(String addressId);
-  Future<List<AddressModel>?> getUserAddresses(String userId);
+  Future<DataResult<AddressModel?>> add(AddressModel address);
+  Future<DataResult<void>> delete(String addressId);
+  Future<DataResult<List<AddressModel>?>> getUserAddresses(String userId);
 }

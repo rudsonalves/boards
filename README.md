@@ -78,6 +78,64 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/11/30 - version: 0.0.02+06
+
+This commit focuses on refactoring existing Firebase repository code and implementing new functionalities to enhance modularity, reusability, and error handling in Firebase and other associated components. The updates are divided across multiple key files, each with a series of well-thought-out modifications and improvements.
+
+### Changes Made:
+
+1. **lib/core/models/address.dart**:
+   - Renamed `userId` to `ownerId` throughout the `AddressModel` class for more accurate representation of ownership of addresses.
+   - Updated `toString()`, `== operator`, `hashCode`, `copyWith`, `toMap`, and `fromMap` methods to use `ownerId` instead of `userId`.
+
+2. **lib/core/models/user.dart**:
+   - Added `isEmailVerified` and `isPhoneVerified` properties to enhance tracking of user's verification status.
+   - Updated the `toString()` and `copyWith()` methods to include these new fields.
+
+3. **lib/data_managers/addresses_manager.dart**:
+   - Updated `getFromUserId`, `deleteByName`, and `deleteById` methods to handle new `DataResult` error-checking responses before accessing the data.
+   - Enhanced the `addOrUpdateAddress` method to handle possible errors returned by the repository.
+
+4. **lib/features/addresses/edit_address/edit_address_controller.dart**:
+   - Renamed `userId` to `ownerId` to be consistent with changes made in the `AddressModel` class.
+
+5. **lib/features/signin/signin_controller.dart**:
+   - Refactored the `login` method to return a simple `bool` instead of using a `DataResult` wrapper, simplifying its usage for other components.
+   - Added specific error messages for different error codes to improve the user experience during login.
+
+6. **lib/features/signin/signin_screen.dart**:
+   - Updated `_userLogin` to use the new `bool` return type from `login()`, simplifying success checking.
+
+7. **lib/get_it.dart**:
+   - Updated `IAddressRepository` registration to use `FbAddressRepository` instead of the deprecated `PSAddressRepository`.
+
+8. **lib/repository/data/firebase/fb_address_repository.dart** (New File):
+   - Created a new Firebase implementation of the `IAddressRepository`, named `FbAddressRepository`.
+   - Added methods for `add`, `delete`, and `getUserAddresses` with appropriate error handling using the `DataFunctions` utility.
+
+9. **lib/repository/data/firebase/fb_user_repository.dart**:
+   - Introduced constants to manage error codes.
+   - Enhanced error handling for email verification during sign-in.
+   - Added functions to store and validate user data (`_signInUsers` and `_signUpUsers`).
+   - Restructured existing methods (`signInWithEmail`, `signUp`, `signOut`) to better modularize the logic and error-checking flow.
+
+10. **lib/repository/data/functions/data_functions.dart** (New File):
+    - Created a utility class named `DataFunctions` to handle common error handling logic, improving the consistency and maintainability of error handling across Firebase repository classes.
+
+11. **lib/repository/data/interfaces/i_address_repository.dart**:
+    - Updated `IAddressRepository` interface to return `DataResult` types for all methods, providing a consistent way to handle success and failure scenarios.
+
+12. **lib/repository/data/parse_server/common/parse_to_model.dart**:
+    - Updated `userId` to `ownerId` in the `ParseToModel` conversion method.
+
+13. **lib/repository/data/parse_server/ps_address_repository.dart** & **lib/repository/data/parse_server/ps_user_repository.dart**:
+    - Commented out the old Parse Server implementation (`PSAddressRepository`, `PSUserRepository`) to reduce confusion and indicate migration to the Firebase-based repository.
+
+### Conclusion:
+
+These changes aim to enhance the flexibility, reusability, and maintainability of the repository layer, making it easier to manage and extend Firebase functionalities. The introduction of the `FbAddressRepository` as well as better error handling across various methods ensures a more robust solution for address and user management in the application.
+
+
 ## 2024/11/29 - version: 0.0.01+05
 
 This commit introduces significant updates to the Firebase Cloud Functions and repository structure, adding new methods for role management, verification email handling, and user password features. The changes also include improvements in error handling, restructuring of existing methods, and introduction of new utility functions for better modularization.

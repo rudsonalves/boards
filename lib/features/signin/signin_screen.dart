@@ -37,7 +37,7 @@ class _SignInScreenState extends State<SignInScreen> {
   Future<void> _userLogin() async {
     if (store.isValid()) {
       final result = await ctrl.login();
-      if (result.isSuccess) {
+      if (result) {
         if (mounted) Navigator.pop(context);
       }
     }
