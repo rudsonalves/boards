@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:boards/core/abstracts/data_result.dart';
-import 'package:boards/core/models/user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '/core/abstracts/data_result.dart';
+import '/core/models/user.dart';
+import '/repository/data/functions/data_functions.dart';
 import '../interfaces/i_user_repository.dart';
-import '../parse_server/common/ps_functions.dart';
 import 'functions/fb_functions.dart';
 
 extension ToUserModel on User {
@@ -14,18 +15,31 @@ extension ToUserModel on User {
         id: uid,
         name: displayName,
         email: email!,
+        isEmailVerified: emailVerified,
         phone: phoneNumber,
+        isPhoneVerified: phoneNumber != null,
         createdAt: metadata.creationTime ?? DateTime.now(),
       );
 }
 
+class UserErrorCodes {
+  static const int unknownError = 201;
+  static const int emailNotChecked = 202;
+  static const int userNotFound = 203;
+  static const int wrongPassword = 204;
+}
+
 class FbUserRepository implements IUserRepository {
-  final firebaseAuth = FirebaseAuth.instance;
+  final _firebaseAuth = FirebaseAuth.instance;
+  final _firebaseFirestore = FirebaseFirestore.instance;
+
+  static const keyUsers = 'users';
+  static const keyUnverifiedPhone = 'unverifiedPhoneNumber';
 
   @override
   Future<DataResult<UserModel>> getCurrentUser() async {
     try {
-      final user = firebaseAuth.currentUser;
+      final user = _firebaseAuth.currentUser;
       if (user == null) {
         return DataResult.failure(GenericFailure(message: 'user not logged'));
       }
@@ -42,24 +56,36 @@ class FbUserRepository implements IUserRepository {
   @override
   Future<DataResult<UserModel>> signInWithEmail(UserModel user) async {
     try {
-      final credential = await firebaseAuth.signInWithEmailAndPassword(
+      final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: user.email,
         password: user.password!,
       );
-      if (credential.user == null) {
+      final fbUser = credential.user;
+      if (fbUser == null) {
         return DataResult.failure(GenericFailure(
-          message:
-              'FirebaseAuthRepository.signIn error: unknown FirebaseAuth error',
-          code: 201,
+          message: 'FirebaseAuthRepository.signIn error:'
+              ' unknown FirebaseAuth error',
+          code: UserErrorCodes.unknownError,
+        ));
+      }
+
+      // Check if email is verificated
+      if (!fbUser.emailVerified) {
+        await signOut();
+        return DataResult.failure(GenericFailure(
+          message: 'email not checked',
+          code: UserErrorCodes.emailNotChecked,
         ));
       }
 
       // Mount loged UserModel
-      final firebaseUser = credential.user!;
-      UserModel logedUser = await _getUserFrom(firebaseUser);
+      UserModel logedUser = await _getUserFrom(fbUser);
+      if (logedUser.isPhoneVerified) {
+        logedUser = await _signInUsers(logedUser);
+      }
 
       // Recover cunstom claims
-      logedUser = await _getClaims(firebaseUser, logedUser);
+      logedUser = await _getClaims(fbUser, logedUser);
 
       return DataResult.success(logedUser);
     } on FirebaseAuthException catch (err) {
@@ -67,24 +93,40 @@ class FbUserRepository implements IUserRepository {
         return _handleError(
           'signInWithEmail',
           'No user found for that email.',
+          UserErrorCodes.userNotFound,
         );
       } else if (err.code == 'wrong-password') {
         return _handleError(
           'wrong-password',
           'Wrong password provided for that user.',
+          204,
         );
       }
-      return _handleError('unknow-error', err);
+      return _handleError('unknow-error', err, UserErrorCodes.unknownError);
     } catch (err) {
-      return _handleError('signInWithEmail', err);
+      return _handleError('signInWithEmail', err, UserErrorCodes.unknownError);
     }
+  }
+
+  Future<UserModel> _signInUsers(UserModel user) async {
+    // Save users informations
+    final usersDoc = _firebaseFirestore.collection(keyUsers).doc(user.id!);
+
+    // Check if uid document already exists, to avoid overwriting data.
+    final docSnapshot = await usersDoc.get();
+    if (!docSnapshot.exists) {
+      throw Exception('users uid don`t exists!');
+    }
+
+    return user.copyWith(
+        phone: docSnapshot.data()![keyUnverifiedPhone] as String?);
   }
 
   @override
   Future<DataResult<UserModel>> signUp(UserModel user) async {
     try {
       // Create user with email and password in firebase authentication
-      final credential = await firebaseAuth.createUserWithEmailAndPassword(
+      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: user.email,
         password: user.password!,
       );
@@ -102,6 +144,10 @@ class FbUserRepository implements IUserRepository {
       // Call to add the custom claim via Cloud Function
       await FbFunctions.addUserRoleClaim(newUser.uid);
 
+      // Save users informations
+      final usersData = {keyUnverifiedPhone: user.phone};
+      await _signUpUsers(newUser.uid, usersData);
+
       // sign out
       await signOut();
 
@@ -111,23 +157,39 @@ class FbUserRepository implements IUserRepository {
         return _handleError(
           'signInWithEmail',
           'The password provided is too weak.',
+          211,
         );
       } else if (err.code == 'email-already-in-use') {
         return _handleError(
           'email-already-in-use',
           'The account already exists for that email.',
+          212,
         );
       }
-      return _handleError('unknow-error', err);
+      return _handleError('unknow-error', err, 213);
     } catch (err) {
-      return _handleError('signInWithEmail', err);
+      return _handleError('signInWithEmail', err, 214);
     }
+  }
+
+  Future<void> _signUpUsers(String uid, Map<String, dynamic> data) async {
+    // Save users informations
+    final usersDoc = _firebaseFirestore.collection(keyUsers).doc(uid);
+
+    // Check if uid document already exists, to avoid overwriting data.
+    await _firebaseFirestore.runTransaction((transaction) async {
+      final docSnapshot = await transaction.get(usersDoc);
+      if (docSnapshot.exists) {
+        throw Exception('users uid exists!');
+      }
+      transaction.set(usersDoc, data);
+    });
   }
 
   @override
   Future<DataResult<void>> signOut() async {
     try {
-      await firebaseAuth.signOut();
+      await _firebaseAuth.signOut();
       return DataResult.success(null);
     } catch (err) {
       return _handleError('signOut', err);
@@ -137,7 +199,7 @@ class FbUserRepository implements IUserRepository {
   @override
   Future<DataResult<void>> updatePassword(UserModel user) async {
     try {
-      final currentUser = firebaseAuth.currentUser;
+      final currentUser = _firebaseAuth.currentUser;
 
       if (currentUser == null) {
         throw FirebaseAuthException(
@@ -167,7 +229,7 @@ class FbUserRepository implements IUserRepository {
           androidInstallApp: true,
           androidMinimumVersion: '12');
 
-      await firebaseAuth
+      await _firebaseAuth
           .sendSignInLinkToEmail(
         email: email,
         actionCodeSettings: acs,
@@ -193,7 +255,7 @@ class FbUserRepository implements IUserRepository {
     try {
       final completer = Completer<DataResult<PhoneVerificationInfo>>();
 
-      await firebaseAuth.verifyPhoneNumber(
+      await _firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
           // Automatic verification successful
@@ -256,6 +318,7 @@ class FbUserRepository implements IUserRepository {
 
     return UserModel(
       id: user.uid,
+      name: user.displayName,
       email: user.email!,
       phone: user.phoneNumber,
       createdAt: user.metadata.creationTime,
@@ -318,7 +381,7 @@ class FbUserRepository implements IUserRepository {
   Future<DataResult<void>> _updatePhoneNumber(
       PhoneAuthCredential credential) async {
     try {
-      final currentUser = firebaseAuth.currentUser;
+      final currentUser = _firebaseAuth.currentUser;
       // Ensure there is a user currently logged in before proceeding.
       if (currentUser == null) {
         _handleError('updatePhoneNumber', 'No user is currently logged in.');
@@ -334,7 +397,7 @@ class FbUserRepository implements IUserRepository {
     }
   }
 
-  DataResult<T> _handleError<T>(String module, Object err) {
-    return PsFunctions.handleError<T>('FbUserRepository', module, err);
+  DataResult<T> _handleError<T>(String module, Object err, [int code = 0]) {
+    return DataFunctions.handleError<T>('FbUserRepository', module, err, code);
   }
 }

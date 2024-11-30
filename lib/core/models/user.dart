@@ -6,16 +6,20 @@ class UserModel {
   String? id;
   String? name;
   String email;
+  bool isEmailVerified;
   String? phone;
+  bool isPhoneVerified;
   String? password;
-  DateTime? createdAt;
   UserRole role;
+  DateTime? createdAt;
 
   UserModel({
     this.id,
     this.name,
     required this.email,
+    this.isEmailVerified = false,
     this.phone,
+    this.isPhoneVerified = false,
     this.password,
     DateTime? createdAt,
     this.role = UserRole.user,
@@ -23,9 +27,10 @@ class UserModel {
 
   @override
   String toString() {
-    return 'User(id: $id, name:'
-        ' $name, email:'
-        ' $email, phone: $phone,'
+    return 'User(id: $id,'
+        ' name: $name,'
+        ' email: $email (verified: $isEmailVerified),'
+        ' phone: $phone (verified: $isPhoneVerified),'
         ' password: $password,'
         ' role: ${role.name},'
         ' createdAt: $createdAt';
@@ -35,7 +40,9 @@ class UserModel {
     String? id,
     String? name,
     String? email,
+    bool? isEmailVerified,
     String? phone,
+    bool? isPhoneVerified,
     String? password,
     UserRole? role,
     DateTime? createdAt,
@@ -44,7 +51,9 @@ class UserModel {
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
+      isEmailVerified: isEmailVerified ?? this.isEmailVerified,
       phone: phone ?? this.phone,
+      isPhoneVerified: isPhoneVerified ?? this.isPhoneVerified,
       role: role ?? this.role,
       password: password ?? this.password,
       createdAt: createdAt ?? this.createdAt,

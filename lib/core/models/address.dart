@@ -5,7 +5,7 @@ class AddressModel {
   String? id;
   String name;
   String zipCode;
-  String userId;
+  String ownerId;
   String street;
   String number;
   String? complement;
@@ -18,7 +18,7 @@ class AddressModel {
     this.id,
     required this.name,
     required this.zipCode,
-    required this.userId,
+    required this.ownerId,
     required this.street,
     required this.number,
     this.complement,
@@ -39,7 +39,17 @@ class AddressModel {
 
   @override
   String toString() {
-    return 'AddressModel(id: $id, name: $name, zipCode: $zipCode, userId: $userId, street: $street, number: $number, complement: $complement, neighborhood: $neighborhood, state: $state, city: $city, createdAt: $createdAt)';
+    return 'AddressModel(id: $id,'
+        ' name: $name,'
+        ' zipCode: $zipCode,'
+        ' ownerId: $ownerId,'
+        ' street: $street,'
+        ' number: $number,'
+        ' complement: $complement,'
+        ' neighborhood: $neighborhood,'
+        ' state: $state,'
+        ' city: $city,'
+        ' createdAt: $createdAt)';
   }
 
   @override
@@ -49,7 +59,7 @@ class AddressModel {
     return other.id == id &&
         other.name == name &&
         other.zipCode == zipCode &&
-        other.userId == userId &&
+        other.ownerId == ownerId &&
         other.street == street &&
         other.number == number &&
         other.complement == complement &&
@@ -64,7 +74,7 @@ class AddressModel {
     return id.hashCode ^
         name.hashCode ^
         zipCode.hashCode ^
-        userId.hashCode ^
+        ownerId.hashCode ^
         street.hashCode ^
         number.hashCode ^
         complement.hashCode ^
@@ -78,7 +88,7 @@ class AddressModel {
     String? id,
     String? name,
     String? zipCode,
-    String? userId,
+    String? ownerId,
     String? street,
     String? number,
     String? complement,
@@ -91,7 +101,7 @@ class AddressModel {
       id: id ?? this.id,
       name: name ?? this.name,
       zipCode: zipCode ?? this.zipCode,
-      userId: userId ?? this.userId,
+      ownerId: ownerId ?? this.ownerId,
       street: street ?? this.street,
       number: number ?? this.number,
       complement: complement ?? this.complement,
@@ -107,7 +117,7 @@ class AddressModel {
       'id': id,
       'name': name,
       'zipCode': zipCode,
-      'userId': userId,
+      'ownerId': ownerId,
       'street': street,
       'number': number,
       'complement': complement,
@@ -123,7 +133,7 @@ class AddressModel {
       id: map['id'] != null ? map['id'] as String : null,
       name: map['name'] as String,
       zipCode: map['zipCode'] as String,
-      userId: map['userId'] as String,
+      ownerId: map['ownerId'] as String,
       street: map['street'] as String,
       number: map['number'] as String,
       complement:

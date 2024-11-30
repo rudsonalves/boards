@@ -14,6 +14,7 @@ import 'data_managers/addresses_manager.dart';
 import 'data_managers/boardgames_manager.dart';
 import 'data_managers/favorites_manager.dart';
 import 'data_managers/mechanics_manager.dart';
+import 'repository/data/firebase/fb_address_repository.dart';
 import 'repository/data/firebase/fb_user_repository.dart';
 import 'repository/data/interfaces/i_ad_repository.dart';
 import 'repository/data/interfaces/i_address_repository.dart';
@@ -21,7 +22,6 @@ import 'repository/data/interfaces/i_boardgame_repository.dart';
 import 'repository/data/interfaces/i_favorite_repository.dart';
 import 'repository/data/interfaces/i_mechanic_repository.dart';
 import 'repository/data/interfaces/i_user_repository.dart';
-import 'repository/data/parse_server/ps_address_repository.dart';
 import 'repository/data/parse_server/ps_boardgame_repository.dart';
 import 'repository/data/parse_server/ps_ad_repository.dart';
 import 'repository/data/parse_server/ps_favorite_repository.dart';
@@ -66,7 +66,7 @@ void setupDependencies() {
     getIt.registerFactory<IMechanicRepository>(() => PSMechanicsRepository());
     getIt.registerFactory<IAdRepository>(() => PSAdRepository());
     getIt.registerFactory<IBoardgameRepository>(() => PSBoardgameRepository());
-    getIt.registerFactory<IAddressRepository>(() => PSAddressRepository());
+    getIt.registerFactory<IAddressRepository>(() => FbAddressRepository());
     getIt.registerFactory<IFavoriteRepository>(() => PSFavoriteRepository());
     getIt.registerFactory<ILocalBagItemRepository>(
         () => SqliteBagItemRepository());

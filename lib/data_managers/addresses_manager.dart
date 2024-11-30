@@ -43,7 +43,11 @@ class AddressesManager {
   /// [userId] - The ID of the user.
   Future<void> getFromUserId(String userId) async {
     _addresses.clear();
-    final addrs = await addressRepository.getUserAddresses(userId);
+    final result = await addressRepository.getUserAddresses(userId);
+    if (result.isFailure) {
+      throw Exception(result.error ?? 'unknow error');
+    }
+    final addrs = result.data;
     if (addrs != null && addrs.isNotEmpty) {
       _addresses.addAll(addrs);
     }
@@ -56,7 +60,10 @@ class AddressesManager {
     final index = _indexWhereName(name);
     if (index != -1) {
       final address = _addresses[index];
-      await addressRepository.delete(address.id!);
+      final result = await addressRepository.delete(address.id!);
+      if (result.isFailure) {
+        throw Exception(result.error ?? 'unknow error');
+      }
       _addresses.removeAt(index);
     }
   }
@@ -64,7 +71,10 @@ class AddressesManager {
   Future<void> deleteById(String addressId) async {
     final index = _indexWhereId(addressId);
     if (index != -1) {
-      await addressRepository.delete(addressId);
+      final result = await addressRepository.delete(addressId);
+      if (result.isFailure) {
+        throw Exception(result.error ?? 'unknow error');
+      }
       _addresses.removeAt(index);
     }
   }
@@ -91,7 +101,11 @@ class AddressesManager {
       }
     }
 
-    final savedAddress = await addressRepository.save(address);
+    final result = await addressRepository.add(address);
+    if (result.isFailure) {
+      throw Exception(result.error ?? 'unknow error');
+    }
+    final savedAddress = result.data;
     if (address.id == null) {
       _addresses.add(savedAddress!);
     }
