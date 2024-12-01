@@ -47,7 +47,6 @@ class ParseToModel {
       id: parse.objectId,
       name: parse.get<String>(keyAddressName)!,
       zipCode: parse.get<String>(keyAddressZipCode)!,
-      ownerId: parse.get<ParseUser>(keyAddressOwner)!.objectId!,
       street: parse.get<String>(keyAddressStreet)!,
       number: parse.get<String>(keyAddressNumber)!,
       complement: parse.get<String?>(keyAddressComplement),

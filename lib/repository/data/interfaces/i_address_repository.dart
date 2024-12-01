@@ -11,6 +11,7 @@ class AddressRepositoryException implements Exception {
 
 abstract class IAddressRepository {
   Future<DataResult<AddressModel?>> add(AddressModel address);
+  Future<DataResult<void>> update(AddressModel address);
   Future<DataResult<void>> delete(String addressId);
-  Future<DataResult<List<AddressModel>?>> getUserAddresses(String userId);
+  Future<DataResult<List<AddressModel>?>> getUserAddresses();
 }

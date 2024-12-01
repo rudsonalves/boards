@@ -80,7 +80,7 @@ class FbUserRepository implements IUserRepository {
 
       // Mount loged UserModel
       UserModel logedUser = await _getUserFrom(fbUser);
-      if (logedUser.isPhoneVerified) {
+      if (!logedUser.isPhoneVerified) {
         logedUser = await _signInUsers(logedUser);
       }
 
