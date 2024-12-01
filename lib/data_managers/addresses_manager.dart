@@ -28,7 +28,7 @@ class AddressesManager {
   /// [userId] - The ID of the user.
   Future<void> login() async {
     if (isLogged) {
-      await getFromUserId(userId!);
+      await getAddresesesFromUserId(userId!);
     }
   }
 
@@ -41,9 +41,9 @@ class AddressesManager {
   /// Fetches and sets the addresses for the given user ID.
   ///
   /// [userId] - The ID of the user.
-  Future<void> getFromUserId(String userId) async {
+  Future<void> getAddresesesFromUserId(String userId) async {
     _addresses.clear();
-    final result = await addressRepository.getUserAddresses(userId);
+    final result = await addressRepository.getUserAddresses();
     if (result.isFailure) {
       throw Exception(result.error ?? 'unknow error');
     }
@@ -84,30 +84,42 @@ class AddressesManager {
   ///
   /// [address] - The address to be saved.
   Future<void> save(AddressModel address) async {
-    final index = _indexWhereName(address.name);
-    if (address.id != null && index == -1) {
+    AddressModel saveAddress = address.copyWith();
+    final id = address.id;
+    final name = address.name;
+
+    // Index in _addresses where name is address.name, else -1
+    final indexByName = _indexWhereName(name);
+    // Index in _addresses where id is address.id, else -1
+    final indexById = id != null ? _indexWhereId(id) : -1;
+
+    if (id != null && indexByName == -1) {
       // is update
-      _addresses[_indexWhereId(address.id!)] = address;
-    } else if (address.id == null && index != -1) {
+      _addresses[indexById] = saveAddress;
+    } else if (id == null && indexByName != -1) {
       // is update with renamed
-      address.id = _addresses[index].id;
-      _addresses[_indexWhereId(address.id!)] = address;
-    } else if (address.id != null && index != -1) {
-      if (address.id != _addresses[index].id) {
+      saveAddress = saveAddress.copyWith(id: _addresses[indexByName].id);
+      _addresses[indexByName] = saveAddress;
+    } else if (id != null && indexByName != -1) {
+      if (id != _addresses[indexByName].id) {
         throw DuplicateNameException();
       } else {
         // is update
-        _addresses[_indexWhereId(address.id!)] = address;
+        _addresses[indexById] = saveAddress;
       }
     }
 
-    final result = await addressRepository.add(address);
+    final isAddAddress = saveAddress.id == null;
+    final result = isAddAddress
+        ? await addressRepository.add(saveAddress)
+        : await addressRepository.update(saveAddress);
     if (result.isFailure) {
       throw Exception(result.error ?? 'unknow error');
     }
-    final savedAddress = result.data;
-    if (address.id == null) {
-      _addresses.add(savedAddress!);
+
+    final savedAddress = result.data as AddressModel;
+    if (isAddAddress) {
+      _addresses.add(savedAddress);
     }
   }
 

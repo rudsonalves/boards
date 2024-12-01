@@ -78,6 +78,47 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/01 - version: 0.0.02+07
+
+This commit introduces several refinements and enhancements across the address management system, including adjustments in model definitions, repository logic, and controller methods. Key improvements involve removing redundant properties, adding a new `update` method to the address repository, and ensuring a better alignment with Firebase's user-specific collections.
+
+### Changes made:
+
+1. **lib/core/models/address.dart**:
+   - Changed all properties to `final` for immutability.
+   - Removed the `ownerId` property as it is no longer needed.
+   - Added a new `selected` property with a default value of `false`.
+   - Adjusted the `copyWith` method to reflect property changes.
+   - Updated the `toMap` and `fromMap` methods to exclude `ownerId`.
+
+2. **lib/data_managers/addresses_manager.dart**:
+   - Renamed `getFromUserId` to `getAddresesesFromUserId` for clarity.
+   - Updated `save` method logic to manage updates and new address additions based on `id` and `name` checks.
+   - Added logic to differentiate between address creation and updates using repository methods.
+
+3. **lib/features/addresses/edit_address/edit_address_controller.dart**:
+   - Removed the `ownerId` assignment when creating a new `AddressModel`.
+
+4. **lib/repository/data/firebase/fb_address_repository.dart**:
+   - Updated the repository to use Firebase subcollections under `users` for addresses.
+   - Introduced a new `update` method to handle updates to existing addresses.
+   - Removed the use of `ownerId` in queries and adapted methods to use the current user's ID.
+
+5. **lib/repository/data/interfaces/i_address_repository.dart**:
+   - Added a declaration for the new `update` method.
+   - Simplified the `getUserAddresses` method by removing the `userId` parameter.
+
+6. **lib/repository/data/parse_server/common/parse_to_model.dart**:
+   - Removed the mapping of the `ownerId` property from Parse objects to `AddressModel`.
+
+7. **lib/repository/data/firebase/fb_user_repository.dart**:
+   - Fixed a bug where `isPhoneVerified` logic was incorrectly applied.
+
+### Conclusion:
+
+These updates improve the maintainability, scalability, and correctness of the address management module. By aligning the address repository logic with user-specific collections and removing redundant properties, the code becomes cleaner and more robust. Additionally, the new `update` method ensures seamless address modifications, supporting future extensibility.
+
+
 ## 2024/11/30 - version: 0.0.02+06
 
 This commit focuses on refactoring existing Firebase repository code and implementing new functionalities to enhance modularity, reusability, and error handling in Firebase and other associated components. The updates are divided across multiple key files, each with a series of well-thought-out modifications and improvements.
