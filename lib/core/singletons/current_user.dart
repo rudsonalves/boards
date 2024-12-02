@@ -1,5 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 
 import '../../data_managers/bag_manager.dart';
@@ -41,6 +43,7 @@ class CurrentUser {
       final result = await userRepository.getCurrentUser();
       if (result.isSuccess) {
         user = result.data;
+        log(user.toString());
       }
     }
     if (user == null) return;

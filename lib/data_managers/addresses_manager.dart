@@ -20,6 +20,9 @@ class AddressesManager {
 
   List<AddressModel> get addresses => _addresses;
   Iterable<String> get addressNames => _addresses.map((e) => e.name);
+  AddressModel get selectedAddress =>
+      _addresses.firstWhere((address) => address.selected);
+  int get selectedIndex => _addresses.indexWhere((address) => address.selected);
   bool get isLogged => getIt<CurrentUser>().isLogged;
   String? get userId => getIt<CurrentUser>().userId;
 
@@ -36,7 +39,16 @@ class AddressesManager {
   Future<void> logout() async {
     if (isLogged) {
       _addresses.clear();
+      addressRepository.initialize(null);
     }
+  }
+
+  void selectIndex(int index) {
+    final selectIndex = selectedIndex;
+    if (selectIndex == -1 || selectIndex == index) return;
+
+    _addresses[index] = _addresses[index].copyWith(selected: true);
+    _addresses[selectIndex] = _addresses[selectIndex].copyWith(selected: false);
   }
 
   /// Fetches and sets the addresses for the given user ID.

@@ -14,6 +14,8 @@ class AddressesController {
   List<AddressModel> get addresses => addressManager.addresses;
   List<String> get addressNames => addressManager.addressNames.toList();
 
+  int selectedIndex = -1;
+
   String? get selectesAddresId {
     if (store.selectedAddressName.value.isNotEmpty) {
       return addressManager.getAddressIdFromName(
@@ -25,16 +27,18 @@ class AddressesController {
 
   Future<void> init(AddressesStore store) async {
     this.store = store;
+    selectedIndex =
+        addressManager.addresses.indexWhere((address) => address.selected);
+    if (selectedIndex == -1) {
+      addressManager.selectIndex(0);
+    }
   }
 
-  void selectAddress(String name) {
-    if (addressNames.contains(name)) {
-      if (name == store.selectedAddressName.value) {
-        store.setSelectedAddressName('');
-      } else {
-        store.setSelectedAddressName(name);
-      }
-    }
+  void selectAddress(bool selected, int index) {
+    if (selected) return;
+    store.setStateLoading();
+    addressManager.selectIndex(index);
+    store.setStateSuccess();
   }
 
   Future<void> removeAddress() async {

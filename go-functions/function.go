@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"net/smtp"
+	"strings"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
@@ -31,12 +32,13 @@ type RequestPayload struct {
 
 func init() {
 	// Registra a função como Callable
-	functions.HTTP("AddUserRoleClaim", AddUserRoleClaim)
+	functions.HTTP("AssignDefaultUserRole", AssignDefaultUserRole)
 	functions.HTTP("SendVerificationEmail", SendVerificationEmail)
+	functions.HTTP("ChangeUserRoleClaim", ChangeUserRoleClaim)
 }
 
-// AddUserRoleClaim is a Callable Cloud Function.
-func AddUserRoleClaim(w http.ResponseWriter, r *http.Request) {
+// AssignDefaultRole is a Callable Cloud Function.
+func AssignDefaultUserRole(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	log.Printf("Initializing Firebase App")
@@ -47,45 +49,126 @@ func AddUserRoleClaim(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Decodifica o corpo da requisição para Callable Functions
-	var payload struct {
-		Data RequestPayload `json:"data"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+	// Obter o token do usuário autenticado que fez a requisição
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		http.Error(w, "Missing or invalid Authorization header", http.StatusUnauthorized)
 		return
 	}
 
-	userId := payload.Data.UserId
-	role := payload.Data.Role
-	log.Printf("Starting AddUserRoleClaim function for userId: %s, role: %s", userId, role)
-
-	if userId == "" || role == "" {
-		http.Error(w, "Missing userId or role parameter", http.StatusBadRequest)
+	idToken := strings.TrimPrefix(authHeader, "Bearer ")
+	token, err := client.VerifyIDToken(ctx, idToken)
+	if err != nil {
+		http.Error(w, "Invalid token", http.StatusUnauthorized)
 		return
 	}
 
-	claims := map[string]interface{}{
-		"role": role,
+	userId := token.UID
+	if userId == "" {
+		http.Error(w, "Could not extract user ID from token", http.StatusBadRequest)
+		return
 	}
 
-	log.Printf("Setting custom claims for userId: %s", userId)
-	if err := client.SetCustomUserClaims(ctx, userId, claims); err != nil {
+	// Define o papel do novo usuário como "user"
+	role := "user"
+
+	// Durante a configuração inicial, altere para "admin" para criar o primeiro administrador
+	// role = "admin"
+
+	if err := setUserRole(ctx, client, userId, role); err != nil {
 		http.Error(w, "Failed to set custom claims", http.StatusInternalServerError)
 		return
 	}
 
-	response := map[string]interface{}{
-		"result": fmt.Sprintf("Custom claims successfully defined for user %s", userId),
-	}
+	sendSuccessResponse(w, fmt.Sprintf("Custom claims successfully defined for user %s with role %s", userId, role))
+}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+// ChangeUserRoleClaim is a Callable Cloud Function.
+func ChangeUserRoleClaim(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	client, err := getFirebaseAuthClient(ctx)
+	if err != nil {
+		http.Error(w, "Failed to initialize Auth client", http.StatusInternalServerError)
 		return
 	}
 
-	log.Printf("Finished AddUserRoleClaim function")
+	payload, err := decodeRequestPayload(r)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	userId := payload.UserId
+	newRole := payload.Role
+	if userId == "" || newRole == "" {
+		http.Error(w, "Missing userId or role parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Verifica se o solicitante é um admin
+	if err := verifyAdminToken(r, client, ctx); err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
+		return
+	}
+
+	if err := setUserRole(ctx, client, userId, newRole); err != nil {
+		http.Error(w, "Failed to set custom claims", http.StatusInternalServerError)
+		return
+	}
+
+	sendSuccessResponse(w, fmt.Sprintf("Custom claims successfully updated for user %s to role %s", userId, newRole))
+}
+
+// decodeRequestPayload decodifica o payload da requisição para obter os dados do usuário
+func decodeRequestPayload(r *http.Request) (*RequestPayload, error) {
+	var payload struct {
+		Data RequestPayload `json:"data"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		return nil, err
+	}
+	return &payload.Data, nil
+}
+
+// setUserRole define o custom claim "role" para um usuário específico
+func setUserRole(ctx context.Context, client *auth.Client, userId, role string) error {
+	claims := map[string]interface{}{
+		"role": role,
+	}
+	log.Printf("Setting custom claims for userId: %s with role: %s", userId, role)
+	return client.SetCustomUserClaims(ctx, userId, claims)
+}
+
+// verifyAdminToken verifica se o usuário autenticado possui o papel "admin"
+func verifyAdminToken(r *http.Request, client *auth.Client, ctx context.Context) error {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		return fmt.Errorf("missing or invalid Authorization header")
+	}
+
+	idToken := strings.TrimPrefix(authHeader, "Bearer ")
+	token, err := client.VerifyIDToken(ctx, idToken)
+	if err != nil {
+		return fmt.Errorf("invalid token")
+	}
+
+	if role, ok := token.Claims["role"]; !ok || role != "admin" {
+		return fmt.Errorf("permission denied: only admin can change user roles")
+	}
+	return nil
+}
+
+// sendSuccessResponse envia uma resposta de sucesso para o cliente
+func sendSuccessResponse(w http.ResponseWriter, message string) {
+	response := map[string]interface{}{
+		"result": message,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
+
+	log.Println(message)
 }
 
 // getFirebaseAuthClient initializes Firebase and returns an authentication client.
