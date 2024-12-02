@@ -140,15 +140,16 @@ class _AddressesScreenState extends State<AddressesScreen> {
                         itemCount: ctrl.addressNames.length,
                         itemBuilder: (context, index) {
                           final address = ctrl.addresses[index];
+                          final isSelected = address.selected;
                           return Card(
-                            color: address.name ==
-                                    store.selectedAddressName.value
+                            color: isSelected
                                 ? colorScheme.tertiaryContainer
                                 : colorScheme.primaryContainer.withOpacity(0.4),
                             child: ListTile(
                               title: Text(address.name),
                               subtitle: Text(address.addressString()),
-                              onTap: () => ctrl.selectAddress(address.name),
+                              onTap: () =>
+                                  ctrl.selectAddress(address.selected, index),
                             ),
                           );
                         },

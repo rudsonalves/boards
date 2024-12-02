@@ -10,7 +10,7 @@ class AddressRepositoryException implements Exception {
 }
 
 abstract class IAddressRepository {
-  void initialize(String userId);
+  void initialize(String? userId);
   Future<DataResult<AddressModel?>> add(AddressModel address);
   Future<DataResult<void>> update(AddressModel address);
   Future<DataResult<void>> delete(String addressId);

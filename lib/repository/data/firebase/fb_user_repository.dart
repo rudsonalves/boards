@@ -42,8 +42,13 @@ class FbUserRepository implements IUserRepository {
         );
       }
 
+      await user.getIdToken(true);
+
       // Use the extension to convert the Firebase User to a UserModel
-      final currentUser = user.toUserModel;
+      UserModel currentUser = user.toUserModel;
+
+      // Recover cunstom claims
+      currentUser = await _getClaims(user, currentUser);
 
       return DataResult.success(currentUser);
     } catch (err) {
@@ -141,7 +146,7 @@ class FbUserRepository implements IUserRepository {
       await newUser.sendEmailVerification();
 
       // Call to add the custom claim via Cloud Function
-      await FbFunctions.addUserRoleClaim(newUser.uid);
+      await FbFunctions.assignDefaultUserRole(newUser.uid);
 
       // Save users informations
       final usersData = {keyUnverifiedPhone: user.phone};

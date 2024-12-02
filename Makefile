@@ -29,7 +29,7 @@ firebase_emu_stop:
 	bash go-tests/stop-go-functions.sh
 
 go_functions_deploy:
-	cd go-functions && gcloud functions deploy AddUserRoleClaim --runtime go122 --trigger-http --allow-unauthenticated
+	cd go-functions && gcloud functions deploy $(FUNC_NAME) --runtime go122 --trigger-http --allow-unauthenticated
 
 # firebase_emu:
 # 	firebase emulators:start --import=./emulator_data

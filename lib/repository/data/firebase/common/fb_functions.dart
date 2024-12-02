@@ -7,15 +7,15 @@ class FbFunctions {
 
   static final firebaseFuncs = FirebaseFunctions.instance;
 
-  static Future<void> addUserRoleClaim(String uid) async {
+  static Future<void> assignDefaultUserRole(String uid) async {
     try {
       if (uid.isEmpty) {
         throw Exception('User ID cannot be empty.');
       }
-      final callable = firebaseFuncs.httpsCallable('AddUserRoleClaim');
+      final callable = firebaseFuncs.httpsCallable('AssignDefaultUserRole');
       await callable.call({'userId': uid, 'role': 'user'});
     } catch (err) {
-      final message = 'FbFunctions.addUserRoleClaim: $err';
+      final message = 'FbFunctions.assignDefaultUserRole: $err';
       log(message);
       throw Exception(message);
     }

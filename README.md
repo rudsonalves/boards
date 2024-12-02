@@ -78,6 +78,59 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/02 - version: 0.0.02+09
+
+This commit implements extensive updates to the address management system, Cloud Functions, and Firebase integration. Key changes include improving the address selection functionality, enhancing Cloud Functions for managing user roles, and aligning Firestore rules with security best practices.
+
+### Changes made:
+
+1. **Makefile**:
+   - Modified `go_functions_deploy` to use a dynamic `FUNC_NAME` variable for deploying Cloud Functions.
+
+2. **firestore.rules**:
+   - Updated Firestore rules to allow users to manage their own documents securely.
+   - Restricted the ability to update the `role` field to administrators only.
+
+3. **go-functions/function.go**:
+   - Renamed `AddUserRoleClaim` function to `AssignDefaultUserRole` for better naming consistency.
+   - Added `ChangeUserRoleClaim` to enable administrators to update user roles.
+   - Improved error handling and token validation logic.
+   - Introduced helper methods for decoding requests, verifying admin roles, and setting user roles.
+
+4. **lib/core/singletons/current_user.dart**:
+   - Added logging for debugging user data during initialization.
+
+5. **lib/data_managers/addresses_manager.dart**:
+   - Introduced `selectedAddress` and `selectedIndex` getters to manage the currently selected address.
+   - Added `selectIndex` method to update the selected address index and toggle selection status.
+
+6. **lib/features/addresses/addresses_controller.dart**:
+   - Simplified address selection logic using indices.
+   - Ensured proper initialization of the selected index.
+
+7. **lib/features/addresses/addresses_screen.dart**:
+   - Updated the UI to reflect the selected address dynamically.
+
+8. **lib/main.dart**:
+   - Adjusted Firebase emulator initialization for production and development environments.
+   - Removed redundant initialization calls for cleaner setup.
+
+9. **lib/repository/data/firebase/common/fb_functions.dart**:
+   - Renamed `addUserRoleClaim` to `assignDefaultUserRole`.
+   - Improved error handling for assigning default user roles.
+
+10. **lib/repository/data/firebase/fb_user_repository.dart**:
+    - Added functionality to refresh ID tokens and retrieve custom claims.
+    - Updated calls to the renamed Cloud Function.
+
+11. **lib/repository/data/interfaces/i_address_repository.dart**:
+    - Updated the `initialize` method to accept nullable user IDs for flexibility.
+
+### Conclusion:
+
+This commit enhances security, maintainability, and functionality across multiple modules. The updated address management system supports dynamic selection, while Firestore rules and Cloud Functions ensure better compliance with security standards. These changes provide a robust foundation for future development and scalability.
+
+
 ## 2024/12/02 - version: 0.0.02+08
 
 This commit introduces a wide range of enhancements, including the addition of custom fonts, a new splash page implementation, and improvements in the address and user repository logic. Key updates focus on improving the user experience, modularizing code, and introducing error handling for better debugging and maintenance.
