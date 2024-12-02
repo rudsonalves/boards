@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -35,18 +34,12 @@ void main() async {
 
   setupDependencies();
 
-  await getIt<IAppPreferencesRepository>().initialize();
-
   final parseServer = getIt<ParseServerService>();
   parseServer.init(isLocalServer);
 
-  await getIt<IAppPreferencesRepository>().initialize();
-
+  // This DatabaseProvider.initialize call initializes the AppSettings and
+  // IAppPreferencesRepository in sequence.
   await DatabaseProvider.initialize();
-
-  getIt<SearchHistory>().init();
-  await getIt<BoardgamesManager>().initialize();
-  await getIt<MechanicsManager>().initialize();
 
   runApp(const App());
 }

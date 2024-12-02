@@ -46,7 +46,7 @@ class SignInController {
       return false;
     }
     final newUser = result.data;
-    currentUser.init(newUser);
+    currentUser.initialize(newUser);
     store.setStateSuccess();
     return true;
   }

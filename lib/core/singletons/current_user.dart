@@ -35,7 +35,7 @@ class CurrentUser {
     _isLoged.dispose();
   }
 
-  Future<void> init([UserModel? user]) async {
+  Future<void> initialize([UserModel? user]) async {
     if (isLogged) return;
     if (user == null) {
       final result = await userRepository.getCurrentUser();

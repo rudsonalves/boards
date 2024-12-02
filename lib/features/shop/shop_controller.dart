@@ -50,10 +50,7 @@ class ShopController {
     try {
       store.setStateLoading();
       _getMorePages = await adManager.getAds();
-
-      await currentUser.init();
       setPageTitle();
-
       searchFilter.filterNotifier.addListener(getAds);
       searchFilter.searchNotifier.addListener(getAds);
       currentUser.isLogedListernable.addListener(getAds);

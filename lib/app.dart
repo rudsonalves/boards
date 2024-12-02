@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with xlo_mobx.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:boards/features/splash/splash_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -68,7 +69,7 @@ class _AppState extends State<App> {
           return MaterialApp(
             theme: value == Brightness.light ? theme.light() : theme.dark(),
             debugShowCheckedModeBanner: false,
-            initialRoute: ShopScreen.routeName,
+            initialRoute: SplashPageScreen.routeName,
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
@@ -80,6 +81,7 @@ class _AppState extends State<App> {
             ],
             locale: const Locale('pt', 'BR'),
             routes: {
+              SplashPageScreen.routeName: (_) => const SplashPageScreen(),
               ChatScreen.routeName: (_) => const ChatScreen(),
               AccountScreen.routeName: (_) => const AccountScreen(),
               SignInScreen.routeName: (_) => const SignInScreen(),

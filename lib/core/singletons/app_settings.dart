@@ -16,6 +16,7 @@ class AppSettings {
   int get localDBVersion => _localDBVersion;
 
   Future<void> init() async {
+    await prefs.initialize();
     await _readAppSettings();
   }
 
