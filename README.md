@@ -78,6 +78,76 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/02 - version: 0.0.02+08
+
+This commit introduces a wide range of enhancements, including the addition of custom fonts, a new splash page implementation, and improvements in the address and user repository logic. Key updates focus on improving the user experience, modularizing code, and introducing error handling for better debugging and maintenance.
+
+### Changes made:
+
+1. **assets/fonts/Comfortaa-Bold.ttf**, **assets/fonts/Comfortaa-Light.ttf**, **assets/fonts/Comfortaa-Medium.ttf**, **assets/fonts/Comfortaa-Regular.ttf**, **assets/fonts/Comfortaa-SemiBold.ttf**:
+   - Added font files for the "Comfortaa" font family with multiple weights (300 to 700) to enhance typography.
+
+2. **assets/images/boards_splash.png**:
+   - Added a new splash image to represent the branding on the splash screen.
+
+3. **lib/app.dart**:
+   - Updated the `initialRoute` to point to `SplashPageScreen`.
+   - Added the route for `SplashPageScreen` to the application's route map.
+
+4. **lib/core/models/address.dart**:
+   - Introduced a new `selected` property in `AddressModel` with a default value of `false`.
+   - Updated `copyWith`, `toMap`, and `fromMap` methods to include the `selected` property.
+   - Removed unused methods and redundant overrides for `==` and `hashCode`.
+
+5. **lib/core/singletons/app_settings.dart**:
+   - Ensured initialization of `prefs` in the `init` method.
+
+6. **lib/core/singletons/current_user.dart**:
+   - Renamed `init` method to `initialize` for better semantic clarity.
+
+7. **lib/core/theme/app_text_style.dart**:
+   - Added new `TextStyle` definitions for the "Comfortaa" font family with various font weights.
+
+8. **lib/data_managers/addresses_manager.dart**:
+   - Modified the `save` method to automatically select the first address if no addresses exist.
+   - Ensured initialization of the address repository with the user ID during login.
+
+9. **lib/features/splash/splash_page_controller.dart** (new file):
+   - Added a controller for the splash page to handle initialization tasks such as caching data and verifying user sessions.
+
+10. **lib/features/splash/splash_page_screen.dart** (new file):
+    - Implemented a splash screen with a loading animation and navigation to the main shop screen.
+
+11. **lib/features/splash/splash_page_store.dart** (new file):
+    - Created a store to manage the state of the splash screen.
+
+12. **lib/get_it.dart**:
+    - Updated the dependency injection setup to register singletons consistently for managers.
+
+13. **lib/main.dart**:
+    - Streamlined initialization logic by relying on `DatabaseProvider.initialize` for sequential setup.
+
+14. **lib/repository/data/firebase/common/errors_codes.dart** (new file):
+    - Added a centralized error code class for consistent error handling across the application.
+
+15. **lib/repository/data/firebase/fb_address_repository.dart**:
+    - Introduced user ID validation and error handling using the new error codes.
+    - Added initialization logic for user ID.
+
+16. **lib/repository/data/firebase/fb_user_repository.dart**:
+    - Updated error handling to use the new centralized error codes.
+
+17. **lib/repository/data/interfaces/i_address_repository.dart**:
+    - Added a new `initialize` method for setting up user-specific configurations.
+
+18. **pubspec.yaml**:
+    - Added font configurations for the "Comfortaa" font family.
+
+### Conclusion:
+
+These updates significantly enhance the application's usability and maintainability by introducing custom fonts, a new splash screen, and robust error handling. The improved modularization and initialization logic lay a strong foundation for future development while providing a better user experience.
+
+
 ## 2024/12/01 - version: 0.0.02+07
 
 This commit introduces several refinements and enhancements across the address management system, including adjustments in model definitions, repository logic, and controller methods. Key improvements involve removing redundant properties, adding a new `update` method to the address repository, and ensuring a better alignment with Firebase's user-specific collections.

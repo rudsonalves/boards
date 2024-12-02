@@ -25,11 +25,7 @@ class FavoritesController {
       store.setStateLoading();
 
       favManager.favNotifier.addListener(_refresh);
-
-      await currentUser.init();
-
-      // await Future.delayed(const Duration(seconds: 2));
-
+      // await currentUser.init();
       store.setStateSuccess();
     } catch (err) {
       final message = 'ShopController._initialize: $err';

@@ -52,11 +52,12 @@ void setupDependencies() {
     getIt.registerLazySingleton<ParseServerService>(() => ParseServerService());
     getIt.registerLazySingleton<MechanicsManager>(() => MechanicsManager());
     getIt.registerLazySingleton<CurrentUser>(() => CurrentUser());
-    getIt.registerLazySingleton<FavoritesManager>(() => FavoritesManager());
-    getIt.registerLazySingleton<AddressesManager>(() => AddressesManager());
     getIt.registerLazySingleton<SearchFilter>(() => SearchFilter());
     getIt.registerLazySingleton<SearchHistory>(() => SearchHistory());
 
+    // Managers Singletons
+    getIt.registerLazySingleton<FavoritesManager>(() => FavoritesManager());
+    getIt.registerLazySingleton<AddressesManager>(() => AddressesManager());
     getIt.registerLazySingleton<DatabaseManager>(() => DatabaseManager());
     getIt.registerLazySingleton<BoardgamesManager>(() => BoardgamesManager());
     getIt.registerLazySingleton<AdManager>(() => AdManager());

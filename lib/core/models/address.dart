@@ -1,6 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
-
 class AddressModel {
   final String? id;
   final bool selected;
@@ -41,6 +38,7 @@ class AddressModel {
   String toString() {
     return 'AddressModel(id: $id,'
         ' name: $name,'
+        ' selected: $selected,'
         ' zipCode: $zipCode,'
         ' street: $street,'
         ' number: $number,'
@@ -51,39 +49,10 @@ class AddressModel {
         ' createdAt: $createdAt)';
   }
 
-  @override
-  bool operator ==(covariant AddressModel other) {
-    if (identical(this, other)) return true;
-
-    return other.id == id &&
-        other.name == name &&
-        other.zipCode == zipCode &&
-        other.street == street &&
-        other.number == number &&
-        other.complement == complement &&
-        other.neighborhood == neighborhood &&
-        other.state == state &&
-        other.city == city &&
-        other.createdAt == createdAt;
-  }
-
-  @override
-  int get hashCode {
-    return id.hashCode ^
-        name.hashCode ^
-        zipCode.hashCode ^
-        street.hashCode ^
-        number.hashCode ^
-        complement.hashCode ^
-        neighborhood.hashCode ^
-        state.hashCode ^
-        city.hashCode ^
-        createdAt.hashCode;
-  }
-
   AddressModel copyWith({
     String? id,
     String? name,
+    bool? selected,
     String? zipCode,
     String? street,
     String? number,
@@ -96,6 +65,7 @@ class AddressModel {
     return AddressModel(
       id: id ?? this.id,
       name: name ?? this.name,
+      selected: selected ?? this.selected,
       zipCode: zipCode ?? this.zipCode,
       street: street ?? this.street,
       number: number ?? this.number,
@@ -110,6 +80,7 @@ class AddressModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'name': name,
+      'selected': selected,
       'zipCode': zipCode,
       'street': street,
       'number': number,
@@ -125,6 +96,7 @@ class AddressModel {
     return AddressModel(
       id: map['id'] != null ? map['id'] as String : null,
       name: map['name'] as String,
+      selected: map['selected'] as bool,
       zipCode: map['zipCode'] as String,
       street: map['street'] as String,
       number: map['number'] as String,
@@ -136,9 +108,4 @@ class AddressModel {
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
     );
   }
-
-  String toJson() => json.encode(toMap());
-
-  factory AddressModel.fromJson(String source) =>
-      AddressModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }

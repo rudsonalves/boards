@@ -8,7 +8,8 @@ import '/core/abstracts/data_result.dart';
 import '/core/models/user.dart';
 import '/repository/data/functions/data_functions.dart';
 import '../interfaces/i_user_repository.dart';
-import 'functions/fb_functions.dart';
+import 'common/fb_functions.dart';
+import 'common/errors_codes.dart';
 
 extension ToUserModel on User {
   UserModel get toUserModel => UserModel(
@@ -20,13 +21,6 @@ extension ToUserModel on User {
         isPhoneVerified: phoneNumber != null,
         createdAt: metadata.creationTime ?? DateTime.now(),
       );
-}
-
-class UserErrorCodes {
-  static const int unknownError = 201;
-  static const int emailNotChecked = 202;
-  static const int userNotFound = 203;
-  static const int wrongPassword = 204;
 }
 
 class FbUserRepository implements IUserRepository {
@@ -41,7 +35,11 @@ class FbUserRepository implements IUserRepository {
     try {
       final user = _firebaseAuth.currentUser;
       if (user == null) {
-        return DataResult.failure(GenericFailure(message: 'user not logged'));
+        return _handleError(
+          'getCurrentUser',
+          'user not logged',
+          ErrorCodes.userNotLogged,
+        );
       }
 
       // Use the extension to convert the Firebase User to a UserModel
@@ -62,20 +60,21 @@ class FbUserRepository implements IUserRepository {
       );
       final fbUser = credential.user;
       if (fbUser == null) {
-        return DataResult.failure(GenericFailure(
-          message: 'FirebaseAuthRepository.signIn error:'
-              ' unknown FirebaseAuth error',
-          code: UserErrorCodes.unknownError,
-        ));
+        return _handleError(
+          'signInWithEmail',
+          'unknown FirebaseAuth error',
+          ErrorCodes.unknownError,
+        );
       }
 
       // Check if email is verificated
       if (!fbUser.emailVerified) {
         await signOut();
-        return DataResult.failure(GenericFailure(
-          message: 'email not checked',
-          code: UserErrorCodes.emailNotChecked,
-        ));
+        return _handleError(
+          'signInWithEmail',
+          'email not checked',
+          ErrorCodes.emailNotChecked,
+        );
       }
 
       // Mount loged UserModel
@@ -93,7 +92,7 @@ class FbUserRepository implements IUserRepository {
         return _handleError(
           'signInWithEmail',
           'No user found for that email.',
-          UserErrorCodes.userNotFound,
+          ErrorCodes.userNotFound,
         );
       } else if (err.code == 'wrong-password') {
         return _handleError(
@@ -102,9 +101,9 @@ class FbUserRepository implements IUserRepository {
           204,
         );
       }
-      return _handleError('unknow-error', err, UserErrorCodes.unknownError);
+      return _handleError('unknow-error', err, ErrorCodes.unknownError);
     } catch (err) {
-      return _handleError('signInWithEmail', err, UserErrorCodes.unknownError);
+      return _handleError('signInWithEmail', err, ErrorCodes.unknownError);
     }
   }
 
@@ -384,16 +383,28 @@ class FbUserRepository implements IUserRepository {
       final currentUser = _firebaseAuth.currentUser;
       // Ensure there is a user currently logged in before proceeding.
       if (currentUser == null) {
-        _handleError('updatePhoneNumber', 'No user is currently logged in.');
+        _handleError(
+          'updatePhoneNumber',
+          'No user is currently logged in.',
+          ErrorCodes.userNotLogged,
+        );
       }
 
       // Update the current user's phone number using the provided credential.
       await currentUser!.updatePhoneNumber(credential);
       return DataResult.success(null);
     } on FirebaseAuthException catch (err) {
-      return _handleError('updatePhoneNumber', err);
+      return _handleError(
+        'updatePhoneNumber',
+        err,
+        ErrorCodes.unknownError,
+      );
     } catch (err) {
-      return _handleError('_updatePhoneNumber', err);
+      return _handleError(
+        'updatePhoneNumber',
+        err,
+        ErrorCodes.unknownError,
+      );
     }
   }
 

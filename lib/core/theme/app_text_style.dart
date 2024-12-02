@@ -3,6 +3,24 @@ import 'package:flutter/material.dart';
 class AppTextStyle {
   AppTextStyle._();
 
+  static TextStyle titleFont28 = const TextStyle(
+    fontFamily: "Comfortaa",
+    fontSize: 28,
+    fontWeight: FontWeight.w400,
+  );
+
+  static TextStyle titleFont28SemiBold = const TextStyle(
+    fontFamily: "Comfortaa",
+    fontSize: 30,
+    fontWeight: FontWeight.w600,
+  );
+
+  static TextStyle titleFont28Bold = const TextStyle(
+    fontFamily: "Comfortaa",
+    fontSize: 28,
+    fontWeight: FontWeight.w700,
+  );
+
   static TextStyle font24 = const TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.w400,

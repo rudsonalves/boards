@@ -28,6 +28,7 @@ class AddressesManager {
   /// [userId] - The ID of the user.
   Future<void> login() async {
     if (isLogged) {
+      addressRepository.initialize(userId!);
       await getAddresesesFromUserId(userId!);
     }
   }
@@ -84,7 +85,9 @@ class AddressesManager {
   ///
   /// [address] - The address to be saved.
   Future<void> save(AddressModel address) async {
-    AddressModel saveAddress = address.copyWith();
+    final selectFirst = _addresses.isEmpty;
+
+    AddressModel saveAddress = address.copyWith(selected: selectFirst);
     final id = address.id;
     final name = address.name;
 
