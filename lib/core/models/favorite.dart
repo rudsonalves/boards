@@ -23,7 +23,7 @@ class FavoriteModel {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      // 'id': id,
+      'id': id,
       'adId': adId,
       'userId': userId,
     };
@@ -31,7 +31,7 @@ class FavoriteModel {
 
   factory FavoriteModel.fromMap(Map<String, dynamic> map) {
     return FavoriteModel(
-      // id: map['id'] != null ? map['id'] as String : null,
+      id: map['id'] != null ? map['id'] as String : null,
       adId: map['adId'] as String,
       userId: map['userId'] as String,
     );

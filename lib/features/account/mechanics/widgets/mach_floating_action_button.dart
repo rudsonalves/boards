@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '/core/singletons/current_user.dart';
 import '/get_it.dart';
@@ -7,12 +8,14 @@ class MechFloatingActionButton extends StatelessWidget {
   final void Function()? onPressBack;
   final void Function()? onPressAdd;
   final void Function()? onPressDeselect;
+  final void Function()? onPressImportCSV;
 
   const MechFloatingActionButton({
     super.key,
     this.onPressBack,
     this.onPressAdd,
     this.onPressDeselect,
+    this.onPressImportCSV,
   });
 
   @override
@@ -40,6 +43,16 @@ class MechFloatingActionButton extends StatelessWidget {
               onPressed: onPressAdd,
               tooltip: 'Adicionar',
               child: const Icon(Icons.add),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: FloatingActionButton(
+              heroTag: 'hero-2',
+              backgroundColor: colorScheme.primaryContainer.withOpacity(0.85),
+              onPressed: onPressImportCSV,
+              tooltip: 'Importar CSV',
+              child: const Icon(Symbols.csv),
             ),
           ),
         ],

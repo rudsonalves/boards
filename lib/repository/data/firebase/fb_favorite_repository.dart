@@ -7,7 +7,6 @@ import '../functions/data_functions.dart';
 import '../interfaces/i_favorite_repository.dart';
 
 class FbFavoriteRepository implements IFavoriteRepository {
-  final _firebase = FirebaseFirestore.instance;
   String? _userId;
 
   static const keyFavorite = 'favorites';
@@ -16,7 +15,7 @@ class FbFavoriteRepository implements IFavoriteRepository {
   set ownerId(String ownerId) => _userId = ownerId;
 
   CollectionReference<Map<String, dynamic>> get _favCollection =>
-      _firebase.collection(keyFavorite);
+      FirebaseFirestore.instance.collection(keyFavorite);
 
   @override
   void initialize(String? userId) {
@@ -31,7 +30,7 @@ class FbFavoriteRepository implements IFavoriteRepository {
       }
 
       // Add new favorite
-      final doc = await _favCollection.add(fav.toMap());
+      final doc = await _favCollection.add(fav.toMap()..remove('id'));
 
       // Update Favorite Id from firebase fav object
       final newFav = fav.copyWith(id: doc.id);

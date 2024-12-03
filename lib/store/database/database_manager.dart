@@ -43,9 +43,9 @@ class DatabaseManager {
     final Directory directory = await DatabaseUtil.getDirectory();
     final path = join(directory.path, dbName);
 
-    if (FileSystemEntity.typeSync(path) == FileSystemEntityType.notFound) {
-      await _copyBggDb(path);
-    }
+    // if (FileSystemEntity.typeSync(path) == FileSystemEntityType.notFound) {
+    //   await _copyBggDb(path);
+    // }
 
     _database = await openDatabase(
       path,

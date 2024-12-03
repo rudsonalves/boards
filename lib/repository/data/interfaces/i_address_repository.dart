@@ -14,5 +14,5 @@ abstract class IAddressRepository {
   Future<DataResult<AddressModel?>> add(AddressModel address);
   Future<DataResult<void>> update(AddressModel address);
   Future<DataResult<void>> delete(String addressId);
-  Future<DataResult<List<AddressModel>?>> getUserAddresses();
+  Future<DataResult<List<AddressModel>?>> getAll();
 }

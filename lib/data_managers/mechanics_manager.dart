@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
+
+import 'package:csv/csv.dart';
 
 import '/get_it.dart';
 import '../core/abstracts/data_result.dart';
@@ -38,34 +42,24 @@ class MechanicsManager {
       _mechanics.addAll(mechs);
     }
 
-    final result = await mechRepository.getIds();
-    if (result.isFailure) return;
+    final result = await mechRepository.getAll();
+    if (result.isFailure ||
+        result.data == null ||
+        result.data!.length == _mechanics.length) return;
 
-    final ids = result.data!;
+    final dbMechs = result.data!;
 
     final localIds = _mechanics.map((m) => m.id).toList();
-
-    for (final id in ids) {
-      if (!localIds.contains(id)) {
-        log('Loading Mech.$id');
-        final result = await mechRepository.get(id);
-        if (result.isFailure) {
-          throw Exception(result.error);
+    for (final mech in dbMechs) {
+      if (!localIds.contains(mech.id)) {
+        final localResult = await localMechRepository.add(mech);
+        if (localResult.isFailure) {
+          throw Exception(localResult.error);
         }
-        final mech = result.data;
 
-        if (mech != null) {
-          if (!localIds.contains(mech.id)) {
-            final localResult = await localMechRepository.add(mech);
-            if (localResult.isFailure) {
-              throw Exception(localResult.error);
-            }
+        final newMech = localResult.data!;
 
-            final newMech = localResult.data!;
-
-            _mechanics.add(newMech);
-          }
-        }
+        _mechanics.add(newMech);
       }
     }
   }
@@ -135,6 +129,51 @@ class MechanicsManager {
     return ManagerStatus.ok;
   }
 
+  Future<DataResult<void>> updateWithCSV(String csvFile) async {
+    try {
+      final File file = File(csvFile);
+      final input = file.openRead();
+
+      // Decoding CSV
+      final data = await input
+          .transform(utf8.decoder)
+          .transform(CsvToListConverter(
+            eol: '\n',
+          ))
+          .toList();
+
+      final mechs = data
+          .map((item) => MechanicModel(
+                name: item[0],
+                description: item[1],
+              ))
+          .toList();
+
+      final names = mechanicsNames;
+      for (final mech in mechs) {
+        if (mech.name == 'name') continue;
+
+        if (!names.contains(mech.name)) {
+          await add(mech);
+          names.add(mech.name);
+          log('Add mechanic: "${mech.name}"');
+        } else {
+          final index = _mechanics.indexWhere((m) => mech.name == m.name);
+          if (_mechanics[index].description != mech.description) {
+            final updateMech = mech.copyWith(id: _mechanics[index].id);
+            await update(updateMech);
+            log('Update mechanic: "${mech.name}"');
+          } else {
+            log('Skip mechanic: "${mech.name}"');
+          }
+        }
+      }
+      return DataResult.success(null);
+    } catch (err) {
+      return DataResult.failure(GenericFailure(message: err.toString()));
+    }
+  }
+
   Future<ManagerStatus> delete(MechanicModel mech) async {
     // return erro if mechanic don't have id
     if (mech.id == null) {
@@ -159,19 +198,25 @@ class MechanicsManager {
     return ManagerStatus.ok;
   }
 
-  Future<MechanicModel> update(MechanicModel mech) async {
+  Future<DataResult<void>> update(MechanicModel mech) async {
     final result = await mechRepository.update(mech);
     if (result.isFailure) {
-      throw Exception(result.error);
+      return result;
     }
-    final newMech = result.data!;
-    if (newMech.id != mech.id) {
-      localMechRepository.update(newMech);
-    }
-    int index = _mechanics.indexWhere((m) => m.id == mech.id);
-    _mechanics[index] = newMech;
 
-    return newMech;
+    final localResult = await localMechRepository.update(mech);
+    if (localResult.isFailure) {
+      return localResult;
+    }
+
+    int index = _mechanics.indexWhere((m) => m.id == mech.id);
+    if (index == -1) {
+      return DataResult.failure(
+          GenericFailure(message: 'MechanicsManager.update: index error'));
+    }
+    _mechanics[index] = mech;
+
+    return DataResult.success(null);
   }
 
   Future<DataResult<MechanicModel>> get(String psId) async {

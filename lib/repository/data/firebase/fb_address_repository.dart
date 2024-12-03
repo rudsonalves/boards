@@ -7,14 +7,16 @@ import '../functions/data_functions.dart';
 import '/repository/data/interfaces/i_address_repository.dart';
 
 class FbAddressRepository implements IAddressRepository {
-  final _firebase = FirebaseFirestore.instance;
   String? _userId;
 
   static const keyUsers = 'users';
   static const keyAddresses = 'addresses';
 
   CollectionReference<Map<String, dynamic>> get _addresesCollection =>
-      _firebase.collection(keyUsers).doc(_userId).collection(keyAddresses);
+      FirebaseFirestore.instance
+          .collection(keyUsers)
+          .doc(_userId)
+          .collection(keyAddresses);
 
   set userId(String userId) {
     _userId = userId;
@@ -32,7 +34,7 @@ class FbAddressRepository implements IAddressRepository {
         throw Exception('UserId is null');
       }
       // Add a new address
-      final doc = await _addresesCollection.add(address.toMap());
+      final doc = await _addresesCollection.add(address.toMap()..remove('id'));
 
       // Update Address id from firebase address object
       final newAddress = address.copyWith(id: doc.id);
@@ -64,15 +66,11 @@ class FbAddressRepository implements IAddressRepository {
       final docRef = _addresesCollection.doc(address.id);
 
       // Update address
-      await docRef.update(address.toMap());
+      await docRef.update(address.toMap()..remove('id'));
 
       return DataResult.success(null);
     } catch (err) {
-      return _handleError(
-        'update',
-        err,
-        ErrorCodes.unknownError,
-      );
+      return _handleError('update', err, ErrorCodes.unknownError);
     }
   }
 
@@ -87,16 +85,12 @@ class FbAddressRepository implements IAddressRepository {
 
       return DataResult.success(null);
     } catch (err) {
-      return _handleError(
-        'delete',
-        err,
-        ErrorCodes.unknownError,
-      );
+      return _handleError('delete', err, ErrorCodes.unknownError);
     }
   }
 
   @override
-  Future<DataResult<List<AddressModel>?>> getUserAddresses() async {
+  Future<DataResult<List<AddressModel>?>> getAll() async {
     try {
       if (_userId == null) {
         throw Exception('UserId is null');
@@ -109,11 +103,7 @@ class FbAddressRepository implements IAddressRepository {
 
       return DataResult.success(addresses);
     } catch (err) {
-      return _handleError(
-        'delete',
-        err,
-        ErrorCodes.unknownError,
-      );
+      return _handleError('delete', err, ErrorCodes.unknownError);
     }
   }
 
