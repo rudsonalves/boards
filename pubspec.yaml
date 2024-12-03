@@ -1,7 +1,7 @@
 name: boards
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.0.02+10
+version: 0.0.03+11
 
 environment:
   sdk: '>=3.4.1 <4.0.0'
@@ -50,7 +50,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/data/bgBazzar.db
+    - assets/data/
     - .env
 
   # To add assets to your application, add an assets section, like this:

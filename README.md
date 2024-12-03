@@ -78,6 +78,80 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/03 - version: 0.0.03+11
+
+This commit introduces significant improvements to the mechanics and favorites modules, migrates mechanics management to Firebase, and refactors related code for consistency and maintainability. Additionally, it modifies the database setup and adjusts constants to support the new workflow.
+
+### Changes made:
+
+1. **assets/data/bgBazzar.db**:
+   - Removed the old database file `bgBazzar.db`.
+
+2. **lib/core/models/address.dart**:
+   - Added the `id` field to the `toMap` method to include the address ID in Firebase interactions.
+
+3. **lib/core/models/favorite.dart**:
+   - Updated the `toMap` and `fromMap` methods to handle the `id` field, ensuring compatibility with Firebase structure.
+
+4. **lib/core/models/mechanic.dart**:
+   - Marked `id`, `name`, and `description` fields as `final` for immutability.
+
+5. **lib/data_managers/addresses_manager.dart**:
+   - Replaced `getUserAddresses` with `getAll` for compatibility with Firebase repositories.
+
+6. **lib/data_managers/mechanics_manager.dart**:
+   - Refactored the mechanics update process to integrate with Firebase.
+   - Added a new `updateWithCSV` method to support importing mechanics data from CSV files.
+   - Improved error handling and streamlined logic for updating mechanics locally and in Firebase.
+
+7. **lib/features/account/mechanics/mechanics_controller.dart**:
+   - Added the `importCSV` method to facilitate CSV imports for mechanics management.
+
+8. **lib/features/account/mechanics/mechanics_screen.dart**:
+   - Integrated a CSV import button to trigger the `_importCSV` method.
+
+9. **lib/features/account/mechanics/widgets/mach_floating_action_button.dart**:
+   - Added a new FloatingActionButton for CSV imports, with appropriate tooltip and icon.
+
+10. **lib/get_it.dart**:
+    - Replaced `PSMechanicsRepository` with `FbMechanicRepository` in dependency injection.
+    - Updated other references to reflect the migration to Firebase.
+
+11. **lib/repository/data/firebase/fb_address_repository.dart**:
+    - Refactored methods to exclude the `id` field from the database document during updates and inserts.
+
+12. **lib/repository/data/firebase/fb_favorite_repository.dart**:
+    - Adjusted methods to handle the `id` field consistently with Firebase operations.
+
+13. **lib/repository/data/firebase/fb_mechanic_repository.dart** (new file):
+    - Implemented a Firebase-based repository for managing mechanics, including methods for CRUD operations.
+
+14. **lib/repository/data/interfaces/i_address_repository.dart**:
+    - Replaced `getUserAddresses` with `getAll` to align with the updated repository interface.
+
+15. **lib/repository/data/interfaces/i_mechanic_repository.dart**:
+    - Updated method signatures and comments to reflect the migration to Firebase.
+
+16. **lib/repository/data/parse_server/ps_mechanics_repository.dart**:
+    - Removed the Parse Server implementation for managing mechanics.
+
+17. **lib/store/constants/constants.dart**:
+    - Renamed `dbName` from `bgBazzar.db` to `boards.db`.
+
+18. **lib/store/constants/sql_create_table.dart**:
+    - Changed the mechanics table schema to use `TEXT` for the primary key instead of `INTEGER`.
+
+19. **lib/store/database/database_manager.dart**:
+    - Commented out the code for copying the default database file during initialization.
+
+20. **pubspec.yaml**:
+    - Updated the assets configuration to include only the `data/` directory.
+
+### Conclusion:
+
+This update completes the migration of mechanics management to Firebase and enhances the functionality of the mechanics module, including support for CSV imports. It also improves consistency in database operations and prepares the project for more scalable data management.
+
+
 ## 2024/12/03 - version: 0.0.02+10
 
 This commit refactors the `Favorites` module, migrating from the Parse Server to Firebase for managing favorites. It also improves naming consistency and enhances error handling in multiple classes and repositories.

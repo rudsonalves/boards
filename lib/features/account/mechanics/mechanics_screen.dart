@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '/core/models/mechanic.dart';
@@ -105,6 +106,17 @@ class _MechanicsScreenState extends State<MechanicsScreen> {
     }
   }
 
+  Future<void> _importCSV() async {
+    // Select a CSV file
+    final FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['csv'],
+    );
+    if (result == null || result.files.single.path == null) return;
+
+    ctrl.importCSV(result.files.single.path!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -122,6 +134,7 @@ class _MechanicsScreenState extends State<MechanicsScreen> {
                 onPressBack: _closeMechanicsPage,
                 onPressAdd: _addMechanic,
                 onPressDeselect: ctrl.deselectAll,
+                onPressImportCSV: _importCSV,
               ),
               body: Padding(
                 padding:

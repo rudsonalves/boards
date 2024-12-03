@@ -81,4 +81,14 @@ class MechanicsController {
       return false;
     }
   }
+
+  Future<void> importCSV(String csvFile) async {
+    try {
+      store.setStateLoading();
+      await mechanicManager.updateWithCSV(csvFile);
+      store.setStateSuccess();
+    } catch (err) {
+      store.setError('Teve algum problema no servidor. Tente mais tarde.');
+    }
+  }
 }

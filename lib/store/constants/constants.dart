@@ -1,4 +1,4 @@
-const dbName = 'bgBazzar.db';
+const dbName = 'boards.db';
 const dbVersion = 1;
 const dbAssertPath = 'assets/data/bgBazzar.db';
 

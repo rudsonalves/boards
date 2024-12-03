@@ -65,7 +65,7 @@ abstract class IMechanicRepository {
   ///   [MechanicModel].
   ///   Otherwise, returns a failure wrapped in a [DataResult] with the relevant
   ///   error message.
-  Future<DataResult<MechanicModel>> update(MechanicModel mech);
+  Future<DataResult<void>> update(MechanicModel mech);
 
   /// Retrieves all mechanic entries from the Parse Server.
   ///
@@ -91,11 +91,11 @@ abstract class IMechanicRepository {
   /// Retrieves a specific mechanic entry from the Parse Server by its ID.
   ///
   /// This method is responsible for fetching a specific mechanic record based
-  /// on the provided [psId]. It queries the Parse Server to find the mechanic
+  /// on the provided [mechId]. It queries the Parse Server to find the mechanic
   /// with the given ID.
   ///
   /// - A [ParseObject] is created for the mechanics table, and the `getObject`
-  ///   method is used to retrieve the mechanic data by its unique [psId].
+  ///   method is used to retrieve the mechanic data by its unique [mechId].
   /// - If the query is successful, the result is converted to a
   ///   [MechanicModel].
   ///
@@ -104,37 +104,14 @@ abstract class IMechanicRepository {
   ///
   /// Throws:
   /// - [MechanicRepositoryException]: If the query fails or if no mechanic with
-  ///   the provided [psId] is found.
+  ///   the provided [mechId] is found.
   ///
   /// Returns:
   /// - [DataResult<MechanicModel>]: If successful, returns the [MechanicModel]
   ///   representing the mechanic.
   ///   Otherwise, returns a failure wrapped in a [DataResult] with the relevant
   ///   error message.
-  Future<DataResult<MechanicModel>> get(String psId);
+  Future<DataResult<MechanicModel>> get(String mechId);
 
-  /// Retrieves the IDs of all mechanic entries from the Parse Server.
-  ///
-  /// This method is used to obtain a list of the IDs for all mechanics present
-  /// in the Parse Server.
-  /// It executes a query to the mechanics table but only retrieves the
-  /// `objectId` of each entry.
-  ///
-  /// - A [QueryBuilder] is used to create a query that fetches only the keys
-  ///   specified (`objectId`) from the mechanics table.
-  /// - The results are then mapped to a list of [String], representing the
-  ///   unique IDs of each mechanic.
-  ///
-  /// Throws:
-  /// - [MechanicRepositoryException]: If there is any issue during the query,
-  ///   such as a server error or if no records are found.
-  ///
-  /// Returns:
-  /// - [DataResult<List<String>>]: If successful, returns a list of all
-  ///   mechanic IDs.
-  ///   Otherwise, returns a failure wrapped in a [DataResult] with the relevant
-  ///   error message.
-  Future<DataResult<List<String>>> getIds();
-
-  Future<DataResult<void>> delete(String id);
+  Future<DataResult<void>> delete(String mechId);
 }

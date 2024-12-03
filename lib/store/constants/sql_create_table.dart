@@ -28,7 +28,7 @@ class SqlTable {
   static createMechanicsTable(Batch batch) {
     batch.execute(
       'CREATE TABLE IF NOT EXISTS $mechTable ('
-      '  $mechId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,'
+      '  $mechId TEXT PRIMARY KEY NOT NULL,'
       '  $mechName TEXT NOT NULL UNIQUE,'
       '  $mechDescription TEXT NOT NULL'
       ')',

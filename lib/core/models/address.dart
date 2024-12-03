@@ -79,6 +79,7 @@ class AddressModel {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'id': id,
       'name': name,
       'selected': selected,
       'zipCode': zipCode,
