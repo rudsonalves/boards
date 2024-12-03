@@ -7,7 +7,7 @@ import '../../core/models/user.dart';
 import '../../core/singletons/app_settings.dart';
 import '../../core/singletons/current_user.dart';
 import '../../core/singletons/search_filter.dart';
-import '../../data_managers/ad_manager.dart';
+import '../../data_managers/ads_manager.dart';
 import '../../get_it.dart';
 import '../../repository/data/interfaces/i_ad_repository.dart';
 import 'shop_store.dart';
@@ -17,7 +17,7 @@ class ShopController {
   final currentUser = getIt<CurrentUser>();
   final searchFilter = getIt<SearchFilter>();
   final adRepository = getIt<IAdRepository>();
-  final adManager = getIt<AdManager>();
+  final adManager = getIt<AdsManager>();
 
   late final ShopStore store;
 

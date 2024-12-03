@@ -5,7 +5,7 @@ import '../core/singletons/search_filter.dart';
 import '../get_it.dart';
 import '../repository/data/interfaces/i_ad_repository.dart';
 
-class AdManager {
+class AdsManager {
   final adRepository = getIt<IAdRepository>();
   final searchFilter = getIt<SearchFilter>();
 

@@ -7,17 +7,17 @@ import '../core/models/favorite.dart';
 import '../core/singletons/current_user.dart';
 import '../get_it.dart';
 import '../repository/data/interfaces/i_favorite_repository.dart';
-import '../repository/data/parse_server/ps_favorite_repository.dart';
+import 'ads_manager.dart';
 
 class FavoritesManager {
   final favoriteRepository = getIt<IFavoriteRepository>();
+  final adsManager = getIt<AdsManager>();
 
   final List<FavoriteModel> _favs = [];
   final List<AdModel> _ads = [];
-  final List<String> _favIds = [];
 
   List<FavoriteModel> get favs => _favs;
-  List<String> get favAdIds => _favIds;
+  List<String> get favAdIds => _favs.map((fav) => fav.adId).toList();
   bool get isLogged => getIt<CurrentUser>().isLogged;
   String? get userId => getIt<CurrentUser>().userId;
   List<AdModel> get ads => _ads;
@@ -30,6 +30,7 @@ class FavoritesManager {
 
   Future<void> login() async {
     if (isLogged) {
+      favoriteRepository.initialize(userId);
       await getFavorites();
     }
   }
@@ -42,24 +43,47 @@ class FavoritesManager {
     if (isLogged) {
       _favs.clear();
       _ads.clear();
-      _favIds.clear();
       _toggleFavNotifier();
     }
   }
 
   Future<void> getFavorites() async {
     try {
-      final List<AdModel> ads;
-      final List<FavoriteModel> favs;
-      (ads, favs) = await PSFavoriteRepository.getFavorites(userId!);
+      final result = await favoriteRepository.getAll();
+      if (result.isFailure) {
+        throw Exception(result.error ?? 'unknow error');
+      }
+      final favs = result.isSuccess ? result.data! : <FavoriteModel>[];
+
+      final List<AdModel> ads = [];
+      final Iterable<String> favAdIds = favs.map((fav) => fav.adId);
+      for (final adId in favAdIds) {
+        final result = await adsManager.getAdById(adId);
+        if (result.isFailure || result.data == null) {
+          log(result.error?.toString() ??
+              'adRepository.getById($adId) unknow error');
+          continue;
+        }
+        final ad = result.data!;
+        // Only active ads can be favorited
+        if (ad.status == AdStatus.active) {
+          ads.add(ad);
+        } else {
+          // Remove fav ad if ad.status != AdStatus.active
+          final removeFavId = favs.firstWhere((fav) => fav.adId == ad.id).id;
+          final result = await favoriteRepository.delete(removeFavId!);
+          if (result.isFailure) {
+            log(result.error?.toString() ??
+                'adRepository.getById($adId) unknow error');
+          }
+        }
+      }
 
       _ads.clear();
       _favs.clear();
-      _favIds.clear();
       if (ads.isNotEmpty) {
         _ads.addAll(ads);
         _favs.addAll(favs);
-        _favIds.addAll(_favs.map((fav) => fav.adId));
       }
       _toggleFavNotifier();
     } catch (err) {
@@ -68,7 +92,7 @@ class FavoritesManager {
   }
 
   Future<void> toggleAdFav(AdModel ad) async {
-    if (_favIds.contains(ad.id!)) {
+    if (favAdIds.contains(ad.id!)) {
       _remove(ad);
     } else {
       _add(ad);
@@ -77,14 +101,18 @@ class FavoritesManager {
 
   Future<void> _add(AdModel ad) async {
     try {
-      final fav = await favoriteRepository.add(userId!, ad.id!);
-
-      if (fav != null) {
-        _ads.add(ad);
-        _favs.add(fav);
-        _favIds.add(ad.id!);
-        _toggleFavNotifier();
+      final favorite = FavoriteModel(adId: ad.id!, userId: userId!);
+      final result = await favoriteRepository.add(favorite);
+      if (result.isFailure || result.data == null) {
+        throw Exception(
+            result.error?.toString() ?? '_add new favotire ad error');
       }
+
+      final fav = result.data!;
+
+      _ads.add(ad);
+      _favs.add(fav);
+      _toggleFavNotifier();
     } catch (err) {
       log('Error fetching favorites: $err');
     }
@@ -94,10 +122,14 @@ class FavoritesManager {
     try {
       final favId = _getFavId(ad);
       if (favId != null) {
-        await favoriteRepository.delete(favId);
-        _favs.removeWhere((f) => f.adId == ad.id);
+        final result = await favoriteRepository.delete(favId);
+        if (result.isFailure) {
+          throw Exception(
+              result.error?.toString() ?? '_remove favotire ad error');
+        }
+
+        _favs.removeWhere((fav) => fav.adId == ad.id);
         _ads.removeWhere((a) => a.id == ad.id);
-        _favIds.removeWhere((id) => id == ad.id);
         _toggleFavNotifier();
       }
     } catch (err) {
@@ -109,7 +141,7 @@ class FavoritesManager {
     return _favs
         .firstWhere(
           (f) => f.adId == ad.id,
-          orElse: () => FavoriteModel(adId: ''),
+          orElse: () => FavoriteModel(adId: '', userId: ''),
         )
         .id;
   }

@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:get_it/get_it.dart';
 
-import 'data_managers/ad_manager.dart';
+import 'data_managers/ads_manager.dart';
 import 'data_managers/bag_manager.dart';
 import 'repository/app_data/share_preferences/app_share_preferences_repository.dart';
 import 'repository/app_data/interfaces/i_app_preferences_repository.dart';
@@ -15,6 +15,7 @@ import 'data_managers/boardgames_manager.dart';
 import 'data_managers/favorites_manager.dart';
 import 'data_managers/mechanics_manager.dart';
 import 'repository/data/firebase/fb_address_repository.dart';
+import 'repository/data/firebase/fb_favorite_repository.dart';
 import 'repository/data/firebase/fb_user_repository.dart';
 import 'repository/data/interfaces/i_ad_repository.dart';
 import 'repository/data/interfaces/i_address_repository.dart';
@@ -24,7 +25,6 @@ import 'repository/data/interfaces/i_mechanic_repository.dart';
 import 'repository/data/interfaces/i_user_repository.dart';
 import 'repository/data/parse_server/ps_boardgame_repository.dart';
 import 'repository/data/parse_server/ps_ad_repository.dart';
-import 'repository/data/parse_server/ps_favorite_repository.dart';
 import 'repository/data/parse_server/ps_mechanics_repository.dart';
 import 'repository/local_data/interfaces/i_local_bag_item_repository.dart';
 import 'repository/local_data/sqlite/bag_item_repository.dart';
@@ -60,7 +60,7 @@ void setupDependencies() {
     getIt.registerLazySingleton<AddressesManager>(() => AddressesManager());
     getIt.registerLazySingleton<DatabaseManager>(() => DatabaseManager());
     getIt.registerLazySingleton<BoardgamesManager>(() => BoardgamesManager());
-    getIt.registerLazySingleton<AdManager>(() => AdManager());
+    getIt.registerLazySingleton<AdsManager>(() => AdsManager());
 
     // Parse Server Repositories
     getIt.registerFactory<IUserRepository>(() => FbUserRepository());
@@ -68,7 +68,7 @@ void setupDependencies() {
     getIt.registerFactory<IAdRepository>(() => PSAdRepository());
     getIt.registerFactory<IBoardgameRepository>(() => PSBoardgameRepository());
     getIt.registerFactory<IAddressRepository>(() => FbAddressRepository());
-    getIt.registerFactory<IFavoriteRepository>(() => PSFavoriteRepository());
+    getIt.registerFactory<IFavoriteRepository>(() => FbFavoriteRepository());
     getIt.registerFactory<ILocalBagItemRepository>(
         () => SqliteBagItemRepository());
 

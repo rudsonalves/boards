@@ -78,6 +78,66 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/03 - version: 0.0.02+10
+
+This commit refactors the `Favorites` module, migrating from the Parse Server to Firebase for managing favorites. It also improves naming consistency and enhances error handling in multiple classes and repositories.
+
+### Changes made:
+
+1. **lib/core/models/favorite.dart**:
+   - Updated `FavoriteModel` to include a `userId` field.
+   - Marked `id` as `final` and added a `copyWith` method for easier object mutation.
+   - Introduced `toMap` and `fromMap` methods for Firebase integration.
+   - Added `toString` method for better debugging.
+
+2. **lib/data_managers/ad_manager.dart → lib/data_managers/ads_manager.dart**:
+   - Renamed `AdManager` to `AdsManager` for naming consistency.
+
+3. **lib/data_managers/bag_manager.dart**:
+   - Updated references to `AdsManager` after renaming.
+
+4. **lib/data_managers/favorites_manager.dart**:
+   - Updated `FavoritesManager` to use `FbFavoriteRepository` instead of `PSFavoriteRepository`.
+   - Refactored the logic for retrieving and managing favorites to accommodate Firebase structure.
+   - Removed unused `_favIds` list and replaced it with dynamic mapping logic.
+   - Improved error handling and logging during favorite addition and deletion.
+
+5. **lib/features/bag/bag_controller.dart**:
+   - Updated `adManager` reference to use `AdsManager`.
+
+6. **lib/features/favorites/favorites_controller.dart**:
+   - Updated `adManager` reference to use `AdsManager`.
+
+7. **lib/features/shop/shop_controller.dart**:
+   - Updated `adManager` reference to use `AdsManager`.
+
+8. **lib/get_it.dart**:
+   - Updated dependency injection to register `AdsManager` and `FbFavoriteRepository`.
+   - Removed references to `PSFavoriteRepository`.
+
+9. **lib/repository/data/firebase/fb_address_repository.dart**:
+   - Corrected method references to use `_addresesCollection` instead of `addresesCollection`.
+   - Enhanced encapsulation by making `_addresesCollection` private.
+
+10. **lib/repository/data/firebase/fb_favorite_repository.dart** (new file):
+    - Implemented Firebase-based repository for managing favorites, replacing Parse Server.
+    - Added methods for adding, deleting, and retrieving favorites with robust error handling.
+
+11. **lib/repository/data/interfaces/i_favorite_repository.dart**:
+    - Updated interface methods to align with Firebase implementation.
+    - Added `initialize`, `add`, `delete`, and `getAll` methods with updated signatures.
+
+12. **lib/repository/data/parse_server/common/parse_to_model.dart**:
+    - Updated `FavoriteModel` conversion to include the `userId` field.
+
+13. **lib/repository/data/parse_server/ps_favorite_repository.dart**:
+    - Commented out Parse Server implementation for managing favorites as it is no longer in use.
+
+### Conclusion:
+
+This update transitions the `Favorites` module to Firebase, aligning with the project's broader migration strategy. It also enhances consistency across naming conventions and strengthens error handling mechanisms. The introduction of `FbFavoriteRepository` simplifies operations and improves scalability for managing favorites.
+
+
 ## 2024/12/02 - version: 0.0.02+09
 
 This commit implements extensive updates to the address management system, Cloud Functions, and Firebase integration. Key changes include improving the address selection functionality, enhancing Cloud Functions for managing user roles, and aligning Firestore rules with security best practices.

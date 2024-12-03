@@ -110,6 +110,7 @@ class ParseToModel {
     return FavoriteModel(
       id: parse.objectId,
       adId: adMap['objectId'],
+      userId: '',
     );
   }
 
