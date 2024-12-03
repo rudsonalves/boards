@@ -5,14 +5,14 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import '../core/models/ad.dart';
-import 'ad_manager.dart';
+import 'ads_manager.dart';
 import '/core/models/bag_item.dart';
 import '/get_it.dart';
 import '/repository/local_data/interfaces/i_local_bag_item_repository.dart';
 
 class BagManager {
   final bagRepository = getIt<ILocalBagItemRepository>();
-  final adManager = getIt<AdManager>();
+  final adManager = getIt<AdsManager>();
 
   final _items = <BagItemModel>[];
 

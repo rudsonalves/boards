@@ -3,7 +3,7 @@
 import '/core/abstracts/data_result.dart';
 import '/core/models/ad.dart';
 import '/core/models/bag_item.dart';
-import '/data_managers/ad_manager.dart';
+import '../../data_managers/ads_manager.dart';
 import '/data_managers/bag_manager.dart';
 import '/get_it.dart';
 import '/services/payment/payment_service.dart';
@@ -12,7 +12,7 @@ import 'bag_store.dart';
 class BagController {
   final BagStore store;
   final bagManager = getIt<BagManager>();
-  final adManager = getIt<AdManager>();
+  final adManager = getIt<AdsManager>();
 
   Set<BagItemModel> items(String sellerId) => bagManager.bagBySeller[sellerId]!;
 

@@ -13,7 +13,7 @@ class FbAddressRepository implements IAddressRepository {
   static const keyUsers = 'users';
   static const keyAddresses = 'addresses';
 
-  CollectionReference<Map<String, dynamic>> get addresesCollection =>
+  CollectionReference<Map<String, dynamic>> get _addresesCollection =>
       _firebase.collection(keyUsers).doc(_userId).collection(keyAddresses);
 
   set userId(String userId) {
@@ -32,7 +32,7 @@ class FbAddressRepository implements IAddressRepository {
         throw Exception('UserId is null');
       }
       // Add a new address
-      final doc = await addresesCollection.add(address.toMap());
+      final doc = await _addresesCollection.add(address.toMap());
 
       // Update Address id from firebase address object
       final newAddress = address.copyWith(id: doc.id);
@@ -61,7 +61,7 @@ class FbAddressRepository implements IAddressRepository {
         throw Exception('UserId is null');
       }
       // Get document reference
-      final docRef = addresesCollection.doc(address.id);
+      final docRef = _addresesCollection.doc(address.id);
 
       // Update address
       await docRef.update(address.toMap());
@@ -82,9 +82,9 @@ class FbAddressRepository implements IAddressRepository {
       if (_userId == null) {
         throw Exception('UserId is null');
       }
-      final doc = addresesCollection.doc(addressId);
 
-      await doc.delete();
+      await _addresesCollection.doc(addressId).delete();
+
       return DataResult.success(null);
     } catch (err) {
       return _handleError(
@@ -101,7 +101,7 @@ class FbAddressRepository implements IAddressRepository {
       if (_userId == null) {
         throw Exception('UserId is null');
       }
-      final addressDocs = await addresesCollection.get();
+      final addressDocs = await _addresesCollection.get();
 
       final addresses = addressDocs.docs
           .map((doc) => AddressModel.fromMap(doc.data()).copyWith(id: doc.id))

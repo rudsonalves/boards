@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import '../../core/models/ad.dart';
 import '../../core/singletons/current_user.dart';
-import '../../data_managers/ad_manager.dart';
+import '../../data_managers/ads_manager.dart';
 import '../../data_managers/favorites_manager.dart';
 import '../../get_it.dart';
 import 'favorites_store.dart';
@@ -15,7 +15,7 @@ class FavoritesController {
   }
 
   final currentUser = getIt<CurrentUser>();
-  final adManager = getIt<AdManager>();
+  final adManager = getIt<AdsManager>();
   final favManager = getIt<FavoritesManager>();
 
   List<AdModel> get ads => favManager.ads;
