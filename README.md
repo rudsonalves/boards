@@ -78,6 +78,65 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/04 - version: 0.0.03+12
+
+This commit introduces a significant shift in the repository structure by replacing the Parse Server implementations with Firebase-based repositories. It also adds a new Cloud Function to retrieve boardgame names and integrates new utility methods to enhance error handling and repository consistency.
+
+### Changes made:
+
+1. **go-functions/function.go**:
+   - Added `GetBoardgameNames` Cloud Function to retrieve boardgame data.
+   - Introduced a new `BGNameModel` struct for summarized boardgame data.
+   - Renamed `ChangeUserRoleClaim` to `ChangeUserRole` for better clarity.
+   - Improved error logging and handling across various functions.
+
+2. **lib/core/models/boardgame.dart**:
+   - Added `toMap` and `fromMap` methods to facilitate serialization and deserialization of `BoardgameModel`.
+
+3. **lib/data_managers/boardgames_manager.dart**:
+   - Updated `add` method to use `FbBoardgameRepository`.
+   - Changed `getBoardgameId` to align with updated repository methods.
+
+4. **lib/get_it.dart**:
+   - Replaced `PSBoardgameRepository` with `FbBoardgameRepository` in dependency injection setup.
+
+5. **lib/repository/data/firebase/common/errors_codes.dart**:
+   - Added new error codes for missing mechanics and boardgames.
+
+6. **lib/repository/data/firebase/common/fb_functions.dart**:
+   - Added `getBoardgameNames` method for Cloud Function integration.
+   - Refactored existing methods to return `DataResult` for consistent error handling.
+
+7. **lib/repository/data/firebase/fb_boardgame_repository.dart**:
+   - Introduced a new Firebase-based repository for boardgames.
+   - Implemented methods for CRUD operations and fetching boardgame names.
+
+8. **lib/repository/data/firebase/fb_mechanic_repository.dart**:
+   - Added error handling for missing mechanics in `get` method.
+   - Fixed incorrect error handling in the `update` method.
+
+9. **lib/repository/data/interfaces/i_boardgame_repository.dart**:
+   - Renamed `save` method to `add` for consistency.
+   - Updated `getById` to `get`.
+
+10. **lib/repository/data/parse_server/ps_address_repository.dart**:
+    - Deleted the Parse Server implementation for address management.
+
+11. **lib/repository/data/parse_server/ps_boardgame_repository.dart**:
+    - Refactored methods to align with the Firebase-based repository structure.
+    - Replaced `save` with `add` and `getById` with `get`.
+
+12. **lib/repository/data/parse_server/ps_favorite_repository.dart**:
+    - Removed the Parse Server implementation for favorite management.
+
+13. **lib/repository/data/parse_server/ps_user_repository.dart**:
+    - Deleted the Parse Server implementation for user management.
+
+### Conclusion:
+
+These changes transition the codebase from Parse Server to Firebase, simplifying the integration and enhancing scalability. The addition of utility functions and improved error handling ensures better maintainability and clarity across the repositories. The new Cloud Function for fetching boardgame names further aligns the backend with modern requirements.
+
+
 ## 2024/12/03 - version: 0.0.03+11
 
 This commit introduces significant improvements to the mechanics and favorites modules, migrates mechanics management to Firebase, and refactors related code for consistency and maintainability. Additionally, it modifies the database setup and adjusts constants to support the new workflow.

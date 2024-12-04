@@ -42,6 +42,10 @@ class FbMechanicRepository implements IMechanicRepository {
   Future<DataResult<MechanicModel>> get(String mechId) async {
     try {
       final doc = await _mechsCollection.doc(mechId).get();
+      if (doc.data() == null) {
+        return _handleError(
+            'get', 'mechanic id $mechId not found', ErrorCodes.mechNotFound);
+      }
 
       final mech = MechanicModel.fromMap(doc.data()!).copyWith(id: doc.id);
 
@@ -75,7 +79,7 @@ class FbMechanicRepository implements IMechanicRepository {
 
       return DataResult.success(null);
     } catch (err) {
-      return _handleError('get', err, ErrorCodes.unknownError);
+      return _handleError('update', err, ErrorCodes.unknownError);
     }
   }
 

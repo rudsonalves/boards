@@ -7,4 +7,8 @@ class ErrorCodes {
   static const int wrongEmailPassword = 204;
 
   static const int addressIdNull = 301;
+
+  static const int mechNotFound = 400;
+
+  static const int bgNotFound = 500;
 }

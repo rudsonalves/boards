@@ -1,5 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-
 class BoardgameModel {
   String? id;
   String name;
@@ -102,6 +100,45 @@ class BoardgameModel {
       artist: artist ?? this.artist,
       description: description ?? this.description,
       mechsPsIds: mechsPsIds ?? this.mechsPsIds,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'id': id,
+      'name': name,
+      'image': image,
+      'publishYear': publishYear,
+      'minPlayers': minPlayers,
+      'maxPlayers': maxPlayers,
+      'minTime': minTime,
+      'maxTime': maxTime,
+      'minAge': minAge,
+      'designer': designer,
+      'artist': artist,
+      'description': description,
+      'mechsPsIds': mechsPsIds,
+    };
+  }
+
+  factory BoardgameModel.fromMap(Map<String, dynamic> map) {
+    return BoardgameModel(
+      id: map['id'] != null ? map['id'] as String : null,
+      name: map['name'] as String,
+      image: map['image'] as String,
+      publishYear: map['publishYear'] as int,
+      minPlayers: map['minPlayers'] as int,
+      maxPlayers: map['maxPlayers'] as int,
+      minTime: map['minTime'] as int,
+      maxTime: map['maxTime'] as int,
+      minAge: map['minAge'] as int,
+      designer: map['designer'] != null ? map['designer'] as String : null,
+      artist: map['artist'] != null ? map['artist'] as String : null,
+      description:
+          map['description'] != null ? map['description'] as String : null,
+      mechsPsIds: List<String>.from(
+        (map['mechsPsIds'] as List<String>),
+      ),
     );
   }
 }

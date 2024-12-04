@@ -17,7 +17,7 @@ import 'common/parse_to_model.dart';
 /// to retrieve and save boardgames informations
 class PSBoardgameRepository implements IBoardgameRepository {
   @override
-  Future<DataResult<BoardgameModel?>> save(BoardgameModel bg) async {
+  Future<DataResult<BoardgameModel?>> add(BoardgameModel bg) async {
     try {
       final parseUser = await PsFunctions.parseCurrentUser();
       final parseAcl = PsFunctions.createSharedAcl(parseUser);
@@ -67,7 +67,7 @@ class PSBoardgameRepository implements IBoardgameRepository {
   }
 
   @override
-  Future<DataResult<BoardgameModel?>> getById(String bgId) async {
+  Future<DataResult<BoardgameModel?>> get(String bgId) async {
     try {
       final parse = ParseObject(keyBgTable);
 

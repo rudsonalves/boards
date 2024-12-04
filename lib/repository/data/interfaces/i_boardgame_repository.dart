@@ -38,7 +38,7 @@ abstract class IBoardgameRepository {
   /// Throws:
   /// - `BoardgameRepositoryException` if the save operation fails, providing
   /// details of the issue.
-  Future<DataResult<BoardgameModel?>> save(BoardgameModel bg);
+  Future<DataResult<BoardgameModel?>> add(BoardgameModel bg);
 
   /// Updates an existing board game in the data store.
   ///
@@ -73,7 +73,7 @@ abstract class IBoardgameRepository {
   /// Throws:
   /// - `BoardgameRepositoryException` if the board game cannot be found or if
   /// there is an error during the retrieval.
-  Future<DataResult<BoardgameModel?>> getById(String bgId);
+  Future<DataResult<BoardgameModel?>> get(String bgId);
 
   /// Retrieves a list of board game names from the data store.
   ///
