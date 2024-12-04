@@ -125,7 +125,7 @@ class BoardgamesManager {
       bg.image = convertResult.convertedImagePath;
 
       // Step 2: Save the updated board game to the remote Parse server.
-      final result = await boardgameRepository.save(bg);
+      final result = await boardgameRepository.add(bg);
       if (result.isFailure) {
         throw Exception(result.error);
       }
@@ -627,7 +627,7 @@ class BoardgamesManager {
   }
 
   Future<DataResult<BoardgameModel?>> getBoardgameId(String bgId) async {
-    return await boardgameRepository.getById(bgId);
+    return await boardgameRepository.get(bgId);
   }
 
   /// Sorts the list of board games (`_bgsList`) based on the alphabetical order

@@ -11,9 +11,11 @@ import (
 	"net/smtp"
 	"strings"
 
+	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
 	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
+	"google.golang.org/api/iterator"
 )
 
 const (
@@ -24,24 +26,105 @@ const (
 	appName    = "Boards"
 )
 
-// Estrutura para o payload recebido no corpo da requisição
+// Struct for the payload received in the request body
 type RequestPayload struct {
 	UserId string `json:"userId"`
 	Role   string `json:"role"`
 }
 
+// Struct for the summarized data model of boardgames
+type BGNameModel struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	PublishYear int    `json:"publishYear"`
+}
+
 func init() {
-	// Registra a função como Callable
+	// Register the functions as Callable
 	functions.HTTP("AssignDefaultUserRole", AssignDefaultUserRole)
 	functions.HTTP("SendVerificationEmail", SendVerificationEmail)
-	functions.HTTP("ChangeUserRoleClaim", ChangeUserRoleClaim)
+	functions.HTTP("ChangeUserRole", ChangeUserRole)
+	functions.HTTP("GetBoardgameNames", GetBoardgameNames)
+}
+
+// GetBoardgameNames is a Callable Cloud Function that retrieves
+// boardgame names with specific fields.
+func GetBoardgameNames(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	client, err := getFirebaseFirestoreClient(ctx)
+	if err != nil {
+		http.Error(w, "Failed to initialize Firestore client", http.StatusInternalServerError)
+		return
+	}
+	defer client.Close()
+
+	iter := client.Collection("boardgames").Select("name", "publishYear").Documents(ctx)
+
+	var boardgames []BGNameModel
+
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			// Log the error and continue returning an empty list if iteration fails
+			log.Printf("Error iterating over boardgames collection: %v", err)
+			http.Error(w, "Failed to iterate boardgames collection", http.StatusInternalServerError)
+			return
+		}
+
+		data := doc.Data()
+
+		// Type verification before converting values
+		name, ok1 := data["name"].(string)
+		publishYear, ok2 := data["publishYear"].(int64)
+		if !ok1 || !ok2 {
+			log.Printf("Failed to parse document fields for document ID %s", doc.Ref.ID)
+			continue
+		}
+
+		bg := BGNameModel{
+			ID:          doc.Ref.ID,
+			Name:        name,
+			PublishYear: int(publishYear),
+		}
+		boardgames = append(boardgames, bg)
+	}
+
+	// Log the retrieved data to verify
+	log.Printf("Boardgames retrieved: %v", boardgames)
+
+	// Even if the collection is empty, we return an empty JSON list
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(boardgames); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
+
+	log.Println("Successfully retrieved boardgame names")
+}
+
+// Function to initialize the Firesotre client
+func getFirebaseFirestoreClient(ctx context.Context) (*firestore.Client, error) {
+	app, err := firebase.NewApp(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error initializing app: %v", err)
+	}
+
+	client, err := app.Firestore(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error getting Firestore client: %v", err)
+	}
+
+	return client, nil
 }
 
 // AssignDefaultRole is a Callable Cloud Function.
 func AssignDefaultUserRole(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	log.Printf("Initializing Firebase App")
 	// Initialize the Firebase Auth client.
 	client, err := getFirebaseAuthClient(ctx)
 	if err != nil {
@@ -49,7 +132,7 @@ func AssignDefaultUserRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Obter o token do usuário autenticado que fez a requisição
+	// Get the token of the authenticated user who made the request
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 		http.Error(w, "Missing or invalid Authorization header", http.StatusUnauthorized)
@@ -69,10 +152,10 @@ func AssignDefaultUserRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Define o papel do novo usuário como "user"
+	// Set the new user's role to "user"
 	role := "user"
 
-	// Durante a configuração inicial, altere para "admin" para criar o primeiro administrador
+	// During initial setup, change to "admin" to create the first administrator
 	// role = "admin"
 
 	if err := setUserRole(ctx, client, userId, role); err != nil {
@@ -83,8 +166,8 @@ func AssignDefaultUserRole(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, fmt.Sprintf("Custom claims successfully defined for user %s with role %s", userId, role))
 }
 
-// ChangeUserRoleClaim is a Callable Cloud Function.
-func ChangeUserRoleClaim(w http.ResponseWriter, r *http.Request) {
+// ChangeUserRole is a Callable Cloud Function.
+func ChangeUserRole(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	client, err := getFirebaseAuthClient(ctx)
 	if err != nil {
@@ -105,7 +188,7 @@ func ChangeUserRoleClaim(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verifica se o solicitante é um admin
+	// Chack if the requester is admin
 	if err := verifyAdminToken(r, client, ctx); err != nil {
 		http.Error(w, err.Error(), http.StatusForbidden)
 		return
@@ -119,7 +202,7 @@ func ChangeUserRoleClaim(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, fmt.Sprintf("Custom claims successfully updated for user %s to role %s", userId, newRole))
 }
 
-// decodeRequestPayload decodifica o payload da requisição para obter os dados do usuário
+// decodeRequestPayload decodes the request payload to get the user data
 func decodeRequestPayload(r *http.Request) (*RequestPayload, error) {
 	var payload struct {
 		Data RequestPayload `json:"data"`
@@ -130,7 +213,7 @@ func decodeRequestPayload(r *http.Request) (*RequestPayload, error) {
 	return &payload.Data, nil
 }
 
-// setUserRole define o custom claim "role" para um usuário específico
+// setUserRole sets the custom claim "role" to a specific user
 func setUserRole(ctx context.Context, client *auth.Client, userId, role string) error {
 	claims := map[string]interface{}{
 		"role": role,
@@ -139,7 +222,8 @@ func setUserRole(ctx context.Context, client *auth.Client, userId, role string) 
 	return client.SetCustomUserClaims(ctx, userId, claims)
 }
 
-// verifyAdminToken verifica se o usuário autenticado possui o papel "admin"
+// verifyAdminToken verifies whetever the authenticated user has
+// the "admin" role
 func verifyAdminToken(r *http.Request, client *auth.Client, ctx context.Context) error {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
@@ -158,7 +242,7 @@ func verifyAdminToken(r *http.Request, client *auth.Client, ctx context.Context)
 	return nil
 }
 
-// sendSuccessResponse envia uma resposta de sucesso para o cliente
+// sendSuccessResponse sends a success response to the client
 func sendSuccessResponse(w http.ResponseWriter, message string) {
 	response := map[string]interface{}{
 		"result": message,
@@ -171,9 +255,11 @@ func sendSuccessResponse(w http.ResponseWriter, message string) {
 	log.Println(message)
 }
 
-// getFirebaseAuthClient initializes Firebase and returns an authentication client.
+// getFirebaseAuthClient initializes Firebase and returns an
+// authentication client.
 func getFirebaseAuthClient(ctx context.Context) (*auth.Client, error) {
-	// If you are using Application Default Credentials (ADC), you can omit the option.WithCredentialsFile.
+	// If you are using Application Default Credentials (ADC), you can
+	// omit the option.WithCredentialsFile.
 	app, err := firebase.NewApp(ctx, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error initializing app: %v", err)
@@ -197,7 +283,7 @@ func SendVerificationEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Decodifica o payload recebido
+	// Decodes the received payload
 	var payload struct {
 		Email       string `json:"email"`
 		DisplayName string `json:"displayName"`
@@ -240,14 +326,14 @@ func sendVerificationEmail(
 	email string,
 	displayName string,
 ) error {
-	// Gera o link de verificação pelo Firebase.
+	// Generates the verification link via Firebase.
 	ctx := context.Background()
 	verificationLink, err := client.EmailVerificationLinkWithSettings(ctx, email, nil)
 	if err != nil {
 		return fmt.Errorf("failed to generate verification link: %v", err)
 	}
 
-	// Template do e-mail.
+	// Email template.
 	emailTemplate := `
 Olá {{.DisplayName}},
 
@@ -262,27 +348,27 @@ Obrigado,
 Equipe da {{.AppName}}
 `
 
-	// Dados para o template.
+	// Data for the template.
 	data := map[string]string{
 		"DisplayName":      displayName,
 		"VerificationLink": verificationLink,
 		"AppName":          appName,
 	}
 
-	// Gera o corpo do e-mail.
+	// Generates the body of the email.
 	body := new(bytes.Buffer)
 	tmpl := template.Must(template.New("email").Parse(emailTemplate))
 	if err := tmpl.Execute(body, data); err != nil {
 		return fmt.Errorf("failed to parse email template: %v", err)
 	}
 
-	// Monta a mensagem do e-mail.
+	// Assemble the email message.
 	msg := fmt.Sprintf("From: %s\nTo: %s\nSubject: Verify your email address\n\n%s", smtpUser, email, body.String())
 
-	// Configura o cliente SMTP.
+	// Configure the SMTP client.
 	auth := smtp.PlainAuth("", smtpUser, smtpPass, smtpServer)
 
-	// Envia o e-mail.
+	// Send the email.
 	err = smtp.SendMail(smtpServer+":"+smtpPort, auth, smtpUser, []string{email}, []byte(msg))
 	if err != nil {
 		return fmt.Errorf("failed to send email: %v", err)
