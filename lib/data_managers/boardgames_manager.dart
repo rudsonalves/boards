@@ -34,11 +34,11 @@ class BoardgamesManager {
   final boardgameRepository = getIt<IBoardgameRepository>();
   late final IBgNamesRepository localBoardgameRepository;
 
-  final List<BGNameModel> _localBGsList = [];
+  final List<BGNameModel> _bgList = [];
 
-  List<BGNameModel> get localBGList => _localBGsList;
+  List<BGNameModel> get bgList => _bgList;
   // List of names
-  List<String> get bgNames => _localBGsList.map((bg) => bg.name!).toList();
+  List<String> get bgNames => _bgList.map((bg) => bg.name!).toList();
 
   Future<void> initialize() async {
     localBoardgameRepository = await getIt.getAsync<IBgNamesRepository>();
@@ -73,7 +73,7 @@ class BoardgamesManager {
       await _getLocalBgNames();
 
       // Retrieves the list of board game names from the local SQLite database.
-      final newsBGNames = await _getParseBgNames();
+      final newsBGNames = await _getDataBgNames();
 
       // Update local SQLite database
       await _updateLocalBgNames(newsBGNames);
@@ -210,6 +210,10 @@ class BoardgamesManager {
     }
   }
 
+  Future<DataResult<BoardgameModel?>> getBoardgameId(String bgId) async {
+    return await boardgameRepository.get(bgId);
+  }
+
   /// Processes the image for a board game update by converting it to a standard
   /// format if needed and updating the [BoardgameModel]'s image path.
   ///
@@ -310,7 +314,7 @@ class BoardgamesManager {
   /// - An [Exception] if the board game ID cannot be found in `_localBGsList`,
   ///   indicating that the local data is out of sync.
   Future<void> _updateLocalDatabaseIfNeeded(BoardgameModel newBg) async {
-    final bgName = _localBGsList.firstWhere((b) => b.id == newBg.id,
+    final bgName = _bgList.firstWhere((b) => b.id == newBg.id,
         orElse: () => BGNameModel());
     if (bgName.id == null) throw Exception('_localBGsList bgId not found.');
 
@@ -320,10 +324,10 @@ class BoardgamesManager {
       await localBoardgameRepository.update(bgName);
 
       // Update in-memory list and sort it
-      final index = _localBGsList.indexWhere((b) => b.id == newBg.id);
+      final index = _bgList.indexWhere((b) => b.id == newBg.id);
       if (index == -1) throw Exception('_localBGsList index not found.');
 
-      _localBGsList[index].name = bgName.name;
+      _bgList[index].name = bgName.name;
       _sortingBGNames();
     }
   }
@@ -374,7 +378,7 @@ class BoardgamesManager {
   ///   database will be propagated and needs to be handled by the caller.
   Future<void> _updateLocalBgNames(List<BGNameModel> bgList) async {
     // Retrieves bg ids from parse server bg list.
-    final bgIds = _localBGsList.map((bg) => bg.id!).toList();
+    final bgIds = _bgList.map((bg) => bg.id!).toList();
 
     // Iterates over each boardgame in the provided list from the server
     // and adds it to the local SQLite database if it's not already present.
@@ -388,7 +392,7 @@ class BoardgamesManager {
         }
 
         final newBg = result.data!;
-        _localBGsList.add(newBg);
+        _bgList.add(newBg);
         bgIds.add(newBg.id!);
       }
     }
@@ -452,20 +456,20 @@ class BoardgamesManager {
   /// - A [Future] with no return value.
   Future<void> _updadeLocalBGList(BGNameModel bgName) async {
     await localBoardgameRepository.add(bgName);
-    _localBGsList.add(bgName);
+    _bgList.add(bgName);
     _sortingBGNames();
   }
 
-  /// Retrieves the list of board game names from the Parse server.
+  /// Retrieves the list of board game names from the Database.
   ///
-  /// This private method calls the [boardgameRepository.getNames] method to get
-  /// a list of board game names from the Parse server.
+  /// This private method calls the [boardgameRepository.getNames] method
+  /// to get a list of board game names from the Parse server.
   /// The result contains instances of [BGNameModel] if successful.
   ///
   /// Returns:
   /// - A [Future] containing a [DataResult] with a list of [BGNameModel]
   /// objects.
-  Future<List<BGNameModel>> _getParseBgNames() async {
+  Future<List<BGNameModel>> _getDataBgNames() async {
     final result = await boardgameRepository.getNames();
     if (result.isFailure) {
       throw Exception('_getParseBgNames: ${result.error}');
@@ -494,13 +498,13 @@ class BoardgamesManager {
     final bgs = result.data!;
 
     // Clear the current list of board game names.
-    _localBGsList.clear();
+    _bgList.clear();
 
     // If no board game names are found, simply return.
     if (bgs.isEmpty) return;
 
     // Add the retrieved names to the list and sort them.
-    _localBGsList.addAll(bgs);
+    _bgList.addAll(bgs);
     _sortingBGNames();
   }
 
@@ -626,10 +630,6 @@ class BoardgamesManager {
     }
   }
 
-  Future<DataResult<BoardgameModel?>> getBoardgameId(String bgId) async {
-    return await boardgameRepository.get(bgId);
-  }
-
   /// Sorts the list of board games (`_bgsList`) based on the alphabetical order
   /// of the board game names present in `bgNames`.
   ///
@@ -641,7 +641,7 @@ class BoardgamesManager {
   /// version of the board game names, maintaining the order consistency.
   void _sortingBGNames() {
     // Return if the list has 1 or fewer elements
-    if (_localBGsList.length < 2) return;
+    if (_bgList.length < 2) return;
 
     // Step 1: Make a copy of the `bgNames` list and sort it alphabetically.
     List<String> names = List.from(bgNames);
@@ -651,12 +651,12 @@ class BoardgamesManager {
     // sorted names
     final sortedList = names
         .map(
-          (name) => _localBGsList.firstWhere((item) => item.name == name),
+          (name) => _bgList.firstWhere((item) => item.name == name),
         )
         .toList();
 
     // Step 3: Replace `_localBGsList` with the newly sorted list
-    _localBGsList
+    _bgList
       ..clear()
       ..addAll(sortedList);
   }

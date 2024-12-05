@@ -78,6 +78,68 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/05 - version: 0.0.04+16
+
+This commit introduces multiple improvements and refactors across the project, including Firebase configurations, enhancements in boardgame management, and migrating key functions for better integration and performance.
+
+### Changes made:
+
+1. **.firebaserc**:
+   - Added `targets` for `functions` and `functions_go` directories, specifying their sources.
+
+2. **Makefile**:
+   - Removed the commented-out `firebase_functions_deploy` section.
+   - Added `functions_deploy` target for deploying Firebase functions.
+
+3. **firebase.json**:
+   - Added a new section for `storage` with its `rules`.
+   - Updated `functions` to reflect the correct source directory and include a `predeploy` script.
+
+4. **firebase.json_old**:
+   - Created a backup file to preserve the previous Firebase configurations for reference.
+
+5. **functions/.eslintrc.js**:
+   - Introduced ESLint configuration for the Firebase Functions directory.
+
+6. **functions/.gitignore**:
+   - Added rules to ignore `node_modules` and local files.
+
+7. **functions/index.js**:
+   - Introduced multiple Firebase Cloud Functions, including:
+     - `syncBoardgameToBGNames`: Syncs boardgame data with `bgnames` upon creation.
+     - `deleteBGName`: Deletes corresponding `bgnames` entry when a boardgame is deleted.
+     - `AssignDefaultUserRole` and `ChangeUserRole`: Manage user roles using custom claims.
+
+8. **functions_go/function.go**:
+   - Migrated to a new directory `functions_go`.
+   - Added enhancements for handling Firebase Auth and Firestore operations.
+
+9. **functions_go_tests/functions/function.go**:
+   - Refactored Firebase initialization and added logs for debugging.
+
+10. **lib/data_managers/boardgames_manager.dart**:
+    - Renamed `_localBGsList` to `_bgList` for better clarity.
+    - Updated related methods and properties to align with the new naming.
+    - Enhanced `_updateLocalDatabaseIfNeeded` and `_updateLocalBgNames` methods.
+
+11. **lib/features/account/boardgames/boardgames_controller.dart**:
+    - Replaced `localBGList` with `bgList` in the `BoardgamesController`.
+
+12. **lib/repository/data/firebase/common/fb_functions.dart**:
+    - Removed the `getBoardgameNames` method as the logic was moved to `FbBoardgameRepository`.
+
+13. **lib/repository/data/firebase/fb_boardgame_repository.dart**:
+    - Migrated `getNames` logic to fetch data directly from Firestore instead of calling Cloud Functions.
+    - Added support for the `bgnames` collection.
+
+14. **package-lock.json**:
+    - Updated the package-lock file to reflect the changes in project dependencies.
+
+### Conclusion:
+
+These updates improve project organization, enhance Firebase integration, and streamline boardgame data management. Refactoring ensures clearer naming conventions and removes redundant functions, resulting in a more maintainable and efficient codebase.
+
+
 ## 2024/12/04 - version: 0.0.03+12
 
 This commit introduces a significant shift in the repository structure by replacing the Parse Server implementations with Firebase-based repositories. It also adds a new Cloud Function to retrieve boardgame names and integrates new utility methods to enhance error handling and repository consistency.

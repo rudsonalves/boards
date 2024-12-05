@@ -40,5 +40,5 @@ go_functions_deploy:
 firebase_emusavecache:
 	firebase emulators:export ./emulator_data -f
 
-# firebase_functions_deploy:
-# 	firebase deploy --only functions
+functions_deploy:
+	firebase deploy --only functions

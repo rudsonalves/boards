@@ -11,11 +11,9 @@ import (
 	"net/smtp"
 	"strings"
 
-	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
 	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
-	"google.golang.org/api/iterator"
 )
 
 const (
@@ -44,81 +42,6 @@ func init() {
 	functions.HTTP("AssignDefaultUserRole", AssignDefaultUserRole)
 	functions.HTTP("SendVerificationEmail", SendVerificationEmail)
 	functions.HTTP("ChangeUserRole", ChangeUserRole)
-	functions.HTTP("GetBoardgameNames", GetBoardgameNames)
-}
-
-// GetBoardgameNames is a Callable Cloud Function that retrieves
-// boardgame names with specific fields.
-func GetBoardgameNames(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-
-	client, err := getFirebaseFirestoreClient(ctx)
-	if err != nil {
-		http.Error(w, "Failed to initialize Firestore client", http.StatusInternalServerError)
-		return
-	}
-	defer client.Close()
-
-	iter := client.Collection("boardgames").Select("name", "publishYear").Documents(ctx)
-
-	var boardgames []BGNameModel
-
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			// Log the error and continue returning an empty list if iteration fails
-			log.Printf("Error iterating over boardgames collection: %v", err)
-			http.Error(w, "Failed to iterate boardgames collection", http.StatusInternalServerError)
-			return
-		}
-
-		data := doc.Data()
-
-		// Type verification before converting values
-		name, ok1 := data["name"].(string)
-		publishYear, ok2 := data["publishYear"].(int64)
-		if !ok1 || !ok2 {
-			log.Printf("Failed to parse document fields for document ID %s", doc.Ref.ID)
-			continue
-		}
-
-		bg := BGNameModel{
-			ID:          doc.Ref.ID,
-			Name:        name,
-			PublishYear: int(publishYear),
-		}
-		boardgames = append(boardgames, bg)
-	}
-
-	// Log the retrieved data to verify
-	log.Printf("Boardgames retrieved: %v", boardgames)
-
-	// Even if the collection is empty, we return an empty JSON list
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(boardgames); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-		return
-	}
-
-	log.Println("Successfully retrieved boardgame names")
-}
-
-// Function to initialize the Firesotre client
-func getFirebaseFirestoreClient(ctx context.Context) (*firestore.Client, error) {
-	app, err := firebase.NewApp(ctx, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error initializing app: %v", err)
-	}
-
-	client, err := app.Firestore(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("error getting Firestore client: %v", err)
-	}
-
-	return client, nil
 }
 
 // AssignDefaultRole is a Callable Cloud Function.
