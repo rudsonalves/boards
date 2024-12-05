@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "boards-fc3e5"
+  },
+  "targets": {
+    "boards-fc3e5": {
+      "functions": {
+        "source": "functions"
+      },
+      "functions_go": {
+        "source": "functions_go"
+      }
+    }
   }
 }

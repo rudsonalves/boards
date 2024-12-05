@@ -3,7 +3,7 @@
 set -e  # Sai imediatamente se um comando falhar
 
 # Diretórios e arquivos
-SOURCE_DIR="../go-functions"  # Diretório de produção
+SOURCE_DIR="../functions_go"  # Diretório de produção
 TARGET_DIR="./functions"  # Diretório de testes
 FUNCTION_FILE="function.go"
 TEST_GO_DIR="go-tests"

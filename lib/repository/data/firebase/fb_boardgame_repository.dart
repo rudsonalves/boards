@@ -1,4 +1,3 @@
-import 'package:boards/repository/data/firebase/common/fb_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '/core/abstracts/data_result.dart';
@@ -10,9 +9,13 @@ import 'common/errors_codes.dart';
 
 class FbBoardgameRepository implements IBoardgameRepository {
   static const keyBoardgames = 'boardgames';
+  static const keyBgNames = 'bgnames';
 
   CollectionReference<Map<String, dynamic>> get _bgCollection =>
       FirebaseFirestore.instance.collection(keyBoardgames);
+
+  CollectionReference<Map<String, dynamic>> get _bgNameCollection =>
+      FirebaseFirestore.instance.collection(keyBgNames);
 
   @override
   Future<DataResult<BoardgameModel?>> add(BoardgameModel bg) async {
@@ -56,11 +59,20 @@ class FbBoardgameRepository implements IBoardgameRepository {
   @override
   Future<DataResult<List<BGNameModel>>> getNames() async {
     try {
-      final result = await FbFunctions.getBoardgameNames();
-      if (result.isFailure) {
-        throw Exception(result.error ?? 'unknow error');
+      final snapshot = await _bgNameCollection.get();
+      if (snapshot.docs.isEmpty) {
+        return DataResult.success([]);
       }
-      return result;
+
+      final bgNames = snapshot.docs
+          .map(
+            (doc) => BGNameModel(
+              id: doc.id,
+              name: doc.data()['name'] as String,
+            ),
+          )
+          .toList();
+      return DataResult.success(bgNames);
     } catch (err) {
       return _handleError('get', err, ErrorCodes.unknownError);
     }

@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:boards/core/models/bg_name.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
 import '../../../../core/abstracts/data_result.dart';
@@ -55,42 +54,6 @@ class FbFunctions {
       return DataResult.success(null);
     } catch (err) {
       final message = 'FbFunctions.httpsCallable: $err';
-      log(message);
-      return DataResult.failure(GenericFailure(message: message));
-    }
-  }
-
-  static Future<DataResult<List<BGNameModel>>> getBoardgameNames() async {
-    try {
-      final callable = firebaseFuncs.httpsCallable('GetBoardgameNames');
-      final response = await callable.call();
-
-      // Verify if response.data is present and has the expected format
-      if (response.data != null && response.data is List) {
-        final List<dynamic> data = response.data;
-
-        if (data.isEmpty) {
-          log('No boardgames found in Firestore');
-          return DataResult.success([]);
-        }
-
-        final List<BGNameModel> boardgames = data
-            .map((bg) => BGNameModel(
-                  id: bg['id'] as String,
-                  name: '${bg['name']} ${bg['publishYear']}',
-                ))
-            .toList();
-
-        log('GetBoardgameNames Response: $boardgames');
-        return DataResult.success(boardgames);
-      } else {
-        final message = 'No boardgame data returned or unexpected format';
-        log(message);
-        return DataResult.success(
-            []); // Return an empty list if no data is found
-      }
-    } catch (err) {
-      final message = 'FbFunctions.getBoardgameNames: $err';
       log(message);
       return DataResult.failure(GenericFailure(message: message));
     }
