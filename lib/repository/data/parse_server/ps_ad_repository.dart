@@ -260,7 +260,7 @@ class PSAdRepository implements IAdRepository {
 
       return DataResult.success(ad);
     } catch (err) {
-      return _handleError('get', err);
+      return _handleError('getById', err);
     }
   }
 
@@ -457,6 +457,6 @@ class PSAdRepository implements IAdRepository {
   }
 
   DataResult<T> _handleError<T>(String module, Object error) {
-    return PsFunctions.handleError('PASdRepository', module, error);
+    return PsFunctions.handleError('PSAdRepository', module, error);
   }
 }

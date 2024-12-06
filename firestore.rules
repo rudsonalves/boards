@@ -23,7 +23,7 @@ service cloud.firestore {
     // Regras para a coleção boardgames
     match /boardgames/{boardgamesId} {
       // Qualquer usuário autenticado pode ler
-      allow read: if request.auth != null;
+      allow read: if true;
 
       // Apenas admin ou editor podem escrever
       allow write: if isAdminOrEditor();
@@ -32,16 +32,25 @@ service cloud.firestore {
     // Regras para a coleção bgnames
     match /bgnames/{bgnamesId} {
       // Qualquer usuário autenticado pode ler
-      allow read: if request.auth != null;
+      allow read: if true;
 
       // Apenas admin ou editor podem escrever
       allow write: if isAdminOrEditor();
     }
 
+    // Regras para a coleção bgnames
+    match /favorites/{favoritesId} {
+      // Qualquer usuário autenticado pode ler
+      allow read: if true;
+
+      // Apenas admin ou editor podem escrever
+      allow write: if true;
+    }
+
     // Regras para a coleção mechanics
     match /mechanics/{mechanicsId} {
       // Qualquer usuário autenticado pode ler
-      allow read: if request.auth != null;
+      allow read: if true;
 
       // Apenas admin ou editor podem escrever
       allow write: if isAdminOrEditor();

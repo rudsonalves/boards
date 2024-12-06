@@ -1,7 +1,13 @@
+// Configurações para conectar ao emulador
+if (process.env.FUNCTIONS_EMULATOR === "true") {
+  process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8080";
+  process.env.FIREBASE_AUTH_EMULATOR_HOST = "127.0.0.1:9099";
+}
+
 // Importações necessárias
 const {onDocumentCreated, onDocumentDeleted} =
     require("firebase-functions/v2/firestore");
-const {onRequest} = require("firebase-functions/v2/https");
+const {onCall} = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 
 // Inicializar o Firebase Admin SDK
@@ -81,29 +87,29 @@ exports.deleteBGName = onDocumentDeleted(
     });
 
 // =====================
-// Funções Migradas do Go para JavaScript
+// Funções Gerais
 // =====================
 
-// Função AssignDefaultUserRole
-exports.AssignDefaultUserRole = onRequest(
+// Função assignDefaultUserRole
+exports.assignDefaultUserRole = onCall(
     {
-      region: "southamerica-east1", // Define a região explicitamente
+      region: "southamerica-east1",
     },
-    async (req, res) => {
+    async (request) => {
       try {
-        // Verificar token de autenticação
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-          return res.status(401)
-              .send("Missing or invalid Authorization header");
+        console.log("Function assignDefaultUserRole called.");
+
+        const context = request.auth;
+        // Verificar se o usuário está autenticado
+        if (!context) {
+          console.error("User is not authenticated.");
+          throw new Error("User must be authenticated to call this function.");
         }
 
-        const idToken = authHeader.split("Bearer ")[1];
-        const decodedToken = await auth.verifyIdToken(idToken);
-        const userId = decodedToken.uid;
-
+        const userId = context.uid;
         if (!userId) {
-          return res.status(400).send("Could not extract user ID from token");
+          console.error("User ID not found in context.");
+          throw new Error("Could not extract user ID from token");
         }
 
         // Definir o role como "user"
@@ -115,60 +121,55 @@ exports.AssignDefaultUserRole = onRequest(
 
         await auth.setCustomUserClaims(userId, {role});
         console.log(
-            `Custom claims successfully => user: ${userId} role: ${role}`,
-        );
+            `Custom claims success => user: ${userId} role: ${role}`);
 
-        return res.status(200).json({
-          result:
-              `Custom claims successfully => user: ${userId} role: ${role}`,
-        });
+        return {
+          message: `Custom claims success => user: ${userId} role: ${role}`,
+        };
       } catch (error) {
         console.error("Error assigning default user role:", error);
-        return res.status(500).send("Failed to set custom claims");
+        throw new Error("Failed to set custom claims");
       }
     });
 
-// Função ChangeUserRole
-exports.ChangeUserRole = onRequest(
+// Função changeUserRole
+exports.changeUserRole = onCall(
     {
-      region: "southamerica-east1", // Define a região explicitamente
+      region: "southamerica-east1",
     },
-    async (req, res) => {
+    async (request) => {
       try {
-        // Verificar token de autenticação
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-          return res.status(401)
-              .send("Missing or invalid Authorization header");
+        const context = request.auth;
+        // Verificar se o usuário está autenticado
+        if (!context) {
+          throw new Error("User must be authenticated to call this function.");
         }
 
-        const idToken = authHeader.split("Bearer ")[1];
-        const decodedToken = await auth.verifyIdToken(idToken);
-
         // Verificar se o usuário é admin
-        if (!decodedToken.role || decodedToken.role !== "admin") {
-          return res.status(403).send(
+        const currentUserClaims = context.token;
+        if (!currentUserClaims.role || currentUserClaims.role !== "admin") {
+          throw new Error(
               "Permission denied: only admin can change user roles");
         }
 
         // Extrair payload
-        const {userId, role} = req.body.data;
+        const {userId, role} = request.data;
 
         if (!userId || !role) {
-          return res.status(400).send("Missing userId or role parameter");
+          throw new Error("Missing userId or role parameter");
         }
 
         // Atualizar o role do usuário
         await auth.setCustomUserClaims(userId, {role});
         console.log(
-            `Custom claims successfully => user: ${userId} role: ${role}`);
+            `Custom claims success => user: ${userId} role: ${role}`);
 
-        return res.status(200).json({
-          result: `Custom claims successfully => user: ${userId} role: ${role}`,
-        });
+        return {
+          message: `Custom claims success => user: ${userId} role: ${role}`,
+        };
       } catch (error) {
         console.error("Error changing user role:", error);
-        return res.status(500).send("Failed to set custom claims");
+        throw new Error("Failed to set custom claims");
       }
     });
 

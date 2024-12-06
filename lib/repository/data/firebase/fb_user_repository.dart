@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 
 import '/core/abstracts/data_result.dart';
 import '/core/models/user.dart';
@@ -43,7 +42,7 @@ class FbUserRepository implements IUserRepository {
         );
       }
 
-      await user.getIdToken(!kDebugMode);
+      await user.getIdToken(true);
 
       // Use the extension to convert the Firebase User to a UserModel
       UserModel currentUser = user.toUserModel;
@@ -137,17 +136,24 @@ class FbUserRepository implements IUserRepository {
       );
 
       // Update user display name
-      final newUser = credential.user!;
-      await newUser.updateDisplayName(user.name);
-
-      // Reload user
-      await newUser.reload();
+      final newUser = await _updateProfile(
+        currentUser: credential.user!,
+        displayName: user.name,
+      );
 
       // Send verification email
       await newUser.sendEmailVerification();
 
       // Call to add the custom claim via Cloud Function
-      await FbFunctions.assignDefaultUserRole(newUser.uid);
+      final result = await FbFunctions.assignDefaultUserRole(newUser.uid);
+      if (result.isFailure) {
+        await signOut();
+        _handleError(
+          'signInWithEmail',
+          'claims error',
+          ErrorCodes.claimsError,
+        );
+      }
 
       // Save users informations
       final usersData = {keyUnverifiedPhone: user.phone};
@@ -162,18 +168,48 @@ class FbUserRepository implements IUserRepository {
         return _handleError(
           'signInWithEmail',
           'The password provided is too weak.',
-          211,
+          ErrorCodes.weakPassaword,
         );
       } else if (err.code == 'email-already-in-use') {
         return _handleError(
-          'email-already-in-use',
+          'signInWithEmail',
           'The account already exists for that email.',
-          212,
+          ErrorCodes.emailAlreadyInUse,
         );
       }
-      return _handleError('unknow-error', err, 213);
+      return _handleError('signInWithEmail', err, ErrorCodes.unknownError);
     } catch (err) {
-      return _handleError('signInWithEmail', err, 214);
+      return _handleError('signInWithEmail', err, ErrorCodes.unknownError);
+    }
+  }
+
+  // Update firebase profile with displayname, photoURL, PhoneAuthCredendial
+  Future<User> _updateProfile({
+    required User currentUser,
+    String? displayName,
+    String? photoURL,
+    String? newPassword,
+    PhoneAuthCredential? phoneCredential,
+  }) async {
+    try {
+      if (displayName != null) {
+        await currentUser.updateDisplayName(displayName);
+      }
+      if (photoURL != null) {
+        await currentUser.updatePhotoURL(photoURL);
+      }
+      if (newPassword != null) {
+        await currentUser.updatePassword(newPassword);
+      }
+      if (phoneCredential != null) {
+        await currentUser.updatePhoneNumber(phoneCredential);
+      }
+
+      await currentUser.reload();
+      return _firebaseAuth.currentUser!;
+    } catch (err) {
+      log('Update profile error: $err');
+      rethrow;
     }
   }
 
@@ -249,7 +285,11 @@ class FbUserRepository implements IUserRepository {
       log('Successfully sent email verification');
       return DataResult.success(null);
     } catch (err) {
-      return _handleError('requestResetPassword', err);
+      return _handleError(
+        'requestResetPassword',
+        err,
+        ErrorCodes.unknownError,
+      );
     }
   }
 
@@ -271,7 +311,11 @@ class FbUserRepository implements IUserRepository {
         verificationFailed: (FirebaseAuthException err) {
           // Handling verification failure
           completer.complete(
-            _handleError('verificationFailed', err.message ?? 'Unknow error!'),
+            _handleError(
+              'sendPhoneVerificationSMS',
+              err.message ?? 'Unknow error!',
+              ErrorCodes.verificationFailed,
+            ),
           );
         },
         codeSent: (String verificationId, int? resendToken) {
@@ -297,7 +341,11 @@ class FbUserRepository implements IUserRepository {
 
       return completer.future;
     } catch (err) {
-      return _handleError('sendVerificationSMS', err);
+      return _handleError(
+        'sendVerificationSMS',
+        err,
+        ErrorCodes.unknownError,
+      );
     }
   }
 
@@ -314,7 +362,11 @@ class FbUserRepository implements IUserRepository {
 
       return _updatePhoneNumber(credential);
     } catch (err) {
-      return _handleError('submitVerificationCode', err);
+      return _handleError(
+        'submitVerificationCode',
+        err,
+        ErrorCodes.unknownError,
+      );
     }
   }
 

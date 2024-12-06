@@ -52,7 +52,7 @@ class FbFavoriteRepository implements IFavoriteRepository {
 
       return DataResult.success(null);
     } catch (err) {
-      return _handleError('add', err, ErrorCodes.unknownError);
+      return _handleError('delete', err, ErrorCodes.unknownError);
     }
   }
 
@@ -72,7 +72,7 @@ class FbFavoriteRepository implements IFavoriteRepository {
 
       return DataResult.success(favs);
     } catch (err) {
-      return _handleError('add', err, ErrorCodes.unknownError);
+      return _handleError('getAll', err, ErrorCodes.unknownError);
     }
   }
 
