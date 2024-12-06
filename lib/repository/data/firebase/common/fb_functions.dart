@@ -2,7 +2,9 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 
 import '/core/abstracts/data_result.dart';
@@ -19,14 +21,23 @@ class FbFunctions {
   static const _bucket = 'gs://boards-fc3e5.firebasestorage.app';
 
   // Getter for  Firebase Functions instance.
-  static FirebaseFunctions get _firebaseFuncs => FirebaseFunctions.instance;
+  static FirebaseFunctions get _firebaseFuncs {
+    if (kDebugMode) {
+      const host = '10.0.2.2';
+      const port = 5001;
+      return FirebaseFunctions.instanceFor(region: 'southamerica-east1')
+        ..useFunctionsEmulator(host, port);
+    } else {
+      return FirebaseFunctions.instanceFor(region: 'southamerica-east1');
+    }
+  }
 
   // Getter for Firebase Storage instance.
   static FirebaseStorage get _firebaseStorage => FirebaseStorage.instance;
 
   /// Assigns the default user role ('user') to a specified user ID.
   ///
-  /// Calls the `AssignDefaultUserRole` HTTPS Cloud Function to set
+  /// Calls the `assignDefaultUserRole` HTTPS Cloud Function to set
   /// the default role for the given user.
   ///
   /// [uid]: The user ID to assign the role.
@@ -38,8 +49,17 @@ class FbFunctions {
       if (uid.isEmpty) {
         throw Exception('User ID cannot be empty.');
       }
-      final callable = _firebaseFuncs.httpsCallable('AssignDefaultUserRole');
-      await callable.call({'userId': uid, 'role': 'user'});
+      // Get authenticated user
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception('No authenticated user found.');
+      }
+
+      // Revalidar o token de autenticação do usuário
+      await user.getIdToken(true);
+
+      final callable = _firebaseFuncs.httpsCallable('assignDefaultUserRole');
+      await callable();
 
       return DataResult.success(null);
     } catch (err) {
@@ -51,7 +71,7 @@ class FbFunctions {
 
   /// Changes the role of a specified user ID.
   ///
-  /// Calls the `ChangeUserRole` HTTPS Cloud Function to update
+  /// Calls the `changeUserRole` HTTPS Cloud Function to update
   /// the role of a user in the Firebase project.
   ///
   /// [userId]: The user ID whose role will be changed.
@@ -62,12 +82,17 @@ class FbFunctions {
   static Future<DataResult<void>> changeUserRole(
       String userId, UserRole role) async {
     try {
-      final callable = _firebaseFuncs.httpsCallable('ChangeUserRole');
-      await callable.call({'userId': userId, 'role': role.name});
+      final callable = _firebaseFuncs.httpsCallable('changeUserRole');
+      final result = await callable.call({
+        'userId': userId,
+        'role': role.name,
+      });
+
+      log(result.toString());
 
       return DataResult.success(null);
     } catch (err) {
-      final message = 'FbFunctions.httpsCallable: $err';
+      final message = 'FbFunctions.changeUserRole: $err';
       log(message);
       return DataResult.failure(GenericFailure(message: message));
     }

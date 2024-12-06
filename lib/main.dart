@@ -25,7 +25,7 @@ void main() async {
   // If you are in development mode, connect to the Firestore emulator
   if (kDebugMode) {
     const localhost = '127.0.0.1';
-    await FirebaseAuth.instance.useAuthEmulator(localhost, 4000);
+    await FirebaseAuth.instance.useAuthEmulator(localhost, 9099);
     FirebaseFunctions.instance.useFunctionsEmulator(localhost, 5001);
     FirebaseFirestore.instance.useFirestoreEmulator(localhost, 8080);
     await FirebaseStorage.instance.useStorageEmulator(localhost, 9199);

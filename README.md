@@ -78,6 +78,52 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/06 - version: 0.0.04+18
+
+This commit includes several updates, improvements, and bug fixes across multiple files, focusing on enhanced functionality, better error handling, and improved integration with Firebase and Parse Server. Key changes include modifications to Cloud Functions, updated Firestore rules, and improvements in error code management. Additionally, this commit fixes issues that previously blocked the project from running on the Firebase Emulator Suite, making local development more seamless.
+
+### Changes made:
+
+1. **firebase.json**:
+   - Added `runtime: "nodejs18"` to the Cloud Functions configuration.
+   - Moved the `storage` section to the end of the file for better organization.
+
+2. **firestore.rules**:
+   - Changed read access for `boardgames`, `bgnames`, `favorites`, and `mechanics` collections to allow public read access (`allow read: if true`).
+   - Added rules for the `favorites` collection, allowing read and write access for all users.
+
+3. **functions/index.js**:
+   - Introduced emulator configuration for Firestore and Firebase Auth.
+   - Refactored Cloud Functions `assignDefaultUserRole` and `changeUserRole` to use `onCall` instead of `onRequest`.
+   - Improved error handling and logging within the functions.
+
+4. **lib/main.dart**:
+   - Updated Firebase Auth emulator port from `4000` to `9099`.
+
+5. **lib/repository/data/firebase/common/errors_codes.dart**:
+   - Added new error codes: `claimsError`, `verificationFailed`, `emailAlreadyInUse`, and `weakPassaword`.
+
+6. **lib/repository/data/firebase/common/fb_functions.dart**:
+   - Enhanced Cloud Functions instance to automatically configure for emulator use in development.
+   - Improved `assignDefaultUserRole` and `changeUserRole` functions with better error handling and logging.
+
+7. **lib/repository/data/firebase/fb_favorite_repository.dart**:
+   - Fixed error handling method names in `add` and `getAll` methods.
+
+8. **lib/repository/data/firebase/fb_user_repository.dart**:
+   - Improved handling of user profile updates using a new `_updateProfile` method.
+   - Enhanced error handling and logging for multiple methods, including `sendPhoneVerificationSMS` and `submitVerificationCode`.
+   - Added validation for Cloud Function results and improved error reporting.
+
+9. **lib/repository/data/parse_server/ps_ad_repository.dart**:
+   - Fixed a typo in the error handling method (`PSAdRepository` instead of `PASdRepository`).
+   - Adjusted method name in error handling from `get` to `getById` for clarity.
+
+### Conclusion:
+
+This update not only resolves several bugs but also ensures the project can now run successfully on the Firebase Emulator Suite. This improvement significantly streamlines local development, while the enhanced logging, error handling, and refactored Cloud Functions contribute to better maintainability and debugging efficiency.
+
+
 ## 2024/12/06 - version: 0.0.04+17
 
 This commit introduces several enhancements and refactorings across various files to improve functionality, code clarity, and Firebase integration. Key changes include renaming methods, updating mechanics-related properties, and adding new utility functions for Firebase Storage.

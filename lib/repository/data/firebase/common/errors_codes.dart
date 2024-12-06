@@ -5,6 +5,10 @@ class ErrorCodes {
   static const int emailNotChecked = 202;
   static const int userNotFound = 203;
   static const int wrongEmailPassword = 204;
+  static const int claimsError = 205;
+  static const int verificationFailed = 206;
+  static const int emailAlreadyInUse = 207;
+  static const int weakPassaword = 208;
 
   static const int addressIdNull = 301;
 
