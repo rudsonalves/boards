@@ -78,6 +78,78 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/06 - version: 0.0.04+17
+
+This commit introduces several enhancements and refactorings across various files to improve functionality, code clarity, and Firebase integration. Key changes include renaming methods, updating mechanics-related properties, and adding new utility functions for Firebase Storage.
+
+### Changes made:
+
+1. **Makefile**:
+   - Renamed `firebase_emu` target to `firebase_emu_with_go`.
+   - Updated `firebase_emu` target to start Firebase emulators with data import.
+
+2. **firebase.json**:
+   - Added `region` field with value `southamerica-east1` for Firebase Functions.
+
+3. **firebase.json_old**:
+   - Deleted this redundant configuration file.
+
+4. **firestore.rules**:
+   - Added reusable function `isAdminOrEditor` for role-based permissions.
+   - Updated rules for `users`, `addresses`, `boardgames`, `bgnames`, `mechanics`, and `ads` collections for better access control.
+
+5. **functions/index.js**:
+   - Explicitly set the region to `southamerica-east1` for Cloud Functions.
+   - Enhanced logging in `syncBoardgameToBGNames` function.
+   - Refactored `AssignDefaultUserRole` and `ChangeUserRole` functions for clarity and improved error handling.
+
+6. **lib/app.dart**:
+   - Renamed route from `CheckPage` to `ToolsScreen`.
+
+7. **lib/core/models/boardgame.dart**:
+   - Renamed `mechsPsIds` to `mechIds` for consistency.
+   - Updated related methods and factory constructors.
+
+8. **lib/data_managers/boardgames_manager.dart**:
+   - Replaced Parse Server image URL validation with Firebase Storage URL validation using `FbFunctions`.
+
+9. **lib/features/account/tools**:
+   - Renamed `CheckPage`, `CheckController`, and `CheckStore` to `ToolsScreen`, `ToolsController`, and `ToolsStore`.
+   - Added `cleanDatabase` functionality for resetting local data.
+
+10. **lib/features/edit_ad/edit_ad_controller.dart**:
+    - Updated mechanics property usage to `mechIds`.
+
+11. **lib/features/splash/splash_page_screen.dart**:
+    - Fixed import paths for consistency.
+
+12. **lib/main.dart**:
+    - Added Firebase Storage emulator connection for local development.
+
+13. **lib/repository/data/firebase/common/fb_functions.dart**:
+    - Introduced new utility methods for Firebase Storage operations.
+    - Refactored role management functions for better modularity.
+
+14. **lib/repository/data/firebase/fb_boardgame_repository.dart**:
+    - Integrated image upload functionality via `FbFunctions`.
+
+15. **lib/repository/data/firebase/fb_user_repository.dart**:
+    - Adjusted token refresh behavior based on build mode.
+
+16. **lib/store/database/database_manager.dart**:
+    - Refactored methods to support resetting multiple database tables.
+
+17. **pubspec.lock**:
+    - Updated dependencies for `firebase_core`, `firebase_storage`, and related libraries.
+
+18. **pubspec.yaml**:
+    - Added `firebase_storage` dependency.
+
+### Conclusion:
+
+These updates enhance the functionality and maintainability of the project by introducing better naming conventions, improved Firebase integration, and modularized utilities. The refactorings and new features simplify local database management and extend Firebase functionality, paving the way for a more robust application architecture.
+
+
 ## 2024/12/05 - version: 0.0.04+16
 
 This commit introduces multiple improvements and refactors across the project, including Firebase configurations, enhancements in boardgame management, and migrating key functions for better integration and performance.

@@ -96,7 +96,14 @@ class DatabaseManager {
     }
   }
 
-  Future<void> resetMechanics(Database db) async {
+  Future<void> resetDatabase() async {
+    final db = _database!;
+    await resetMechanicsTable(db);
+    await resetBgNamesTable(db);
+    await resetBagItemsTable(db);
+  }
+
+  Future<void> resetMechanicsTable(Database db) async {
     try {
       Batch batch = db.batch();
       SqlTable.dropMechanicsTable(batch);
@@ -120,7 +127,7 @@ class DatabaseManager {
     }
   }
 
-  Future<void> resetBagItems(Database db) async {
+  Future<void> resetBagItemsTable(Database db) async {
     try {
       Batch batch = db.batch();
       SqlTable.dropBagItemsTable(batch);

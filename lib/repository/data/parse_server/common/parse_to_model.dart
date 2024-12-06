@@ -130,7 +130,7 @@ class ParseToModel {
       designer: parse.get<String?>(keyBgDesigner)!,
       artist: parse.get<String?>(keyBgArtist)!,
       description: parse.get<String?>(keyBgDescription)!,
-      mechsPsIds: mechs.map((item) => item as String).toList(),
+      mechIds: mechs.map((item) => item as String).toList(),
     );
   }
 

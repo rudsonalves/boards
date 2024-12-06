@@ -6,6 +6,7 @@ import '/core/models/boardgame.dart';
 import '../functions/data_functions.dart';
 import '../interfaces/i_boardgame_repository.dart';
 import 'common/errors_codes.dart';
+import 'common/fb_functions.dart';
 
 class FbBoardgameRepository implements IBoardgameRepository {
   static const keyBoardgames = 'boardgames';
@@ -20,9 +21,17 @@ class FbBoardgameRepository implements IBoardgameRepository {
   @override
   Future<DataResult<BoardgameModel?>> add(BoardgameModel bg) async {
     try {
-      final doc = await _bgCollection.add(bg.toMap()..remove('id'));
+      // Upload image if needed
+      final image = await FbFunctions.uploadImage(bg.image);
 
-      return DataResult.success(bg..copyWith(id: doc.id));
+      // Update image url
+      final saveBg = bg.copyWith(image: image);
+
+      // Add board game to Direstore
+      final doc = await _bgCollection.add(saveBg.toMap()..remove('id'));
+
+      // Return a board game with your id
+      return DataResult.success(saveBg.copyWith(id: doc.id));
     } catch (err) {
       return _handleError('add', err, ErrorCodes.unknownError);
     }
@@ -48,7 +57,7 @@ class FbBoardgameRepository implements IBoardgameRepository {
             'get', 'boardgame id $bgId not found', ErrorCodes.bgNotFound);
       }
 
-      final bg = BoardgameModel.fromMap(doc.data()!).copyWith(id: doc.id);
+      final bg = BoardgameModel.fromMap(doc.data()!)..copyWith(id: doc.id);
 
       return DataResult.success(bg);
     } catch (err) {

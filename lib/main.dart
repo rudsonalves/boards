@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -22,11 +23,12 @@ void main() async {
   await Firebase.initializeApp();
 
   // If you are in development mode, connect to the Firestore emulator
-  if (!kDebugMode) {
-    // FIXME: IS DISABLE!!!
-    await FirebaseAuth.instance.useAuthEmulator('127.0.0.1', 9099);
-    FirebaseFirestore.instance.useFirestoreEmulator('127.0.0.1', 8080);
-    FirebaseFunctions.instance.useFunctionsEmulator('127.0.0.1', 5001);
+  if (kDebugMode) {
+    const localhost = '127.0.0.1';
+    await FirebaseAuth.instance.useAuthEmulator(localhost, 4000);
+    FirebaseFunctions.instance.useFunctionsEmulator(localhost, 5001);
+    FirebaseFirestore.instance.useFirestoreEmulator(localhost, 8080);
+    await FirebaseStorage.instance.useStorageEmulator(localhost, 9199);
     log('Using firebase emulator...');
   }
 

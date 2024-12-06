@@ -1,21 +1,44 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart';
 
-import '../../../../core/abstracts/data_result.dart';
+import '/core/abstracts/data_result.dart';
 import '/core/models/user.dart';
 
+/// A utility class that encapsulates Firebase-specific operations.
+/// Provides methods for role management, image handling, and more.
+///
+/// This class cannot be instantiated.
 class FbFunctions {
   FbFunctions._();
 
-  static final firebaseFuncs = FirebaseFunctions.instance;
+  // The Firebase Storage bucket URL.
+  static const _bucket = 'gs://boards-fc3e5.firebasestorage.app';
 
+  // Getter for  Firebase Functions instance.
+  static FirebaseFunctions get _firebaseFuncs => FirebaseFunctions.instance;
+
+  // Getter for Firebase Storage instance.
+  static FirebaseStorage get _firebaseStorage => FirebaseStorage.instance;
+
+  /// Assigns the default user role ('user') to a specified user ID.
+  ///
+  /// Calls the `AssignDefaultUserRole` HTTPS Cloud Function to set
+  /// the default role for the given user.
+  ///
+  /// [uid]: The user ID to assign the role.
+  ///
+  /// Returns:
+  /// - A [DataResult<void>] indicating success or failure.
   static Future<DataResult<void>> assignDefaultUserRole(String uid) async {
     try {
       if (uid.isEmpty) {
         throw Exception('User ID cannot be empty.');
       }
-      final callable = firebaseFuncs.httpsCallable('AssignDefaultUserRole');
+      final callable = _firebaseFuncs.httpsCallable('AssignDefaultUserRole');
       await callable.call({'userId': uid, 'role': 'user'});
 
       return DataResult.success(null);
@@ -26,16 +49,21 @@ class FbFunctions {
     }
   }
 
-  static Future<DataResult<void>> sendVerificationEmail(
-    String email,
-    String displayName,
-  ) async {
+  /// Changes the role of a specified user ID.
+  ///
+  /// Calls the `ChangeUserRole` HTTPS Cloud Function to update
+  /// the role of a user in the Firebase project.
+  ///
+  /// [userId]: The user ID whose role will be changed.
+  /// [role]: The new [UserRole] to assign to the user.
+  ///
+  /// Returns:
+  /// - A [DataResult<void>] indicating success or failure.
+  static Future<DataResult<void>> changeUserRole(
+      String userId, UserRole role) async {
     try {
-      if (email.isEmpty || displayName.isEmpty) {
-        throw Exception('Email or displayName cannot be empty.');
-      }
-      final callable = firebaseFuncs.httpsCallable('SendVerificationEmail');
-      await callable.call({'email': email, 'displayName': displayName});
+      final callable = _firebaseFuncs.httpsCallable('ChangeUserRole');
+      await callable.call({'userId': userId, 'role': role.name});
 
       return DataResult.success(null);
     } catch (err) {
@@ -45,17 +73,79 @@ class FbFunctions {
     }
   }
 
-  static Future<DataResult<void>> changeUserRole(
-      String userId, UserRole role) async {
+  /// Uploads an image to Firebase Storage and returns its download URL.
+  ///
+  /// If the provided [imagePath] is already a valid Firebase Storage URL,
+  /// it is returned without uploading. Otherwise, the image is uploaded to
+  /// Firebase Storage, and the generated URL is returned.
+  ///
+  /// [imagePath]: The local path to the image file or a Firebase Storage URL.
+  ///
+  /// Returns:
+  /// - A [String] containing the Firebase Storage download URL.
+  ///
+  /// Throws:
+  /// - An [Exception] if the upload fails.
+  static Future<String> uploadImage(String imagePath) async {
     try {
-      final callable = firebaseFuncs.httpsCallable('ChangeUserRole');
-      await callable.call({'userId': userId, 'role': role.name});
+      // Check if imagePath exist in Firestore
+      if (isFirebaseStorageUrl(imagePath)) {
+        return imagePath;
+      }
 
-      return DataResult.success(null);
+      // Reference to the location in Firebase Storage
+      final storageRef = _firebaseStorage.ref();
+      final imageFile = File(imagePath);
+      final fileName = basename(imagePath);
+      final fileRef = storageRef.child('uploads/$fileName');
+
+      // Upload it
+      await fileRef.putFile(imageFile);
+
+      // Retrieve the file URL
+      return await fileRef.getDownloadURL();
     } catch (err) {
-      final message = 'FbFunctions.httpsCallable: $err';
-      log(message);
-      return DataResult.failure(GenericFailure(message: message));
+      throw Exception('FbBoardgameRepository._uploadImage: $err');
+    }
+  }
+
+  /// Checks if a given URL is a valid Firebase Storage URL.
+  ///
+  /// [imageUrl]: The URL to validate.
+  ///
+  /// Returns:
+  /// - `true` if the URL is a valid Firebase Storage URL, `false` otherwise.
+  static bool isFirebaseStorageUrl(String imageUrl) {
+    return imageUrl.startsWith(_bucket) ||
+        imageUrl.contains('firebasestorage.googleapis.com/v0/b/boards-fc3e5');
+  }
+
+  /// Checks if a file exists in Firebase Storage by its URL.
+  ///
+  /// [imageUrl]: The Firebase Storage URL of the file.
+  ///
+  /// Returns:
+  /// - `true` if the file exists, `false` if it does not exist.
+  ///
+  /// Throws:
+  /// - [FirebaseException] for errors other than `object-not-found`.
+  static Future<bool> doesImageExist(String imageUrl) async {
+    try {
+      // Extract the path from the URL (after the bucket)
+      final path = Uri.parse(imageUrl).path.replaceFirst('/b/$_bucket/o/', '');
+      final decodedPath = Uri.decodeFull(path);
+
+      // Firebase Storage Reference
+      final storageRef = _firebaseStorage.ref(decodedPath);
+
+      // Try to get the file metadata
+      await storageRef.getMetadata();
+      return true;
+    } catch (err) {
+      if (err is FirebaseException && err.code == 'object-not-found') {
+        return false;
+      }
+      rethrow;
     }
   }
 }

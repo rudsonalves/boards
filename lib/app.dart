@@ -40,7 +40,7 @@ import 'features/shop/product/product_screen.dart';
 import 'features/filters/filters_screen.dart';
 import 'features/account/mechanics/mechanics_screen.dart';
 import 'features/chat/chat_screen.dart';
-import 'features/account/check_mechanics/check_page.dart';
+import 'features/account/tools/tools_screen.dart';
 import 'features/shop/shop_screen.dart';
 import 'features/edit_ad/edit_ad_screen.dart';
 import 'features/signin/signin_screen.dart';
@@ -92,7 +92,7 @@ class _AppState extends State<App> {
               MyDataScreen.routeName: (_) => const MyDataScreen(),
               FavoritesScreen.routeName: (_) => const FavoritesScreen(),
               BoardgamesScreen.routeName: (_) => const BoardgamesScreen(),
-              CheckPage.routeName: (_) => const CheckPage(),
+              ToolsScreen.routeName: (_) => const ToolsScreen(),
               BagScreen.routeName: (_) => const BagScreen(),
             },
             onGenerateRoute: (settings) {

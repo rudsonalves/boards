@@ -1,17 +1,19 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:boards/store/database/database_manager.dart';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '/core/models/mechanic.dart';
 import '/get_it.dart';
 import '/data_managers/mechanics_manager.dart';
-import 'check_store.dart';
+import 'tools_store.dart';
 
-class CheckController {
+class ToolsController {
   late final CheckStore store;
   final mechManager = getIt<MechanicsManager>();
+  final databaseManager = getIt<DatabaseManager>();
 
   List<MechanicModel> get mechanics => mechManager.mechanics;
 
@@ -20,7 +22,7 @@ class CheckController {
   }
 
   Future<void> checkMechanics() async {
-    final List<CheckMechList> checkList = [];
+    final List<ToolsMechList> checkList = [];
     store.resetCount(mechManager.mechanics.length);
     try {
       store.setStateLoading();
@@ -28,11 +30,11 @@ class CheckController {
         final result = await mechManager.get(mech.id!);
         store.incrementCount();
         if (result.isFailure || result.data == null) {
-          checkList.add(CheckMechList(mech, false));
+          checkList.add(ToolsMechList(mech, false));
           continue;
         }
         final psMech = result.data!;
-        checkList.add(CheckMechList(mech, psMech.name == mech.name));
+        checkList.add(ToolsMechList(mech, psMech.name == mech.name));
       }
       store.setCheckList(checkList);
       store.setStateSuccess();
@@ -104,6 +106,17 @@ class CheckController {
           store.incrementCount();
         }
       }
+      store.setStateSuccess();
+    } catch (err) {
+      log(err.toString());
+      store.setError('Teve algum problema no servidor. Tente mais tarde.');
+    }
+  }
+
+  Future<void> cleanDatabase() async {
+    try {
+      store.setStateLoading();
+      await databaseManager.resetDatabase();
       store.setStateSuccess();
     } catch (err) {
       log(err.toString());

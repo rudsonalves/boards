@@ -10,6 +10,7 @@ import '../core/abstracts/data_result.dart';
 import '../core/models/bg_name.dart';
 import '../core/models/boardgame.dart';
 import '../get_it.dart';
+import '../repository/data/firebase/common/fb_functions.dart';
 import '../repository/data/interfaces/i_boardgame_repository.dart';
 import '../repository/local_data/interfaces/i_bg_names_repository.dart';
 import '../services/parse_server/parse_server_server.dart';
@@ -413,7 +414,7 @@ class BoardgamesManager {
     bool forceJpg = true,
   }) async {
     // Image is already on the parse server
-    if (image.startsWith(parseServer.keyParseServerImageUrl)) {
+    if (FbFunctions.isFirebaseStorageUrl(image)) {
       return ImageConversionResult(convertedImagePath: image, localPath: '');
     }
 

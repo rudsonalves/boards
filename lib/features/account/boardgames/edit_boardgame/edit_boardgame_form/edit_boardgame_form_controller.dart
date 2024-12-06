@@ -63,7 +63,7 @@ class EditBoardgameFormController {
     designerController.text = bg.designer ?? '';
     artistController.text = bg.designer ?? '';
     descriptionController.text = bg.description ?? '';
-    setMechanicsPsIds(bg.mechsPsIds);
+    setMechanicsPsIds(bg.mechIds);
   }
 
   void setMechanicsPsIds(List<String> mechPsIds) {
@@ -73,7 +73,7 @@ class EditBoardgameFormController {
 
   void _updateMechsController() {
     mechsController.text =
-        mechManager.namesFromPsIdList(store.bg.mechsPsIds).join(', ');
+        mechManager.namesFromPsIdList(store.bg.mechIds).join(', ');
   }
 
   void setImage(String? image) {

@@ -84,10 +84,10 @@ class EditAdController {
       }
       final bg = result.data;
       if (bg != null) {
-        setMechanicsPsIds(bg.mechsPsIds);
+        setMechanicsPsIds(bg.mechIds);
         setName(bg.name);
         store.setBGInfo(bg);
-        setMechanicsPsIds(bg.mechsPsIds);
+        setMechanicsPsIds(bg.mechIds);
       }
       log(store.ad.toString());
       store.setStateSuccess();

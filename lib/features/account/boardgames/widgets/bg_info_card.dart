@@ -140,7 +140,7 @@ class BGInfoCard extends StatelessWidget {
             const SubTitleProduct(
               subtile: 'Mecânicas:',
             ),
-            Text(mechManager.namesFromIdListString(game.mechsPsIds)),
+            Text(mechManager.namesFromIdListString(game.mechIds)),
             DescriptionProduct(
               description: game.description ?? '- * -',
             ),

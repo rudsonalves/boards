@@ -98,7 +98,7 @@ class BagItemStore implements IBagItemStore {
 
   @override
   Future<void> resetDatabase() async {
-    await _databaseManager.resetBagItems(_db);
+    await _databaseManager.resetBagItemsTable(_db);
   }
 
   @override

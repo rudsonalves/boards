@@ -163,7 +163,7 @@ class PSBoardgameRepository implements IBoardgameRepository {
       ..setNonNull<String?>(keyBgDesigner, bg.designer)
       ..setNonNull<String?>(keyBgArtist, bg.artist)
       ..setNonNull<String?>(keyBgDescription, bg.description)
-      ..setNonNull<List<String>>(keyBgMechanics, bg.mechsPsIds);
+      ..setNonNull<List<String>>(keyBgMechanics, bg.mechIds);
 
     return parseBg;
   }

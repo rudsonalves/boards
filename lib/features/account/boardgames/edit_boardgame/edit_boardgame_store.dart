@@ -89,7 +89,7 @@ class EditBoardgameStore extends StateStore {
   }
 
   void setMechsPsIds(List<String> value) {
-    bg.mechsPsIds = List.from(value);
+    bg.mechIds = List.from(value);
     _validateMechsPsIds();
     _isEdited = true;
   }
@@ -112,7 +112,7 @@ class EditBoardgameStore extends StateStore {
   }
 
   void _validateMechsPsIds() {
-    errorMechsPsIds.value = bg.mechsPsIds.isNotEmpty
+    errorMechsPsIds.value = bg.mechIds.isNotEmpty
         ? null
         : 'Selecione algumas mecânicas para o jogo.';
   }

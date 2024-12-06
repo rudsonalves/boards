@@ -1,8 +1,8 @@
-import 'package:boards/components/widgets/state_error_message.dart';
-import 'package:boards/components/widgets/state_loading_message.dart';
-import 'package:boards/core/theme/app_text_style.dart';
 import 'package:flutter/material.dart';
 
+import '/components/widgets/state_error_message.dart';
+import '/components/widgets/state_loading_message.dart';
+import '/core/theme/app_text_style.dart';
 import '../shop/shop_screen.dart';
 import 'splash_page_store.dart';
 import 'splash_page_controller.dart';
