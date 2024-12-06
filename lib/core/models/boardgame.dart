@@ -11,7 +11,7 @@ class BoardgameModel {
   String? designer;
   String? artist;
   String? description;
-  List<String> mechsPsIds;
+  List<String> mechIds; // List of mechanic ids
 
   BoardgameModel({
     this.id,
@@ -26,7 +26,7 @@ class BoardgameModel {
     this.designer,
     this.artist,
     this.description,
-    required this.mechsPsIds,
+    required this.mechIds,
   });
 
   factory BoardgameModel.clean() {
@@ -39,7 +39,7 @@ class BoardgameModel {
       minTime: 25,
       maxTime: 50,
       minAge: 10,
-      mechsPsIds: [],
+      mechIds: [],
     );
   }
 
@@ -68,7 +68,7 @@ class BoardgameModel {
         ' designer: $designer,\n'
         ' artist: $artist,\n'
         ' description: $description,\n'
-        ' boardgamemechanic: $mechsPsIds)';
+        ' boardgamemechanic: $mechIds)';
   }
 
   BoardgameModel copyWith({
@@ -99,7 +99,7 @@ class BoardgameModel {
       designer: designer ?? this.designer,
       artist: artist ?? this.artist,
       description: description ?? this.description,
-      mechsPsIds: mechsPsIds ?? this.mechsPsIds,
+      mechIds: mechsPsIds ?? this.mechIds,
     );
   }
 
@@ -117,7 +117,7 @@ class BoardgameModel {
       'designer': designer,
       'artist': artist,
       'description': description,
-      'mechsPsIds': mechsPsIds,
+      'mechsPsIds': mechIds,
     };
   }
 
@@ -136,8 +136,8 @@ class BoardgameModel {
       artist: map['artist'] != null ? map['artist'] as String : null,
       description:
           map['description'] != null ? map['description'] as String : null,
-      mechsPsIds: List<String>.from(
-        (map['mechsPsIds'] as List<String>),
+      mechIds: List<String>.from(
+        (map['mechsPsIds'] as List<dynamic>).map((id) => id as String),
       ),
     );
   }

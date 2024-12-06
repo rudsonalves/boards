@@ -54,6 +54,7 @@
   "functions": [
     {
       "source": "functions",
+      "region": "southamerica-east1",
       "codebase": "default",
       "ignore": [
         "node_modules",

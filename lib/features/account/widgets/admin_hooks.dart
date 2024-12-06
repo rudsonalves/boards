@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import '../check_mechanics/check_page.dart';
+import '../tools/tools_screen.dart';
 import '../boardgames/boardgames_screen.dart';
 import '../mechanics/mechanics_screen.dart';
 import '../../shop/product/widgets/title_product.dart';
@@ -54,16 +54,16 @@ class AdminHooks extends StatelessWidget {
         ),
         ListTile(
           leading: Icon(
-            Symbols.sync_rounded,
+            Symbols.construction_rounded,
             color: primary,
           ),
           title: Text(
-            'Verificar Mecânicas',
+            'Ferramentas',
             style: TextStyle(color: primary),
           ),
           onTap: () => Navigator.pushNamed(
             context,
-            CheckPage.routeName,
+            ToolsScreen.routeName,
           ),
         ),
       ],

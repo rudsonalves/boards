@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 import '/core/abstracts/data_result.dart';
 import '/core/models/user.dart';
@@ -42,7 +43,7 @@ class FbUserRepository implements IUserRepository {
         );
       }
 
-      await user.getIdToken(true);
+      await user.getIdToken(!kDebugMode);
 
       // Use the extension to convert the Firebase User to a UserModel
       UserModel currentUser = user.toUserModel;

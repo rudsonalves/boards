@@ -80,6 +80,6 @@ class MechanicsStore implements IMechanicsStore {
 
   @override
   Future<void> resetDatabase() async {
-    await _databaseManager.resetMechanics(_db);
+    await _databaseManager.resetMechanicsTable(_db);
   }
 }

@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import '/core/models/mechanic.dart';
 import '/core/state/state_store.dart';
 
-class CheckMechList {
+class ToolsMechList {
   final MechanicModel mech;
   final bool _checked;
 
-  CheckMechList(this.mech, this._checked);
+  ToolsMechList(this.mech, this._checked);
 
   bool get isChecked => _checked;
 }
 
 class CheckStore extends StateStore {
-  final checkList = ValueNotifier<List<CheckMechList>>([]);
+  final checkList = ValueNotifier<List<ToolsMechList>>([]);
 
   final count = ValueNotifier<int>(0);
 
@@ -27,7 +27,7 @@ class CheckStore extends StateStore {
     super.dispose();
   }
 
-  void setCheckList(List<CheckMechList> value) {
+  void setCheckList(List<ToolsMechList> value) {
     checkList.value = value;
   }
 

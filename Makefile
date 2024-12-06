@@ -22,7 +22,7 @@ build_profile:
 	flutter pub get
 	flutter run --profile
 
-firebase_emu:
+firebase_emu_with_go:
 	bash go-tests/start-go-functions.sh
 
 firebase_emu_stop:
@@ -31,8 +31,8 @@ firebase_emu_stop:
 go_functions_deploy:
 	cd go-functions && gcloud functions deploy $(FUNC_NAME) --runtime go122 --trigger-http --allow-unauthenticated
 
-# firebase_emu:
-# 	firebase emulators:start --import=./emulator_data
+firebase_emu:
+	firebase emulators:start --import=./emulator_data
 
 # firebase_emu_debug:
 # 	firebase emulators:start --import=./emulator_data --debug

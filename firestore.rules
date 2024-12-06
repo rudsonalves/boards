@@ -1,20 +1,59 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Função para verificar se o usuário é admin ou editor
+    function isAdminOrEditor() {
+      return request.auth != null && 
+             (request.auth.token.role == 'admin' || 
+              request.auth.token.role == 'editor');
+    }
 
-    // Regras para a coleção de usuários
+    // Regras para a coleção users
     match /users/{userId} {
-      
-      // Usuário pode criar seu próprio documento ao se registrar
-      allow create: if request.auth != null && request.auth.uid == userId;
+      // Permitir leitura e escrita apenas para o proprietário do documento
+      allow read, write: if request.auth != null && request.auth.uid == userId;
 
-      // Usuário pode ler e atualizar seu próprio documento
-      allow read, update: if request.auth != null && request.auth.uid == userId;
-      
-      // Restringe a criação do campo "role" diferente de "user" para admins
-      allow update: if request.auth != null &&
-                    request.auth.uid == userId &&
-                    !(request.resource.data.role != 'user' && request.auth.token.role != 'admin');
+      // Regras para a subcoleção addresses
+      match /addresses/{addressId} {
+        // Permitir leitura e escrita apenas para o proprietário do documento
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Regras para a coleção boardgames
+    match /boardgames/{boardgamesId} {
+      // Qualquer usuário autenticado pode ler
+      allow read: if request.auth != null;
+
+      // Apenas admin ou editor podem escrever
+      allow write: if isAdminOrEditor();
+    }
+
+    // Regras para a coleção bgnames
+    match /bgnames/{bgnamesId} {
+      // Qualquer usuário autenticado pode ler
+      allow read: if request.auth != null;
+
+      // Apenas admin ou editor podem escrever
+      allow write: if isAdminOrEditor();
+    }
+
+    // Regras para a coleção mechanics
+    match /mechanics/{mechanicsId} {
+      // Qualquer usuário autenticado pode ler
+      allow read: if request.auth != null;
+
+      // Apenas admin ou editor podem escrever
+      allow write: if isAdminOrEditor();
+    }
+
+    // Regras para a coleção ads
+    match /ads/{adsId} {
+      // Qualquer um pode ler
+      allow read: if true;
+
+      // Apenas o proprietário do anúncio pode escrever
+      allow write: if request.auth != null && request.auth.uid == resource.data.ownerId;
     }
   }
 }

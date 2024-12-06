@@ -3,21 +3,21 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import '/components/widgets/state_error_message.dart';
 import '/components/widgets/state_count_loading_message.dart';
-import 'check_controller.dart';
-import 'check_store.dart';
+import 'tools_controller.dart';
+import 'tools_store.dart';
 
-class CheckPage extends StatefulWidget {
-  const CheckPage({super.key});
+class ToolsScreen extends StatefulWidget {
+  const ToolsScreen({super.key});
 
-  static const routeName = '/check_page';
+  static const routeName = '/tools';
 
   @override
-  State<CheckPage> createState() => _CheckPageState();
+  State<ToolsScreen> createState() => _ToolsScreenState();
 }
 
-class _CheckPageState extends State<CheckPage> {
+class _ToolsScreenState extends State<ToolsScreen> {
   final store = CheckStore();
-  final ctrl = CheckController();
+  final ctrl = ToolsController();
 
   @override
   void initState() {
@@ -64,6 +64,7 @@ class _CheckPageState extends State<CheckPage> {
                           ' mecânicas no arquivo local.'),
                     ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Reiniciar Mecânicas'),
                         const Spacer(),
@@ -72,10 +73,10 @@ class _CheckPageState extends State<CheckPage> {
                           label: const Text('Resetar'),
                           icon: const Icon(Symbols.sync_rounded),
                         ),
-                        const Spacer(),
                       ],
                     ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Verificar'),
                         const Spacer(),
@@ -84,7 +85,18 @@ class _CheckPageState extends State<CheckPage> {
                           label: const Text('Iniciar'),
                           icon: const Icon(Symbols.sync_rounded),
                         ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Apagar dados locais'),
                         const Spacer(),
+                        FilledButton.tonalIcon(
+                          onPressed: ctrl.cleanDatabase,
+                          label: const Text('Apagar'),
+                          icon: const Icon(Symbols.database_off_rounded),
+                        ),
                       ],
                     ),
                     ValueListenableBuilder(
