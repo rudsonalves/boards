@@ -3,10 +3,10 @@ import '../core/models/ad.dart';
 import '../core/models/filter.dart';
 import '../core/singletons/search_filter.dart';
 import '../get_it.dart';
-import '../repository/data/interfaces/i_ad_repository.dart';
+import '../repository/data/interfaces/i_ads_repository.dart';
 
 class AdsManager {
-  final adRepository = getIt<IAdRepository>();
+  final adRepository = getIt<IAdsRepository>();
   final searchFilter = getIt<SearchFilter>();
 
   static const maxAdsPerList = 20;
@@ -64,7 +64,7 @@ class AdsManager {
 
   /// This method gets the ad with id `adId` from the manager's `_ads` list,
   /// or from the server's database if the ad has not been dowloaded.
-  Future<DataResult<AdModel>> getAdById(String adId) async {
+  Future<DataResult<AdModel?>> getAdById(String adId) async {
     try {
       final ad = _ads.firstWhere((ad) => ad.id == adId);
       return DataResult.success(ad);

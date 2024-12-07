@@ -12,7 +12,15 @@ extension DateTimeExtension on DateTime {
   }
 }
 
-extension StringExtension on String {
+extension EnumFromNameExtension<T extends Enum> on Iterable<T> {
+  T fromName(String name) {
+    return firstWhere((item) => item.name == name, orElse: () {
+      throw StateError('No enum value with name "$name" found in $this');
+    });
+  }
+}
+
+extension OnlyNumberString on String {
   String onlyNumbers() {
     return replaceAll(RegExp(r'[^\d]'), '');
   }

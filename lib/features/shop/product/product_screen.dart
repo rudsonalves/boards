@@ -119,9 +119,9 @@ class _ProductScreenState extends State<ProductScreen> {
                   DescriptionProduct(description: ad.description),
                   // FIXME: verificar se é melhor copiar as informações em uma
                   // leiture no PS ou se carregar estas informalções depois.
-                  if (ad.boardgame != null)
+                  if (ad.boardgameId != null)
                     GameData(
-                      ad: ad,
+                      bgId: ad.boardgameId!,
                       indent: indent,
                     ),
                   const Divider(indent: indent, endIndent: indent),

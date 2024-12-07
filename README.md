@@ -78,6 +78,96 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/07 - version: 0.0.04+19
+
+This commit introduces a major overhaul to replace the Parse Server implementation with Firebase, refactors model structures, simplifies repository logic, and removes unused Parse-specific functions and constants. Key changes include adjustments to model properties, repository interfaces, and managers to support Firebase operations and removal of Parse Server dependencies.
+
+### Changes made:
+
+1. **lib/components/collection_views/ad_list_view/widgets/ad_card_view.dart**:
+   - Updated property accessors for `AdTextInfo` to use `ownerCity` and `ownerState` instead of `address`.
+
+2. **lib/core/models/ad.dart**:
+   - Removed `AddressModel` and `UserModel` references.
+   - Added `ownerState` property.
+   - Replaced `boardgame` with `boardgameId` as a `String`.
+   - Adjusted `toMap` and `fromMap` to use simplified logic with Firebase-friendly properties.
+   - Replaced `status` and `condition` indices with their respective `name` values.
+
+3. **lib/core/models/filter.dart**:
+   - Renamed `mechanicsPsId` to `mechanicsId` for clarity.
+
+4. **lib/core/utils/extensions.dart**:
+   - Added `EnumFromNameExtension` to simplify enum lookups by name.
+   - Renamed `StringExtension` to `OnlyNumberString`.
+
+5. **lib/data_managers/ads_manager.dart**:
+   - Changed repository interface from `IAdRepository` to `IAdsRepository`.
+   - Adjusted `getAdById` to handle nullable `AdModel`.
+
+6. **lib/features/account/my_ads/my_ads_controller.dart**:
+   - Updated repository dependency to `IAdsRepository`.
+   - Updated logic for handling user `id` directly.
+
+7. **lib/features/addresses/addresses_controller.dart**:
+   - Refactored to remove Parse Server dependency.
+   - Commented out `moveAdsAddressAndRemove` functionality temporarily.
+
+8. **lib/features/addresses/addresses_screen.dart**:
+   - Simplified address removal logic and commented out Parse-related sections.
+
+9. **lib/features/bag/bag_controller.dart**:
+   - Adjusted `getAdById` to handle nullable `AdModel`.
+
+10. **lib/features/edit_ad/edit_ad_controller.dart**:
+    - Updated repository dependency to `IAdsRepository`.
+    - Simplified logic for saving ads and owner management.
+
+11. **lib/features/edit_ad/edit_ad_store.dart**:
+    - Replaced `address` with `ownerCity` and `ownerState`.
+    - Updated `setAddress` and `setBGInfo` to reflect model changes.
+
+12. **lib/features/filters/filters_controller.dart**:
+    - Updated filter logic to use `mechanicsId`.
+
+13. **lib/features/shop/product/product_screen.dart**:
+    - Replaced `boardgame` references with `boardgameId`.
+
+14. **lib/features/shop/product/widgets/game_data.dart**:
+    - Replaced `AdModel` with `String bgId` for board game data display.
+
+15. **lib/features/shop/shop_controller.dart**:
+    - Updated repository dependency to `IAdsRepository`.
+
+16. **lib/get_it.dart**:
+    - Replaced Parse Server repositories with Firebase equivalents.
+    - Registered `FbAdsRepository` for `IAdsRepository`.
+
+17. **lib/repository/data/common/constantes.dart**:
+    - Added a new constant `docsPerPage`.
+
+18. **lib/repository/data/firebase/common/fb_functions.dart**:
+    - Introduced `uploadMultImages` to handle bulk image uploads.
+
+19. **lib/repository/data/firebase/fb_ads_repository.dart**:
+    - Added new Firebase Ads Repository implementing `IAdsRepository`.
+
+20. **lib/repository/data/firebase/fb_boardgame_repository.dart**:
+    - Simplified board game repository logic for Firebase.
+
+21. **lib/repository/data/interfaces/i_ad_repository.dart → lib/repository/data/interfaces/i_ads_repository.dart**:
+    - Renamed file and class for consistency.
+    - Adjusted method signatures for Firebase compatibility.
+
+22. **Deleted Parse Server-specific files**:
+    - Removed `constants.dart`, `errors_mensages.dart`, `parse_to_model.dart`, and `ps_functions.dart` from the Parse Server module.
+    - Deleted `ps_ad_repository.dart` and `ps_boardgame_repository.dart`.
+
+### Conclusion:
+
+This commit streamlines the application by transitioning to Firebase and deprecating the Parse Server. It enhances maintainability, reduces dependencies, and optimizes repository logic for Firebase operations. Further improvements are expected during testing and feedback integration.
+
+
 ## 2024/12/06 - version: 0.0.04+18
 
 This commit includes several updates, improvements, and bug fixes across multiple files, focusing on enhanced functionality, better error handling, and improved integration with Firebase and Parse Server. Key changes include modifications to Cloud Functions, updated Firestore rules, and improvements in error code management. Additionally, this commit fixes issues that previously blocked the project from running on the Firebase Emulator Suite, making local development more seamless.

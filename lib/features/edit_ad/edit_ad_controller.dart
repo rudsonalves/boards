@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 
-import '/repository/data/interfaces/i_ad_repository.dart';
+import '../../repository/data/interfaces/i_ads_repository.dart';
 import '../../core/abstracts/data_result.dart';
 import '/components/custon_controllers/currency_text_controller.dart';
 import 'edit_ad_store.dart';
@@ -18,7 +18,7 @@ class EditAdController {
   final bgManager = getIt<BoardgamesManager>();
   final mechanicsManager = getIt<MechanicsManager>();
   final currentUser = getIt<CurrentUser>();
-  final adRepository = getIt<IAdRepository>();
+  final adRepository = getIt<IAdsRepository>();
 
   String _selectedAddressId = '';
 
@@ -56,8 +56,8 @@ class EditAdController {
   Future<DataResult<AdModel>> saveAd() async {
     try {
       store.setStateLoading();
-      store.ad.owner = currentUser.user;
-      final result = await adRepository.save(store.ad);
+      store.ad.ownerId = currentUser.userId;
+      final result = await adRepository.add(store.ad);
       if (result.isFailure) {
         throw Exception(result.error);
       }
@@ -135,7 +135,7 @@ class EditAdController {
     priceController.currencyValue = ad.price;
     quantityController.text = ad.quantity.toString();
     mechsController.text = store.ad.mechanicsString;
-    addressController.text = store.ad.address?.addressString() ?? "";
+    addressController.text = store.ad.singleAddressString ?? "";
 
     store.setStateSuccess();
   }

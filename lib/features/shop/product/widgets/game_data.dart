@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '/core/models/ad.dart';
 import '/core/theme/app_text_style.dart';
 import 'sub_title_product.dart';
 
 class GameData extends StatelessWidget {
-  final AdModel ad;
+  final String bgId;
   final double indent;
 
   const GameData({
     super.key,
-    required this.ad,
+    required this.bgId,
     required this.indent,
   });
 
@@ -30,12 +29,12 @@ class GameData extends StatelessWidget {
           text: TextSpan(
             children: [
               TextSpan(
-                text: ad.boardgame!.minPlayers.toString(),
+                text: 'boardgame.minPlayers.toString()',
                 style: AppTextStyle.font16Bold,
               ),
               const TextSpan(text: ' a '),
               TextSpan(
-                text: ad.boardgame!.maxPlayers.toString(),
+                text: 'boardgame.maxPlayers.toString()',
                 style: AppTextStyle.font16Bold,
               ),
               const TextSpan(text: ' Jogadores'),
@@ -46,12 +45,12 @@ class GameData extends StatelessWidget {
           text: TextSpan(
             children: [
               TextSpan(
-                text: ad.boardgame!.minTime.toString(),
+                text: 'boardgame.minTime.toString()',
                 style: AppTextStyle.font16Bold,
               ),
               const TextSpan(text: ' a '),
               TextSpan(
-                text: ad.boardgame!.maxTime.toString(),
+                text: 'boardgame.maxTime.toString()',
                 style: AppTextStyle.font16Bold,
               ),
               const TextSpan(text: ' minutos'),
@@ -62,7 +61,7 @@ class GameData extends StatelessWidget {
           text: TextSpan(children: [
             const TextSpan(text: 'Idade recomendada: '),
             TextSpan(
-              text: '${ad.boardgame!.minAge}+',
+              text: '${'boardgame.minAge'}+',
               style: AppTextStyle.font16Bold,
             ),
           ]),
@@ -72,7 +71,7 @@ class GameData extends StatelessWidget {
             text: 'Designer: ',
             children: [
               TextSpan(
-                text: ad.boardgame!.designer,
+                text: 'boardgame.designer',
                 style: AppTextStyle.font16Bold,
               ),
             ],
@@ -83,7 +82,7 @@ class GameData extends StatelessWidget {
             text: 'Artistas: ',
             children: [
               TextSpan(
-                text: ad.boardgame!.artist,
+                text: 'boardgame.artist',
                 style: AppTextStyle.font16Bold,
               ),
             ],

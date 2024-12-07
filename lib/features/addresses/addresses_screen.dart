@@ -1,16 +1,11 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../../components/widgets/state_error_message.dart';
 import '../../components/widgets/state_loading_message.dart';
-import '../../get_it.dart';
-import '../../repository/data/interfaces/i_ad_repository.dart';
 import 'edit_address/edit_address_screen.dart';
 import 'addresses_controller.dart';
 import 'addresses_store.dart';
-import 'widgets/destiny_address_dialog.dart';
 
 class AddressesScreen extends StatefulWidget {
   const AddressesScreen({super.key});
@@ -40,45 +35,46 @@ class _AddressesScreenState extends State<AddressesScreen> {
 
   Future<void> _removeAddress() async {
     final addressId = ctrl.selectesAddresId;
-    final adRepository = getIt<IAdRepository>();
+    // final adRepository = getIt<IAdsRepository>();
 
     if (addressId != null) {
-      final result = await adRepository.adsInAddress(addressId);
-      if (result.isFailure) {
-        // FIXME: complete this error handling
-        throw Exception('AddressScreen._removeAddress err: ${result.error}');
-      }
-      final adsList = result.data!;
+      ctrl.removeAddress();
+      // final result = await adRepository.adsInAddress(addressId);
+      // if (result.isFailure) {
+      //   // FIXME: complete this error handling
+      //   throw Exception('AddressScreen._removeAddress err: ${result.error}');
+      // }
+      // final adsList = result.data!;
 
-      if (adsList.isNotEmpty) {
-        if (mounted) {
-          final destiny = await DestinyAddressDialog.open(
-            context,
-            addressNames: ctrl.addressNames,
-            addressRemoveName: store.selectedAddressName.value,
-            adsListLength: adsList.length,
-          );
+      // if (adsList.isNotEmpty) {
+      //   if (mounted) {
+      //     final destiny = await DestinyAddressDialog.open(
+      //       context,
+      //       addressNames: ctrl.addressNames,
+      //       addressRemoveName: store.selectedAddressName.value,
+      //       adsListLength: adsList.length,
+      //     );
 
-          if (destiny != null) {
-            final destinyId = ctrl.addressManager.getAddressIdFromName(destiny);
-            if (destinyId != null) {
-              ctrl.moveAdsAddressAndRemove(
-                adsList: adsList,
-                moveToId: destinyId,
-                removeAddressId: addressId,
-              );
-            } else {
-              log('Ocorreu um erro em _removeAddress');
-            }
-          }
-        }
-      } else {
-        ctrl.moveAdsAddressAndRemove(
-          adsList: [],
-          moveToId: null,
-          removeAddressId: addressId,
-        );
-      }
+      //     if (destiny != null) {
+      //       final destinyId = ctrl.addressManager.getAddressIdFromName(destiny);
+      //       if (destinyId != null) {
+      //         ctrl.moveAdsAddressAndRemove(
+      //           adsList: adsList,
+      //           moveToId: destinyId,
+      //           removeAddressId: addressId,
+      //         );
+      //       } else {
+      //         log('Ocorreu um erro em _removeAddress');
+      //       }
+      //     }
+      //   }
+      // } else {
+      // ctrl.removeAddressAndRemove(
+      //   adsList: [],
+      //   moveToId: null,
+      //   removeAddressId: addressId,
+      // );
+      // }
     }
   }
 
