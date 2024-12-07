@@ -9,14 +9,14 @@ import '../../core/singletons/current_user.dart';
 import '../../core/singletons/search_filter.dart';
 import '../../data_managers/ads_manager.dart';
 import '../../get_it.dart';
-import '../../repository/data/interfaces/i_ad_repository.dart';
+import '../../repository/data/interfaces/i_ads_repository.dart';
 import 'shop_store.dart';
 
 class ShopController {
   final app = getIt<AppSettings>();
   final currentUser = getIt<CurrentUser>();
   final searchFilter = getIt<SearchFilter>();
-  final adRepository = getIt<IAdRepository>();
+  final adRepository = getIt<IAdsRepository>();
   final adManager = getIt<AdsManager>();
 
   late final ShopStore store;

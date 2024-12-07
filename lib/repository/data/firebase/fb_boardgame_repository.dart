@@ -25,13 +25,13 @@ class FbBoardgameRepository implements IBoardgameRepository {
       final image = await FbFunctions.uploadImage(bg.image);
 
       // Update image url
-      final saveBg = bg.copyWith(image: image);
+      final newBg = bg.copyWith(image: image);
 
-      // Add board game to Direstore
-      final doc = await _bgCollection.add(saveBg.toMap()..remove('id'));
+      // Add board game to Firestore
+      final doc = await _bgCollection.add(newBg.toMap()..remove('id'));
 
       // Return a board game with your id
-      return DataResult.success(saveBg.copyWith(id: doc.id));
+      return DataResult.success(newBg.copyWith(id: doc.id));
     } catch (err) {
       return _handleError('add', err, ErrorCodes.unknownError);
     }

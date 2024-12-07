@@ -1,11 +1,10 @@
 import '/core/abstracts/data_result.dart';
 import '/core/models/ad.dart';
 import '/core/models/filter.dart';
-import '/core/models/user.dart';
 
-class AdRepositoryException implements Exception {
+class AdsRepositoryException implements Exception {
   final String message;
-  AdRepositoryException(this.message);
+  AdsRepositoryException(this.message);
 
   @override
   String toString() => 'AdRepositoryException: $message';
@@ -34,7 +33,7 @@ class AdRepositoryException implements Exception {
 /// The interface aims to keep the advertisement logic abstracted away from the
 /// business logic, allowing for flexibility and scalability in the application
 /// architecture.
-abstract class IAdRepository {
+abstract class IAdsRepository {
   /// Moves multiple advertisements to a new address by updating the associated
   /// address ID.
   ///
@@ -56,8 +55,7 @@ abstract class IAdRepository {
   /// - `AdRepositoryException` if any of the updates fail, including an
   ///   appropriate error message.
   ///
-  Future<DataResult<void>> moveAdsAddressTo(
-      List<String> adsIdList, String moveToId);
+  // Future<DataResult<void>> moveAdsAddressTo(List<String> adsIdList, String moveToId);
 
   /// Fetches a list of advertisement IDs that are associated with a specific
   /// address.
@@ -76,7 +74,7 @@ abstract class IAdRepository {
   /// - `AdRepositoryException` if the query operation fails, with a message
   ///   detailing the issue.
   ///
-  Future<DataResult<List<String>>> adsInAddress(String addressId);
+  // Future<DataResult<List<String>>> adsInAddress(String addressId);
 
   /// Updates the status of an existing advertisement in the Parse Server.
   ///
@@ -96,7 +94,7 @@ abstract class IAdRepository {
   /// - `AdRepositoryException` if the update operation fails, including an
   ///   error message detailing the issue.
   ///
-  Future<DataResult<bool>> updateStatus(AdModel ad);
+  Future<DataResult<void>> updateStatus(AdModel ad);
 
   /// Fetches a list of advertisements associated with the current user and a
   /// specific status.
@@ -118,7 +116,7 @@ abstract class IAdRepository {
   /// - `AdRepositoryException` if the query fails, indicating an issue with
   ///   fetching the user ads.
   ///
-  Future<DataResult<List<AdModel>?>> getMyAds(UserModel usr, String status);
+  Future<DataResult<List<AdModel>?>> getMyAds(String userId, String status);
 
   /// Fetches a list of advertisements from the Parse Server based on the
   /// provided filters and search string.
@@ -162,7 +160,7 @@ abstract class IAdRepository {
   /// - `AdRepositoryException` if the save operation fails with an appropriate
   ///   error message.
   ///
-  Future<DataResult<AdModel?>> save(AdModel ad);
+  Future<DataResult<AdModel?>> add(AdModel ad);
 
   /// Updates an existing advertisement in the Parse Server.
   ///
@@ -206,5 +204,5 @@ abstract class IAdRepository {
   ///
   Future<DataResult<void>> delete(String ad);
 
-  Future<DataResult<AdModel>> getById(String id, [bool full = true]);
+  Future<DataResult<AdModel?>> getById(String id);
 }

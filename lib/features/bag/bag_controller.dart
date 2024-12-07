@@ -26,7 +26,7 @@ class BagController {
     store.setStateSuccess();
   }
 
-  Future<DataResult<AdModel>> getAdById(String adId) async {
+  Future<DataResult<AdModel?>> getAdById(String adId) async {
     store.setStateLoading();
     final result = await adManager.getAdById(adId);
     store.setStateSuccess();

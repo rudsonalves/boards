@@ -134,6 +134,33 @@ class FbFunctions {
     }
   }
 
+  /// Uploads multiple images to Firebase Storage and returns their download
+  /// URLs.
+  ///
+  /// This method takes a list of image paths and uploads each image to Firebase
+  /// Storage.
+  ///
+  /// It returns a list of download URLs for the uploaded images. If any image
+  /// path is already a valid Firebase Storage URL, it is returned as-is without
+  /// uploading.
+  ///
+  /// [imagesPath]: A list of local paths to image files or Firebase Storage
+  ///   URLs.
+  ///
+  /// Returns:
+  /// - A [Future] containing a [List<String>] of Firebase Storage download
+  ///   URLs.
+  ///
+  /// Throws:
+  /// - An [Exception] if the upload of any image fails.
+  static Future<List<String>> uploadMultImages(List<String> imagesPath) async {
+    try {
+      return await Future.wait<String>(imagesPath.map(uploadImage));
+    } catch (err) {
+      throw Exception('FbBoardgameRepository._uploadImage: $err');
+    }
+  }
+
   /// Checks if a given URL is a valid Firebase Storage URL.
   ///
   /// [imageUrl]: The URL to validate.

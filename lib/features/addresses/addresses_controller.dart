@@ -1,15 +1,13 @@
-import 'dart:developer';
-
 import '../../core/models/address.dart';
 import '../../get_it.dart';
 import '../../data_managers/addresses_manager.dart';
-import '../../repository/data/interfaces/i_ad_repository.dart';
+import '../../repository/data/interfaces/i_ads_repository.dart';
 import 'addresses_store.dart';
 
 class AddressesController {
   final addressManager = getIt<AddressesManager>();
   late final AddressesStore store;
-  final adRepository = getIt<IAdRepository>();
+  final adRepository = getIt<IAdsRepository>();
 
   List<AddressModel> get addresses => addressManager.addresses;
   List<String> get addressNames => addressManager.addressNames.toList();
@@ -51,26 +49,26 @@ class AddressesController {
     }
   }
 
-  Future<void> moveAdsAddressAndRemove({
-    required List<String> adsList,
-    required String? moveToId,
-    required String removeAddressId,
-  }) async {
-    try {
-      store.setStateLoading();
-      if (adsList.isNotEmpty && moveToId != null) {
-        final result = await adRepository.moveAdsAddressTo(adsList, moveToId);
-        if (result.isFailure) {
-          throw Exception(result.error);
-        }
-      }
-      await addressManager.deleteById(removeAddressId);
-      store.setStateSuccess();
-    } catch (err) {
-      log(err.toString());
-      store.setError('Erro ao mover endereço. Tente mais tarde');
-    }
-  }
+  // Future<void> moveAdsAddressAndRemove({
+  //   required List<String> adsList,
+  //   required String? moveToId,
+  //   required String removeAddressId,
+  // }) async {
+  //   try {
+  //     store.setStateLoading();
+  //     // if (adsList.isNotEmpty && moveToId != null) {
+  //     //   final result = await adRepository.moveAdsAddressTo(adsList, moveToId);
+  //     //   if (result.isFailure) {
+  //     //     throw Exception(result.error);
+  //     //   }
+  //     // }
+  //     await addressManager.deleteById(removeAddressId);
+  //     store.setStateSuccess();
+  //   } catch (err) {
+  //     log(err.toString());
+  //     store.setError('Erro ao mover endereço. Tente mais tarde');
+  //   }
+  // }
 
   void closeErroMessage() {
     store.setStateSuccess();

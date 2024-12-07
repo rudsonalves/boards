@@ -1,17 +1,17 @@
 import 'dart:developer';
 
+import '../../../repository/data/common/constantes.dart';
 import '/core/models/ad.dart';
 import '/core/models/filter.dart';
 import '/core/singletons/current_user.dart';
 import '/get_it.dart';
-import '/repository/data/interfaces/i_ad_repository.dart';
-import '/repository/data/parse_server/common/constants.dart';
+import '../../../repository/data/interfaces/i_ads_repository.dart';
 import 'my_ads_store.dart';
 
 class MyAdsController {
   late final MyAdsStore store;
 
-  final adRepository = getIt<IAdRepository>();
+  final adRepository = getIt<IAdsRepository>();
 
   final currentUser = getIt<CurrentUser>().user!;
 
@@ -46,7 +46,7 @@ class MyAdsController {
 
   Future<void> _getAds() async {
     final result = await adRepository.getMyAds(
-      currentUser,
+      currentUser.id!,
       _productStatus.name,
     );
     if (result.isFailure) {
@@ -58,7 +58,7 @@ class MyAdsController {
     ads.clear();
     if (newAds != null && newAds.isNotEmpty) {
       ads.addAll(newAds);
-      _getMorePages = maxAdsPerList == newAds.length;
+      _getMorePages = docsPerPage == newAds.length;
     } else {
       _getMorePages = false;
     }
@@ -96,7 +96,7 @@ class MyAdsController {
     final newAds = result.data;
     if (newAds != null && newAds.isNotEmpty) {
       ads.addAll(newAds);
-      _getMorePages = maxAdsPerList == newAds.length;
+      _getMorePages = docsPerPage == newAds.length;
     } else {
       _getMorePages = false;
     }

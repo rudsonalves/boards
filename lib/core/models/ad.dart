@@ -1,12 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-
-import 'dart:convert';
-
-import '../../data_managers/mechanics_manager.dart';
-import '../../get_it.dart';
-import 'address.dart';
-import 'boardgame.dart';
-import 'user.dart';
+import '../utils/extensions.dart';
+import '/data_managers/mechanics_manager.dart';
+import '/get_it.dart';
 
 enum AdStatus { pending, active, sold, deleted }
 
@@ -14,11 +8,11 @@ enum ProductCondition { all, used, sealed }
 
 class AdModel {
   String? id;
-  UserModel? owner;
   String? ownerId;
   String? ownerName;
   double? ownerRate;
   String? ownerCity;
+  String? ownerState;
   DateTime? ownerCreateAt;
   String title;
   String description;
@@ -26,32 +20,30 @@ class AdModel {
   int quantity;
   AdStatus status;
   List<String> mechanicsIds;
-  AddressModel? address;
   List<String> images;
   ProductCondition condition;
-  BoardgameModel? boardgame;
+  String? boardgameId;
   int views;
   DateTime createdAt;
 
   AdModel({
     this.id,
-    this.owner,
     this.ownerId,
     this.ownerName,
     this.ownerRate,
     this.ownerCity,
+    this.ownerState,
     this.ownerCreateAt,
     required this.images,
     required this.title,
     required this.description,
     required this.mechanicsIds,
-    this.address,
     required this.price,
     this.quantity = 1,
     this.condition = ProductCondition.used,
     this.status = AdStatus.pending,
     this.views = 0,
-    this.boardgame,
+    this.boardgameId,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -64,30 +56,17 @@ class AdModel {
         .join(', ');
   }
 
-  @override
-  String toString() {
-    return 'AdModel(id: $id,\n'
-        ' owner: $owner,\n'
-        ' title: $title,\n'
-        ' description: $description,\n'
-        ' price: $price,\n'
-        ' quantity: $quantity,\n'
-        ' status: $status,\n'
-        ' mechanicsIds: $mechanicsIds,\n'
-        ' address: $address,\n'
-        ' images: $images,\n'
-        ' condition: $condition,\n'
-        ' views: $views,\n'
-        ' createdAt: $createdAt)';
-  }
+  String? get singleAddressString => ownerCity != null && ownerState != null
+      ? '$ownerCity - $ownerState'
+      : null;
 
   AdModel copyWith({
     String? id,
-    UserModel? owner,
     String? ownerId,
     String? ownerName,
     double? ownerRate,
     String? ownerCity,
+    String? ownerState,
     DateTime? ownerCreateAt,
     String? title,
     String? description,
@@ -95,28 +74,29 @@ class AdModel {
     int? quantity,
     AdStatus? status,
     List<String>? mechanicsIds,
-    AddressModel? address,
     List<String>? images,
     ProductCondition? condition,
+    String? boardgame,
     int? views,
     DateTime? createdAt,
   }) {
     return AdModel(
       id: id ?? this.id,
-      owner: owner ?? this.owner,
       ownerId: ownerId ?? this.ownerId,
       ownerName: ownerName ?? this.ownerName,
       ownerRate: ownerRate ?? this.ownerRate,
       ownerCity: ownerCity ?? this.ownerCity,
+      ownerState: ownerState ?? this.ownerState,
+      ownerCreateAt: ownerCreateAt ?? this.ownerCreateAt,
       title: title ?? this.title,
       description: description ?? this.description,
       price: price ?? this.price,
       quantity: quantity ?? this.quantity,
       status: status ?? this.status,
       mechanicsIds: mechanicsIds ?? this.mechanicsIds,
-      address: address ?? this.address,
       images: images ?? this.images,
       condition: condition ?? this.condition,
+      boardgameId: boardgame ?? this.boardgameId,
       views: views ?? this.views,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -125,22 +105,21 @@ class AdModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'owner': owner?.id,
       'ownerId': ownerId,
       'ownerName': ownerName,
       'ownerRate': ownerRate,
       'ownerCity': ownerCity,
-      'ownerCreateAt': ownerCreateAt,
+      'ownerState': ownerState,
+      'ownerCreateAt': ownerCreateAt?.millisecondsSinceEpoch,
       'title': title,
       'description': description,
       'price': price,
       'quantity': quantity,
-      'status': status.index,
+      'status': status.name,
       'mechanicsIds': mechanicsIds,
-      'address': address?.toMap(),
       'images': images,
-      'condition': condition.index,
-      'boardgame': boardgame?.id,
+      'condition': condition.name,
+      'boardgame': boardgameId,
       'views': views,
       'createdAt': createdAt.millisecondsSinceEpoch,
     };
@@ -149,29 +128,28 @@ class AdModel {
   factory AdModel.fromMap(Map<String, dynamic> map) {
     return AdModel(
       id: map['id'] != null ? map['id'] as String : null,
-      owner: null,
-      ownerId: map['ownerId'],
-      ownerName: map['ownerName'],
-      ownerRate: map['ownerRate'],
-      ownerCity: map['ownerCity'],
-      ownerCreateAt: map['ownerCreateAt'],
+      ownerId: map['ownerId'] != null ? map['ownerId'] as String : null,
+      ownerName: map['ownerName'] != null ? map['ownerName'] as String : null,
+      ownerRate: map['ownerRate'] != null ? map['ownerRate'] as double : null,
+      ownerCity: map['ownerCity'] != null ? map['ownerCity'] as String : null,
+      ownerState:
+          map['ownerState'] != null ? map['ownerState'] as String : null,
+      ownerCreateAt: map['ownerCreateAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['ownerCreateAt'] as int)
+          : null,
       title: map['title'] as String,
       description: map['description'] as String,
       price: map['price'] as double,
       quantity: map['quantity'] as int,
-      status: AdStatus.values[map['status'] as int],
-      mechanicsIds: List<String>.from(map['mechanicsIds'] as List<String>),
-      address: null,
-      images: List<String>.from(map['images'] as List<String>),
-      condition: ProductCondition.values[map['condition'] as int],
-      boardgame: null,
+      status: AdStatus.values.fromName(map['status'] as String),
+      mechanicsIds: List<String>.from((map['mechanicsIds'] as List<String>)),
+      images: List<String>.from((map['images'] as List<String>)),
+      condition: map['condition'] != null
+          ? ProductCondition.values.fromName(map['condition'] as String)
+          : ProductCondition.used,
+      boardgameId: map['boardgame'] as String?,
       views: map['views'] as int,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
     );
   }
-
-  String toJson() => json.encode(toMap());
-
-  factory AdModel.fromJson(String source) =>
-      AdModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }

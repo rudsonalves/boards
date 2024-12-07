@@ -81,7 +81,7 @@ class FiltersController extends ChangeNotifier {
     _filter.sortBy = filter.sortBy;
     _filter.condition = filter.condition;
     _selectedMechIds.clear();
-    _selectedMechIds.addAll(filter.mechanicsPsId);
+    _selectedMechIds.addAll(filter.mechanicsId);
 
     if (filter.state.isNotEmpty) {
       submitState(filter.state);

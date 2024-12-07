@@ -95,13 +95,15 @@ class EditAdStore extends StateStore {
   }
 
   void setAddress(AddressModel value) {
-    ad.address = value;
+    ad.ownerCity = value.city;
+    ad.ownerState = value.state;
     _validateAddress();
   }
 
   void _validateAddress() {
-    errorAddress.value =
-        ad.address != null ? null : 'Selecione um endereço valido.';
+    errorAddress.value = ad.ownerCity != null && ad.ownerState != null
+        ? null
+        : 'Selecione um endereço valido.';
   }
 
   void setPrice(double value) {
@@ -130,9 +132,9 @@ class EditAdStore extends StateStore {
   }
 
   void setBGInfo(BoardgameModel bg) {
-    ad.boardgame = bg;
+    ad.boardgameId = bg.id;
     addImage(bg.image);
-    bgInfo.value = ad.boardgame.toString();
+    bgInfo.value = ad.boardgameId.toString();
   }
 
   bool get isValid {
