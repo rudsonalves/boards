@@ -46,8 +46,8 @@ class MyAdsController {
 
   Future<void> _getAds() async {
     final result = await adRepository.getMyAds(
-      currentUser.id!,
-      _productStatus.name,
+      ownerId: currentUser.id!,
+      status: _productStatus,
     );
     if (result.isFailure) {
       // FIXME: Complete this error handling
@@ -106,7 +106,11 @@ class MyAdsController {
     int currentPage = _adsDataBasePage;
     try {
       store.setStateLoading();
-      final result = await adRepository.updateStatus(ad);
+      final result = await adRepository.updateStatus(
+        adsId: ad.id!,
+        status: ad.status,
+        quantity: ad.quantity,
+      );
       if (result.isFailure) {
         throw Exception(result.error);
       }
@@ -133,7 +137,11 @@ class MyAdsController {
     try {
       store.setStateLoading();
       ad.status = AdStatus.deleted;
-      await adRepository.updateStatus(ad);
+      await adRepository.updateStatus(
+        adsId: ad.id!,
+        status: ad.status,
+        quantity: ad.quantity,
+      );
       await _getAds();
       store.setStateSuccess();
     } catch (err) {

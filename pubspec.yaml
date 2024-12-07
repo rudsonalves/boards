@@ -1,7 +1,7 @@
 name: boards
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.0.04+19
+version: 0.0.04+20
 
 environment:
   sdk: '>=3.4.1 <4.0.0'
