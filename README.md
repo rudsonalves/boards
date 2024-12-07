@@ -78,6 +78,34 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/07 - version: 0.0.04+20
+
+This commit refines the advertisement management system by enhancing the repository interface, improving method signatures, and updating Firestore integration for better flexibility and performance.
+
+### Changes made:
+
+1. **lib/features/account/my_ads/my_ads_controller.dart**:
+   - Updated `_getAds` method to use named parameters `ownerId` and `status` when calling `adRepository.getMyAds`.
+   - Refactored `updateStatus` method to pass `adsId`, `status`, and `quantity` explicitly to `adRepository.updateStatus`.
+   - Modified `deleteAd` method to use the updated `adRepository.updateStatus` method for marking ads as deleted.
+
+2. **lib/repository/data/firebase/fb_ads_repository.dart**:
+   - Added a new constant `keyAdsOwnerId` for the `ownerId` field in Firestore.
+   - Implemented the `getMyAds` method to fetch ads based on `ownerId` and `status` using Firestore queries.
+   - Updated `updateStatus` method to accept named parameters `adsId`, `status`, and `quantity` for improved clarity and flexibility.
+   - Removed obsolete and unimplemented methods, including old `getMyAds` and placeholders for `moveAdsAddressTo`.
+
+3. **lib/repository/data/interfaces/i_ads_repository.dart**:
+   - Refactored method signatures in the `IAdsRepository` interface to use named parameters for clarity.
+   - Removed extensive and outdated documentation for methods no longer relevant.
+   - Updated `updateStatus` method to require `adsId`, `status`, and `quantity` as named parameters.
+   - Simplified and streamlined method declarations to align with the latest implementation in Firestore.
+
+### Conclusion:
+
+These updates improve the modularity and maintainability of the advertisement management codebase. The repository interface now supports more flexible operations, and Firestore queries are streamlined for better performance. Deprecated methods and redundant documentation were cleaned up, ensuring the code remains clear and concise.
+
+
 ## 2024/12/07 - version: 0.0.04+19
 
 This commit introduces a major overhaul to replace the Parse Server implementation with Firebase, refactors model structures, simplifies repository logic, and removes unused Parse-specific functions and constants. Key changes include adjustments to model properties, repository interfaces, and managers to support Firebase operations and removal of Parse Server dependencies.

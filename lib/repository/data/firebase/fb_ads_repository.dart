@@ -18,6 +18,7 @@ class FbAdsRepository implements IAdsRepository {
   static const keyAdsCreatedAt = 'createdAt';
   static const keyAdsStatus = 'status';
   static const keyAdsQuantity = 'quantity';
+  static const keyAdsOwnerId = 'ownerId';
 
   CollectionReference<Map<String, dynamic>> get _adsCollection =>
       FirebaseFirestore.instance.collection(keyCollection);
@@ -100,6 +101,34 @@ class FbAdsRepository implements IAdsRepository {
       final querySnapshot =
           await query.startAt([offSet]).limit(docsPerPage).get();
 
+      // Map Firestore documents to AdModel
+      final ads = querySnapshot.docs
+          .map((doc) => AdModel.fromMap(doc.data() as Map<String, dynamic>)
+            ..copyWith(id: doc.id))
+          .toList();
+
+      return DataResult.success(ads);
+    } catch (err) {
+      return _handleError('get', err, ErrorCodes.unknownError);
+    }
+  }
+
+  @override
+  Future<DataResult<List<AdModel>?>> getMyAds({
+    required String ownerId,
+    required AdStatus status,
+  }) async {
+    try {
+      // Build the query dynamically based on the provided filters
+      Query query = _adsCollection;
+
+      final querySnapshot = await query
+          .where(keyAdsOwnerId, isEqualTo: ownerId)
+          .where(keyAdsStatus, isEqualTo: status.name)
+          .limit(docsPerPage)
+          .get();
+
+      // Map Firestore documents to AdModel
       final ads = querySnapshot.docs
           .map((doc) => AdModel.fromMap(doc.data() as Map<String, dynamic>)
             ..copyWith(id: doc.id))
@@ -141,13 +170,17 @@ class FbAdsRepository implements IAdsRepository {
   }
 
   @override
-  Future<DataResult<void>> updateStatus(AdModel ad) async {
+  Future<DataResult<void>> updateStatus({
+    required String adsId,
+    required AdStatus status,
+    required int quantity,
+  }) async {
     try {
-      final doc = _adsCollection.doc(ad.id);
+      final doc = _adsCollection.doc(adsId);
 
       await doc.update({
-        keyAdsStatus: ad.status.name,
-        keyAdsQuantity: ad.quantity,
+        keyAdsStatus: status.name,
+        keyAdsQuantity: quantity,
       });
 
       return DataResult.success(null);
@@ -155,19 +188,6 @@ class FbAdsRepository implements IAdsRepository {
       return _handleError('update', err, ErrorCodes.unknownError);
     }
   }
-
-  @override
-  Future<DataResult<List<AdModel>?>> getMyAds(String userId, String status) {
-    // TODO: implement moveAdsAddressTo
-    throw UnimplementedError();
-  }
-
-  // @override
-  // Future<DataResult<void>> moveAdsAddressTo(
-  //     List<String> adsIdList, String moveToId) {
-  //   // TODO: implement moveAdsAddressTo
-  //   throw UnimplementedError();
-  // }
 
   DataResult<T> _handleError<T>(String module, Object err, [int code = 0]) {
     return DataFunctions.handleError<T>('FbAdsRepository', module, err, code);
