@@ -1,15 +1,14 @@
-import '../core/abstracts/data_result.dart';
-import '../core/models/ad.dart';
-import '../core/models/filter.dart';
-import '../core/singletons/search_filter.dart';
-import '../get_it.dart';
-import '../repository/data/interfaces/i_ads_repository.dart';
+import '/core/abstracts/data_result.dart';
+import '/core/models/ad.dart';
+import '/core/models/filter.dart';
+import '/core/singletons/search_filter.dart';
+import '/get_it.dart';
+import '/repository/data/common/constantes.dart';
+import '/repository/data/interfaces/i_ads_repository.dart';
 
 class AdsManager {
   final adRepository = getIt<IAdsRepository>();
   final searchFilter = getIt<SearchFilter>();
-
-  static const maxAdsPerList = 20;
 
   final List<AdModel> _ads = [];
   List<AdModel> get ads => _ads;
@@ -31,7 +30,7 @@ class AdsManager {
     ads.clear();
     if (newAds != null && newAds.isNotEmpty) {
       ads.addAll(newAds);
-      getMorePages = maxAdsPerList == newAds.length;
+      getMorePages = docsPerPage == newAds.length;
     } else {
       getMorePages = false;
     }
@@ -48,13 +47,13 @@ class AdsManager {
       page: page,
     );
     if (result.isFailure) {
-      // FIXME: Complete this error handling
       throw Exception('AdManager._getMoreAds error: ${result.error}');
     }
+
     final newAds = result.data;
     if (newAds != null && newAds.isNotEmpty) {
-      ads.addAll(newAds);
-      getMorePages = maxAdsPerList == newAds.length;
+      _ads.addAll(newAds);
+      getMorePages = docsPerPage == newAds.length;
     } else {
       getMorePages = false;
     }

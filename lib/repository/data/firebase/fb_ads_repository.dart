@@ -9,6 +9,13 @@ import '/repository/data/interfaces/i_ads_repository.dart';
 import '../functions/data_functions.dart';
 import '/core/abstracts/data_result.dart';
 
+class PaginatedResult<T> {
+  final List<T> data;
+  final DocumentSnapshot? lastDocument;
+
+  PaginatedResult({required this.data, this.lastDocument});
+}
+
 class FbAdsRepository implements IAdsRepository {
   static const keyCollection = 'ads';
   static const keyAdsTitle = 'title';
@@ -22,6 +29,9 @@ class FbAdsRepository implements IAdsRepository {
 
   CollectionReference<Map<String, dynamic>> get _adsCollection =>
       FirebaseFirestore.instance.collection(keyCollection);
+
+  // Internal pagination
+  DocumentSnapshot? _lastFetchedDocument;
 
   @override
   Future<DataResult<AdModel?>> add(AdModel ad) async {
@@ -60,8 +70,10 @@ class FbAdsRepository implements IAdsRepository {
     int page = 0,
   }) async {
     try {
-      // Calculates how many documents to ignore based on the current page
-      final offSet = page * docsPerPage;
+      // Reseta pagination to first page
+      if (page == 0) {
+        _lastFetchedDocument = null;
+      }
 
       // Build the query dynamically based on the provided filters
       Query query = _adsCollection;
@@ -98,14 +110,24 @@ class FbAdsRepository implements IAdsRepository {
         query.orderBy(keyAdsCreatedAt, descending: true);
       }
 
-      final querySnapshot =
-          await query.startAt([offSet]).limit(docsPerPage).get();
+      // Add pagination using startAfterDocument if provided
+      if (_lastFetchedDocument != null) {
+        query = query.startAfterDocument(_lastFetchedDocument!);
+      }
+
+      // Limit results to the page size
+      final querySnapshot = await query.limit(docsPerPage).get();
 
       // Map Firestore documents to AdModel
       final ads = querySnapshot.docs
           .map((doc) => AdModel.fromMap(doc.data() as Map<String, dynamic>)
             ..copyWith(id: doc.id))
           .toList();
+
+      // Update the last document for pagination
+      if (querySnapshot.docs.isNotEmpty) {
+        _lastFetchedDocument = querySnapshot.docs.last;
+      }
 
       return DataResult.success(ads);
     } catch (err) {
