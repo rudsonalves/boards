@@ -78,6 +78,36 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/08 - version: 0.0.04+21
+
+This commit introduces enhancements to various parts of the application, including Android Manifest updates, AdsManager logic refinements, Firebase Ads Repository pagination improvements, and Firebase Storage rules adjustments for user authentication.
+
+### Changes made:
+
+1. **android/app/src/main/AndroidManifest.xml**:
+   - Added the `UCropActivity` for the `image_cropper` package with fixed screen orientation and theme configuration.
+
+2. **lib/data_managers/ads_manager.dart**:
+   - Updated imports to use absolute paths for consistency.
+   - Replaced `maxAdsPerList` constant with `docsPerPage` for pagination logic consistency.
+   - Fixed list update logic by referencing `_ads` directly to avoid potential misuse.
+   - Improved readability and logic consistency in `_getMoreAds` method.
+
+3. **lib/repository/data/firebase/fb_ads_repository.dart**:
+   - Added a `PaginatedResult` class for improved handling of paginated data.
+   - Introduced `_lastFetchedDocument` to manage pagination state internally.
+   - Replaced offset-based pagination with `startAfterDocument` for more efficient Firestore queries.
+   - Updated logic to reset pagination when fetching the first page.
+   - Enhanced query logic with dynamic filtering and proper pagination.
+
+4. **storage.rules**:
+   - Adjusted Firebase Storage rules to allow authenticated users to read and write files.
+
+### Conclusion:
+
+These updates improve the maintainability and functionality of the application. The AndroidManifest now supports the `image_cropper` package. The AdsManager and Firebase Ads Repository enhancements provide a more robust and efficient pagination mechanism. Finally, the Firebase Storage rules ensure secure file access by restricting it to authenticated users.
+
+
 ## 2024/12/07 - version: 0.0.04+20
 
 This commit refines the advertisement management system by enhancing the repository interface, improving method signatures, and updating Firestore integration for better flexibility and performance.
