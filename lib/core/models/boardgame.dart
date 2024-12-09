@@ -53,6 +53,12 @@ class BoardgameModel {
     return description;
   }
 
+  String toSimpleString() {
+    return '**$name ($publishYear)**: $minPlayers - $maxPlayers jogadores; '
+        '$minTime a $maxTime min; idade recomendada +$minAge; '
+        'Artista(s): *$artist*\nDesigner(s): *$designer*';
+  }
+
   @override
   String toString() {
     return 'BoardgameModel('

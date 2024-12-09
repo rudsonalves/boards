@@ -121,7 +121,7 @@ class FbAdsRepository implements IAdsRepository {
       // Map Firestore documents to AdModel
       final ads = querySnapshot.docs
           .map((doc) => AdModel.fromMap(doc.data() as Map<String, dynamic>)
-            ..copyWith(id: doc.id))
+              .copyWith(id: doc.id))
           .toList();
 
       // Update the last document for pagination
@@ -153,7 +153,7 @@ class FbAdsRepository implements IAdsRepository {
       // Map Firestore documents to AdModel
       final ads = querySnapshot.docs
           .map((doc) => AdModel.fromMap(doc.data() as Map<String, dynamic>)
-            ..copyWith(id: doc.id))
+              .copyWith(id: doc.id))
           .toList();
 
       return DataResult.success(ads);
@@ -172,7 +172,7 @@ class FbAdsRepository implements IAdsRepository {
       }
 
       final map = docSnapshot.data()!;
-      return DataResult.success(AdModel.fromMap(map)..copyWith(id: adId));
+      return DataResult.success(AdModel.fromMap(map).copyWith(id: adId));
     } catch (err) {
       return _handleError('get', err, ErrorCodes.unknownError);
     }

@@ -142,8 +142,10 @@ class AdModel {
       price: map['price'] as double,
       quantity: map['quantity'] as int,
       status: AdStatus.values.fromName(map['status'] as String),
-      mechanicsIds: List<String>.from((map['mechanicsIds'] as List<String>)),
-      images: List<String>.from((map['images'] as List<String>)),
+      mechanicsIds: List<String>.from((map['mechanicsIds'] as List<dynamic>)
+          .map((item) => item.toString())),
+      images: List<String>.from(
+          (map['images'] as List<dynamic>).map((item) => item.toString())),
       condition: map['condition'] != null
           ? ProductCondition.values.fromName(map['condition'] as String)
           : ProductCondition.used,

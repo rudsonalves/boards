@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 
-import '../../core/models/ad.dart';
-import '../../core/models/address.dart';
-import '../../core/models/boardgame.dart';
-import '../../core/utils/validators.dart';
-import '../../core/state/state_store.dart';
+import '/core/models/ad.dart';
+import '/core/models/address.dart';
+import '/core/models/boardgame.dart';
+import '/core/models/user.dart';
+import '/core/singletons/current_user.dart';
+import '/core/utils/validators.dart';
+import '/core/state/state_store.dart';
+import '/get_it.dart';
 
 class EditAdStore extends StateStore {
   late AdModel ad;
+
+  final current = getIt<CurrentUser>();
+  UserModel get user => current.user!;
+  AddressModel? get userAddress => current.selectedAddress;
 
   final errorName = ValueNotifier<String?>(null);
   final errorDescription = ValueNotifier<String?>(null);
@@ -20,6 +27,11 @@ class EditAdStore extends StateStore {
   void init(AdModel? ad) {
     this.ad = ad?.copyWith() ??
         AdModel(
+          ownerId: user.id!,
+          ownerName: user.name,
+          ownerCreateAt: user.createdAt,
+          ownerState: userAddress?.state,
+          ownerCity: userAddress?.city,
           images: [],
           title: '',
           description: '',
@@ -134,7 +146,7 @@ class EditAdStore extends StateStore {
   void setBGInfo(BoardgameModel bg) {
     ad.boardgameId = bg.id;
     addImage(bg.image);
-    bgInfo.value = ad.boardgameId.toString();
+    bgInfo.value = bg.toSimpleString();
   }
 
   bool get isValid {
