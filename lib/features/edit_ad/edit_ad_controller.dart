@@ -104,10 +104,9 @@ class EditAdController {
     mechsController.text = store.ad.mechanicsString;
   }
 
-  void setSelectedAddress(String addressName) {
-    final addressNames = currentUser.addressNames;
-    if (addressNames.contains(addressName)) {
-      final address = currentUser.addressByName(addressName)!;
+  void setSelectedAddress() {
+    final address = currentUser.selectedAddress;
+    if (address != null) {
       addressController.text = address.addressString();
       store.setAddress(address);
       _selectedAddressId = address.id!;

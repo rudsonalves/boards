@@ -11,6 +11,7 @@ class FbAddressRepository implements IAddressRepository {
 
   static const keyUsers = 'users';
   static const keyAddresses = 'addresses';
+  static const keyAddressSelected = 'selected';
 
   CollectionReference<Map<String, dynamic>> get _addresesCollection =>
       FirebaseFirestore.instance
@@ -67,6 +68,31 @@ class FbAddressRepository implements IAddressRepository {
 
       // Update address
       await docRef.update(address.toMap()..remove('id'));
+
+      return DataResult.success(null);
+    } catch (err) {
+      return _handleError('update', err, ErrorCodes.unknownError);
+    }
+  }
+
+  @override
+  Future<DataResult<void>> updateSelection({
+    required String addressId,
+    required bool selected,
+  }) async {
+    try {
+      if (_userId == null) {
+        throw Exception('UserId is null');
+      }
+      // Get document reference
+      final docRef = _addresesCollection.doc(addressId);
+
+      // Update address
+      await docRef.update(
+        {
+          keyAddressSelected: selected,
+        },
+      );
 
       return DataResult.success(null);
     } catch (err) {

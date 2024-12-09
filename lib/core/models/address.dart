@@ -1,15 +1,15 @@
 class AddressModel {
-  final String? id;
-  final bool selected;
-  final String name;
-  final String zipCode;
-  final String street;
-  final String number;
-  final String? complement;
-  final String neighborhood;
-  final String state;
-  final String city;
-  final DateTime createdAt;
+  String? id;
+  bool selected;
+  String name;
+  String zipCode;
+  String street;
+  String number;
+  String? complement;
+  String neighborhood;
+  String state;
+  String city;
+  DateTime createdAt;
 
   AddressModel({
     this.id,

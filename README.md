@@ -78,6 +78,69 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/09 - version: 0.0.04+22
+
+This commit implements significant enhancements across the address management and ad editing features, including improvements in the selection, validation, and synchronization logic of addresses, as well as streamlined workflows for ad-related operations.
+
+### Changes made:
+
+1. **lib/core/models/address.dart**:
+   - Made all fields in the `AddressModel` mutable to allow updates during runtime.
+
+2. **lib/core/singletons/current_user.dart**:
+   - Added a getter `selectedAddress` to retrieve the currently selected address.
+
+3. **lib/data_managers/addresses_manager.dart**:
+   - Introduced `_setSelectedInIndex` and `_indexOf` private methods for efficient address selection logic.
+   - Improved address selection logic with safe error handling and database synchronization.
+   - Refactored methods to ensure consistency in naming and logic, including `deleteIndex` for better clarity.
+
+4. **lib/features/addresses/addresses_controller.dart**:
+   - Simplified address selection and removal methods.
+   - Removed unnecessary state tracking, relying instead on the centralized manager.
+
+5. **lib/features/addresses/addresses_screen.dart**:
+   - Introduced a `Dismissible` widget for improved user interaction, allowing addresses to be removed with a swipe.
+   - Updated UI to provide feedback for loading and errors during address removal or selection.
+
+6. **lib/features/addresses/addresses_store.dart**:
+   - Simplified the `AddressesStore` class by removing unused state management fields.
+
+7. **lib/features/addresses/edit_address/edit_address_controller.dart**:
+   - Replaced manual state management with `EditAddressStore` integration.
+   - Enhanced address validation and error handling logic.
+
+8. **lib/features/addresses/edit_address/edit_address_screen.dart**:
+   - Integrated the `EditAddressStore` to handle state and validation.
+   - Refactored the save and back navigation methods for consistency.
+
+9. **lib/features/addresses/edit_address/edit_address_store.dart**:
+   - Created a new `EditAddressStore` for modular validation and state management of address fields.
+
+10. **lib/features/addresses/edit_address/widgets/address_form.dart**:
+    - Updated form field bindings to use `EditAddressStore` for validation and error handling.
+    - Improved user experience with dynamic error feedback through `ValueListenableBuilder`.
+
+11. **lib/features/edit_ad/edit_ad_controller.dart**:
+    - Updated `setSelectedAddress` to automatically fetch the selected address from the current user.
+
+12. **lib/features/edit_ad/edit_ad_form/edit_ad_form.dart**:
+    - Refactored address selection logic to remove unnecessary parameter passing.
+
+13. **lib/features/edit_ad/edit_ad_screen.dart**:
+    - Simplified layout and state handling for the ad edit screen.
+
+14. **lib/repository/data/firebase/fb_address_repository.dart**:
+    - Added `updateSelection` method to handle address selection synchronization with Firestore.
+
+15. **lib/repository/data/interfaces/i_address_repository.dart**:
+    - Updated the interface to include the new `updateSelection` method.
+
+### Conclusion:
+
+This commit enhances the address and ad management features by introducing modular state management, better synchronization with the database, and improved user experience through dynamic UI feedback. The refactor aligns the codebase with best practices, ensuring maintainability and scalability for future developments.
+
+
 ## 2024/12/08 - version: 0.0.04+21
 
 This commit introduces enhancements to various parts of the application, including Android Manifest updates, AdsManager logic refinements, Firebase Ads Repository pagination improvements, and Firebase Storage rules adjustments for user authentication.

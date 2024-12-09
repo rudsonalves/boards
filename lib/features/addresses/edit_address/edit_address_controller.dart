@@ -2,26 +2,20 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 
+import '/data_managers/addresses_manager.dart';
 import '/core/models/address.dart';
 import '/core/singletons/current_user.dart';
 import '/components/custon_controllers/masked_text_controller.dart';
 import '/get_it.dart';
 import '/repository/gov_apis/viacep_repository.dart';
-import 'edit_address_state.dart';
+import 'edit_address_store.dart';
 
-class EditAddressController extends ChangeNotifier {
-  EditAddressState _state = EditAddressStateInitial();
-
-  EditAddressState get state => _state;
-
-  void _changeState(EditAddressState newState) {
-    _state = newState;
-    notifyListeners();
-  }
+class EditAddressController {
+  late final EditAddressStore store;
 
   final user = getIt<CurrentUser>();
+  final addressManager = getIt<AddressesManager>();
 
-  final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final zipCodeController = MaskedTextController(mask: '##.###-###');
   final streetController = TextEditingController();
@@ -37,19 +31,16 @@ class EditAddressController extends ChangeNotifier {
   final buttonFocus = FocusNode();
 
   List<AddressModel> get addresses => user.addresses;
-  Iterable<String> get addressNames => user.addressNames;
+  Iterable<String> get addressNames => addressManager.addressNames;
 
   bool zipCodeReativit = true;
 
-  bool get valid {
-    return formKey.currentState != null && formKey.currentState!.validate();
-  }
+  void init(EditAddressStore store) {
+    this.store = store;
 
-  void init() {
     zipCodeController.addListener(_checkZipCodeReady);
   }
 
-  @override
   void dispose() {
     nameController.dispose();
     zipCodeController.dispose();
@@ -63,7 +54,6 @@ class EditAddressController extends ChangeNotifier {
     complementFocus.dispose();
     buttonFocus.dispose();
     zipFocus.dispose();
-    super.dispose();
   }
 
   void setFormFromAdresses(String addressName) {
@@ -82,23 +72,24 @@ class EditAddressController extends ChangeNotifier {
 
   Future<void> getAddressFromViacep() async {
     try {
-      _changeState(EditAddressStateLoading());
+      store.setStateLoading();
       final response =
           await ViacepRepository.getLocalByCEP(zipCodeController.text);
       streetController.text = response.logradouro;
       neighborhoodController.text = response.bairro;
       cityController.text = response.localidade;
       stateController.text = response.uf;
-      _changeState(EditAddressStateSuccess());
+      store.setStateSuccess();
     } catch (err) {
-      log(err.toString());
-      _changeState(EditAddressStateError());
+      final message = err.toString();
+      log(message);
+      store.setError(message);
     }
   }
 
   Future<void> saveAddressFrom() async {
     try {
-      _changeState(EditAddressStateLoading());
+      store.setStateLoading();
       final newAddress = AddressModel(
         name: nameController.text,
         zipCode: zipCodeController.text,
@@ -110,10 +101,11 @@ class EditAddressController extends ChangeNotifier {
         city: cityController.text,
       );
       await user.saveAddress(newAddress);
-      _changeState(EditAddressStateSuccess());
+      store.setStateSuccess();
     } catch (err) {
-      log(err.toString());
-      _changeState(EditAddressStateError());
+      final message = err.toString();
+      log(message);
+      store.setError(message);
     }
   }
 

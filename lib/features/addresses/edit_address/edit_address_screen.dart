@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '/core/models/address.dart';
+import 'edit_address_store.dart';
 import 'widgets/address_form.dart';
 import 'edit_address_controller.dart';
-import 'edit_address_state.dart';
 
 class EditAddressScreen extends StatefulWidget {
   final AddressModel? address;
@@ -20,30 +20,33 @@ class EditAddressScreen extends StatefulWidget {
 }
 
 class _AddressScreenState extends State<EditAddressScreen> {
-  final controller = EditAddressController();
+  late final EditAddressStore store;
+  final crtl = EditAddressController();
 
   @override
   void initState() {
     super.initState();
-    controller.init();
+    store = EditAddressStore(address: widget.address);
+    crtl.init(store);
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    store.dispose();
+    crtl.dispose();
     super.dispose();
   }
 
   Future<void> _saveAddressFrom() async {
-    if (controller.valid) {
-      await controller.saveAddressFrom();
+    if (store.isValid()) {
+      await crtl.saveAddressFrom();
       if (mounted) Navigator.pop(context);
     }
   }
 
   Future<void> _backPage() async {
-    if (controller.valid) {
-      await controller.saveAddressFrom();
+    if (store.isValid()) {
+      await crtl.saveAddressFrom();
     }
     if (mounted) Navigator.pop(context);
   }
@@ -64,10 +67,10 @@ class _AddressScreenState extends State<EditAddressScreen> {
         ),
       ),
       body: ListenableBuilder(
-        listenable: controller,
+        listenable: store.state,
         builder: (context, _) {
           String? errorText;
-          if (controller.state is EditAddressStateError) {
+          if (store.isError) {
             errorText = 'CEP Inválido';
           }
           return Stack(
@@ -82,7 +85,7 @@ class _AddressScreenState extends State<EditAddressScreen> {
                     child: Column(
                       children: [
                         AddressForm(
-                          controller: controller,
+                          ctrl: crtl,
                           errorText: errorText,
                         ),
                         OverflowBar(
@@ -104,7 +107,7 @@ class _AddressScreenState extends State<EditAddressScreen> {
                   ),
                 ),
               ),
-              if (controller.state is EditAddressStateLoading)
+              if (store.isLoading)
                 const Positioned.fill(
                   child: Center(
                     child: CircularProgressIndicator(),

@@ -51,10 +51,9 @@ class _EditAdFormState extends State<EditAdForm> {
     }
   }
 
-  Future<void> _addAddress() async {
-    final addressName =
-        await Navigator.pushNamed(context, AddressesScreen.routeName) as String;
-    ctrl.setSelectedAddress(addressName);
+  Future<void> _setAddress() async {
+    await Navigator.pushNamed(context, AddressesScreen.routeName) as String;
+    ctrl.setSelectedAddress();
   }
 
   Future<void> _getBGGInfo() async {
@@ -171,7 +170,7 @@ class _EditAdFormState extends State<EditAdForm> {
               valueListenable: store.errorAddress,
               builder: (context, errorAddress, _) {
                 return InkWell(
-                  onTap: _addAddress,
+                  onTap: _setAddress,
                   child: AbsorbPointer(
                     child: CustomFormField(
                       controller: ctrl.addressController,

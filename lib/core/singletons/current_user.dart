@@ -24,7 +24,7 @@ class CurrentUser {
   final bagManager = getIt<BagManager>();
 
   List<AddressModel> get addresses => addressManager.addresses;
-  Iterable<String> get addressNames => addressManager.addressNames;
+  AddressModel? get selectedAddress => addressManager.selectedAddress;
 
   final _isLoged = ValueNotifier<bool>(false);
 

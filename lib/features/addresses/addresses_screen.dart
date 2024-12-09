@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../components/widgets/base_dismissible_container.dart';
 import '../../components/widgets/state_error_message.dart';
 import '../../components/widgets/state_loading_message.dart';
 import 'edit_address/edit_address_screen.dart';
@@ -33,53 +34,8 @@ class _AddressesScreenState extends State<AddressesScreen> {
     }
   }
 
-  Future<void> _removeAddress() async {
-    final addressId = ctrl.selectesAddresId;
-    // final adRepository = getIt<IAdsRepository>();
-
-    if (addressId != null) {
-      ctrl.removeAddress();
-      // final result = await adRepository.adsInAddress(addressId);
-      // if (result.isFailure) {
-      //   // FIXME: complete this error handling
-      //   throw Exception('AddressScreen._removeAddress err: ${result.error}');
-      // }
-      // final adsList = result.data!;
-
-      // if (adsList.isNotEmpty) {
-      //   if (mounted) {
-      //     final destiny = await DestinyAddressDialog.open(
-      //       context,
-      //       addressNames: ctrl.addressNames,
-      //       addressRemoveName: store.selectedAddressName.value,
-      //       adsListLength: adsList.length,
-      //     );
-
-      //     if (destiny != null) {
-      //       final destinyId = ctrl.addressManager.getAddressIdFromName(destiny);
-      //       if (destinyId != null) {
-      //         ctrl.moveAdsAddressAndRemove(
-      //           adsList: adsList,
-      //           moveToId: destinyId,
-      //           removeAddressId: addressId,
-      //         );
-      //       } else {
-      //         log('Ocorreu um erro em _removeAddress');
-      //       }
-      //     }
-      //   }
-      // } else {
-      // ctrl.removeAddressAndRemove(
-      //   adsList: [],
-      //   moveToId: null,
-      //   removeAddressId: addressId,
-      // );
-      // }
-    }
-  }
-
   void _backPage() {
-    Navigator.pop(context, store.selectedAddressName.value);
+    Navigator.pop(context);
   }
 
   @override
@@ -112,47 +68,70 @@ class _AddressesScreenState extends State<AddressesScreen> {
             child: const Icon(Symbols.add_home_rounded),
           ),
           const SizedBox(width: 20),
-          FloatingActionButton(
-            onPressed: _removeAddress,
-            heroTag: 'fab2',
-            tooltip: 'Remover Endereço',
-            child: const Icon(Symbols.unsubscribe),
-          ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: ListenableBuilder(
-          listenable:
-              Listenable.merge([store.selectedAddressName, store.state]),
+          listenable: store.state,
           builder: (context, _) {
             return Stack(
               children: [
-                Column(
-                  children: [
-                    const Text('Selecione um endereço abaixo:'),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: ctrl.addressNames.length,
-                        itemBuilder: (context, index) {
-                          final address = ctrl.addresses[index];
-                          final isSelected = address.selected;
-                          return Card(
-                            color: isSelected
-                                ? colorScheme.tertiaryContainer
-                                : colorScheme.primaryContainer.withOpacity(0.4),
-                            child: ListTile(
-                              title: Text(address.name),
-                              subtitle: Text(address.addressString()),
-                              onTap: () =>
-                                  ctrl.selectAddress(address.selected, index),
-                            ),
-                          );
-                        },
+                if (store.isSuccess)
+                  Column(
+                    children: [
+                      const Text('Selecione um endereço abaixo:'),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: ctrl.addressNames.length,
+                          itemBuilder: (context, index) {
+                            final address = ctrl.addresses[index];
+                            final isSelected = address.selected;
+                            return Dismissible(
+                              key: UniqueKey(),
+                              background: baseDismissibleContainer(
+                                context,
+                                alignment: Alignment.centerLeft,
+                                color: Colors.green.withOpacity(0.45),
+                                icon: Symbols.edit_square_rounded,
+                                label: 'Editar',
+                                enable: false,
+                              ),
+                              secondaryBackground: baseDismissibleContainer(
+                                context,
+                                alignment: Alignment.centerRight,
+                                color: Colors.red.withOpacity(0.45),
+                                icon: Symbols.delete_rounded,
+                                label: 'Remover',
+                              ),
+                              child: Card(
+                                color: isSelected
+                                    ? colorScheme.tertiaryContainer
+                                    : colorScheme.primaryContainer
+                                        .withOpacity(0.4),
+                                child: ListTile(
+                                  title: Text(address.name),
+                                  subtitle: Text(address.addressString()),
+                                  onTap: () => ctrl.selectAddress(
+                                      address.selected, index),
+                                ),
+                              ),
+                              confirmDismiss: (direction) async {
+                                if (direction == DismissDirection.startToEnd) {
+                                  return false;
+                                } else if (direction ==
+                                    DismissDirection.endToStart) {
+                                  return ctrl.removeAddress(index);
+                                }
+
+                                return false;
+                              },
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
                 if (store.isLoading) const StateLoadingMessage(),
                 if (store.isError)
                   StateErrorMessage(
