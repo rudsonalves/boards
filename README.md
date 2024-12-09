@@ -78,6 +78,60 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/09 - version: 0.0.04+23
+
+This commit introduces significant enhancements and bug fixes across multiple modules, including Firestore rules, UI components, model improvements, and repository refinements.
+
+### Changes made:
+
+1. **firestore.rules**:
+   - Added `create` permission to allow logged-in users to create ads with an ownership check.
+   - Separated `update` and `delete` permissions for ad ownership, replacing the generic `write` permission.
+
+2. **lib/components/collection_views/shop_grid_view/widgets/ad_shop_view.dart**:
+   - Updated `note` in `OwnerRating` to use a default value of `0` if `ownerRate` is `null`.
+
+3. **lib/components/texts/parse_rich_text.dart**:
+   - Added a new utility function `parseRichText` to parse text with bold (`**`) and italic (`*`) formatting.
+   - Provided an example usage in a Flutter widget.
+
+4. **lib/core/models/ad.dart**:
+   - Enhanced `mechanicsIds` and `images` parsing to handle dynamic types more robustly.
+
+5. **lib/core/models/boardgame.dart**:
+   - Added `toSimpleString` method for a concise and formatted board game description.
+
+6. **lib/features/edit_ad/edit_ad_controller.dart**:
+   - Integrated user address initialization in the `init` method.
+   - Removed redundant assignment of `ownerId` in the `saveAd` method.
+
+7. **lib/features/edit_ad/edit_ad_form/edit_ad_form.dart**:
+   - Updated the board game info display to use the `parseRichText` utility for better formatting.
+
+8. **lib/features/edit_ad/edit_ad_store.dart**:
+   - Added user details initialization (`ownerId`, `ownerName`, `ownerState`, `ownerCity`) in the ad creation process.
+   - Updated `setBGInfo` to include a formatted board game description.
+
+9. **lib/features/shop/product/product_screen.dart**:
+   - Set `ownerRate` to default to `0` if `null`.
+
+10. **lib/repository/data/firebase/common/fb_functions.dart**:
+    - Modified the `_bucket` getter to dynamically adjust based on `kDebugMode`.
+
+11. **lib/repository/data/firebase/fb_ads_repository.dart**:
+    - Fixed inconsistent `copyWith` usage in mapping Firestore documents to models.
+
+12. **lib/repository/data/firebase/fb_boardgame_repository.dart**:
+    - Refined `copyWith` usage for creating board game models.
+
+13. **lib/repository/data/firebase/fb_favorite_repository.dart**:
+    - Fixed an import path for `DataResult`.
+
+### Conclusion:
+
+These updates enhance the application's robustness, ensure better adherence to Firestore security rules, and improve user experience through refined UI components and reliable data handling. Additionally, formatting and utility improvements streamline the development process and code maintainability.
+
+
 ## 2024/12/09 - version: 0.0.04+22
 
 This commit implements significant enhancements across the address management and ad editing features, including improvements in the selection, validation, and synchronization logic of addresses, as well as streamlined workflows for ad-related operations.

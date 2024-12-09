@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:boards/core/models/user.dart';
 import 'package:flutter/material.dart';
 
 import '../../repository/data/interfaces/i_ads_repository.dart';
@@ -38,11 +39,13 @@ class EditAdController {
 
   String get selectedAddressId => _selectedAddressId;
   List<MechanicModel> get mechanics => mechanicsManager.mechanics;
+  UserModel get user => currentUser.user!;
 
   void init(EditAdStore store) {
     this.store = store;
 
     _loadBoardgame();
+    setSelectedAddress();
   }
 
   void dispoase() {
@@ -56,7 +59,6 @@ class EditAdController {
   Future<DataResult<AdModel>> saveAd() async {
     try {
       store.setStateLoading();
-      store.ad.ownerId = currentUser.userId;
       final result = await adRepository.add(store.ad);
       if (result.isFailure) {
         throw Exception(result.error);

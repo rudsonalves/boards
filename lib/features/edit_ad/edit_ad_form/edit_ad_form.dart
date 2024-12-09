@@ -1,5 +1,7 @@
+import 'package:boards/core/theme/app_text_style.dart';
 import 'package:flutter/material.dart';
 
+import '../../../components/texts/parse_rich_text.dart';
 import '/components/widgets/spin_box_field.dart';
 import '../edit_ad_store.dart';
 import '/get_it.dart';
@@ -52,7 +54,7 @@ class _EditAdFormState extends State<EditAdForm> {
   }
 
   Future<void> _setAddress() async {
-    await Navigator.pushNamed(context, AddressesScreen.routeName) as String;
+    await Navigator.pushNamed(context, AddressesScreen.routeName);
     ctrl.setSelectedAddress();
   }
 
@@ -103,11 +105,19 @@ class _EditAdFormState extends State<EditAdForm> {
               color: colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(
-              'Estes dados são informações genéricas do jogo coletadas em'
-              ' sites especializados e no distribuidor',
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
+            child: ValueListenableBuilder(
+              valueListenable: store.bgInfo,
+              builder: (context, bgInfo, _) {
+                if (bgInfo != null) {
+                  return parseRichText(bgInfo, AppTextStyle.font14);
+                }
+                return Text(
+                  'Estes dados são informações genéricas do jogo coletadas em'
+                  ' sites especializados e no distribuidor',
+                  maxLines: bgInfo != null ? 10 : 3,
+                  overflow: TextOverflow.ellipsis,
+                );
+              },
             ),
           ),
           ValueListenableBuilder(

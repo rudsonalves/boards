@@ -57,7 +57,7 @@ class FbBoardgameRepository implements IBoardgameRepository {
             'get', 'boardgame id $bgId not found', ErrorCodes.bgNotFound);
       }
 
-      final bg = BoardgameModel.fromMap(doc.data()!)..copyWith(id: doc.id);
+      final bg = BoardgameModel.fromMap(doc.data()!).copyWith(id: doc.id);
 
       return DataResult.success(bg);
     } catch (err) {

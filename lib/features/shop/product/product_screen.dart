@@ -130,7 +130,7 @@ class _ProductScreenState extends State<ProductScreen> {
                     name: ad.ownerName!,
                     createAt: ad.ownerCreateAt!,
                     address: ad.ownerCity!,
-                    rate: ad.ownerRate!,
+                    rate: ad.ownerRate ?? 0,
                   ),
                   const SizedBox(height: 50),
                 ],

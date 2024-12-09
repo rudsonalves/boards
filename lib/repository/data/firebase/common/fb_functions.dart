@@ -18,7 +18,9 @@ class FbFunctions {
   FbFunctions._();
 
   // The Firebase Storage bucket URL.
-  static const _bucket = 'gs://boards-fc3e5.firebasestorage.app';
+  static String get _bucket => kDebugMode
+      ? 'b/boards-fc3e5.firebasestorage.app/o'
+      : 'gs://boards-fc3e5.firebasestorage.app';
 
   // Getter for  Firebase Functions instance.
   static FirebaseFunctions get _firebaseFuncs {
@@ -169,6 +171,7 @@ class FbFunctions {
   /// - `true` if the URL is a valid Firebase Storage URL, `false` otherwise.
   static bool isFirebaseStorageUrl(String imageUrl) {
     return imageUrl.startsWith(_bucket) ||
+        imageUrl.contains(_bucket) ||
         imageUrl.contains('firebasestorage.googleapis.com/v0/b/boards-fc3e5');
   }
 

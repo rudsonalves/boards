@@ -72,7 +72,7 @@ class AdShopView extends StatelessWidget {
                   ShopTextPrice(ad.price),
                   OwnerRating(
                     owner: ad.ownerName!,
-                    note: ad.ownerRate!,
+                    note: ad.ownerRate ?? 0,
                   ),
                 ],
               ),

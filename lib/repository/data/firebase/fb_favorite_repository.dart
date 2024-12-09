@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '/core/models/favorite.dart';
 import '/repository/data/firebase/common/errors_codes.dart';
-import '../../../core/abstracts/data_result.dart';
+import '/core/abstracts/data_result.dart';
 import '../functions/data_functions.dart';
 import '../interfaces/i_favorite_repository.dart';
 
