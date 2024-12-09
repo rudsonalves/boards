@@ -13,6 +13,10 @@ abstract class IAddressRepository {
   void initialize(String? userId);
   Future<DataResult<AddressModel?>> add(AddressModel address);
   Future<DataResult<void>> update(AddressModel address);
+  Future<DataResult<void>> updateSelection({
+    required String addressId,
+    required bool selected,
+  });
   Future<DataResult<void>> delete(String addressId);
   Future<DataResult<List<AddressModel>?>> getAll();
 }
