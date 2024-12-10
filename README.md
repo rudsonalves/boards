@@ -78,6 +78,46 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/10 - version: 0.0.05+24
+
+This commit introduces significant updates and new features, including enhancements in Firestore rules, message management, and address handling. Additionally, a new `MessageModel` and corresponding repository were added to improve message-related operations.
+
+### Changes made:
+
+1. **firestore.rules**:
+   - Reformatted Firestore rules for better readability and maintainability.
+   - Added permissions for the new `messages` subcollection.
+   - Enhanced rules to control updates of `read` and `answered` fields in `messages`.
+
+2. **lib/core/models/message.dart**:
+   - Created a new `MessageModel` class to represent chat messages with fields such as `id`, `senderId`, `timestamp`, `text`, `read`, and `answered`.
+   - Implemented `toMap`, `fromMap`, and `copyWith` methods for easy conversion and manipulation of message data.
+
+3. **lib/data_managers/addresses_manager.dart**:
+   - Updated the method `getAddresesesFromUserId` to use the renamed `get` method from the address repository.
+
+4. **lib/repository/data/firebase/fb_address_repository.dart**:
+   - Renamed the `getAll` method to `get` for consistency.
+   - Replaced inline string `'id'` with the constant `keyAddressId` for better maintainability.
+   - Adjusted address creation and update logic to remove `id` using the constant `keyAddressId`.
+
+5. **lib/repository/data/firebase/fb_message_repository.dart**:
+   - Added a new repository to handle message-related operations.
+   - Implemented methods for fetching, sending, and updating message statuses in Firestore.
+   - Introduced error handling with `_handleError`.
+
+6. **lib/repository/data/interfaces/i_address_repository.dart**:
+   - Renamed `getAll` method to `get` in the address repository interface.
+
+7. **lib/repository/data/interfaces/i_messages_repository.dart**:
+   - Created a new interface for managing messages.
+   - Defined methods for fetching messages, sending a new message, and updating message statuses.
+
+### Conclusion:
+
+These updates significantly enhance the project's functionality and maintainability by introducing new features and improving existing ones. The addition of the `MessageModel` and message repository provides a solid foundation for managing chat functionality. Firestore rules and address management were refined for better consistency and reliability.
+
+
 ## 2024/12/09 - version: 0.0.04+23
 
 This commit introduces significant enhancements and bug fixes across multiple modules, including Firestore rules, UI components, model improvements, and repository refinements.

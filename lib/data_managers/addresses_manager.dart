@@ -82,7 +82,7 @@ class AddressesManager {
   /// [userId] - The ID of the user.
   Future<void> getAddresesesFromUserId(String userId) async {
     _addresses.clear();
-    final result = await _addressRepository.getAll();
+    final result = await _addressRepository.get();
     if (result.isFailure) {
       throw Exception(result.error ?? 'unknow error');
     }

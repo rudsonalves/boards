@@ -11,6 +11,7 @@ class FbAddressRepository implements IAddressRepository {
 
   static const keyUsers = 'users';
   static const keyAddresses = 'addresses';
+  static const keyAddressId = 'id';
   static const keyAddressSelected = 'selected';
 
   CollectionReference<Map<String, dynamic>> get _addresesCollection =>
@@ -35,7 +36,9 @@ class FbAddressRepository implements IAddressRepository {
         throw Exception('UserId is null');
       }
       // Add a new address
-      final doc = await _addresesCollection.add(address.toMap()..remove('id'));
+      final doc = await _addresesCollection.add(
+        address.toMap()..remove(keyAddressId),
+      );
 
       // Update Address id from firebase address object
       final newAddress = address.copyWith(id: doc.id);
@@ -67,7 +70,7 @@ class FbAddressRepository implements IAddressRepository {
       final docRef = _addresesCollection.doc(address.id);
 
       // Update address
-      await docRef.update(address.toMap()..remove('id'));
+      await docRef.update(address.toMap()..remove(keyAddressId));
 
       return DataResult.success(null);
     } catch (err) {
@@ -116,7 +119,7 @@ class FbAddressRepository implements IAddressRepository {
   }
 
   @override
-  Future<DataResult<List<AddressModel>?>> getAll() async {
+  Future<DataResult<List<AddressModel>?>> get() async {
     try {
       if (_userId == null) {
         throw Exception('UserId is null');
