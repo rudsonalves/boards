@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:boards/repository/gov_apis/ibge_repository.dart';
+import 'package:boards/data/repository/gov_apis/ibge_repository.dart';
 
 void main() {
   group('ibge repository ...', () {

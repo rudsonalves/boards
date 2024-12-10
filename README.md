@@ -78,6 +78,53 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/10 - version: 0.0.05+25
+
+This commit focuses on the restructuring of the `lib/` directory to align with the architectural layers of the application, separating core functionality, data management, business logic, and user interface components into distinct directories.
+
+### Changes made:
+
+1. **Updated Directory Structure:**
+   - The `lib/` directory was reorganized into the following structure:
+     ```
+     lib/
+     ├── app.dart
+     ├── core/
+     │   ├── abstracts/
+     │   ├── config/
+     │   ├── get_it.dart
+     │   ├── singletons/
+     │   ├── theme/
+     │   └── utils/
+     ├── data/
+     │   ├── models/
+     │   ├── repository/
+     │   ├── services/
+     │   └── store/
+     ├── firebase_options.dart
+     ├── logic/
+     │   └── managers/
+     ├── main.dart
+     └── ui/
+         ├── components/
+         └── features/
+     ```
+
+2. **Relocation of Files:**
+   - **From `features/` to `ui/features/`:**
+     - All feature-specific files were moved under `ui/features/` to maintain consistency and separation of user interface elements.
+   - **From `data_managers/` to `logic/managers/`:**
+     - Business logic managers were relocated to `logic/managers/` to better align with the purpose of the layer.
+   - **From `components/` to `ui/components/`:**
+     - Shared UI components were moved to `ui/components/` for centralized management.
+
+3. **Updated Import Paths:**
+   - All affected files had their import paths updated to reflect the new directory structure.
+
+### Conclusion:
+This restructuring enhances the maintainability and scalability of the codebase by clearly separating responsibilities into distinct layers. It ensures better adherence to architectural best practices and simplifies navigation for developers.
+
+
 ## 2024/12/10 - version: 0.0.05+24
 
 This commit introduces significant updates and new features, including enhancements in Firestore rules, message management, and address handling. Additionally, a new `MessageModel` and corresponding repository were added to improve message-related operations.

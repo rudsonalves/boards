@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../get_it.dart';
-import '../../repository/app_data/interfaces/i_app_preferences_repository.dart';
+import '../get_it.dart';
+import '../../data/repository/interfaces/remote/i_app_preferences_repository.dart';
 
 const historyMaxLength = 20;
 

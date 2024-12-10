@@ -15,38 +15,38 @@
 // You should have received a copy of the GNU General Public License
 // along with xlo_mobx.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:boards/features/splash/splash_page_screen.dart';
+import 'package:boards/ui/features/splash/splash_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'core/models/address.dart';
-import 'core/models/ad.dart';
-import 'core/models/boardgame.dart';
-import 'core/models/filter.dart';
+import 'data/models/address.dart';
+import 'data/models/ad.dart';
+import 'data/models/boardgame.dart';
+import 'data/models/filter.dart';
 import 'core/singletons/app_settings.dart';
 import 'core/theme/theme.dart';
 import 'core/theme/util.dart';
-import 'features/account/boardgames/boardgames_screen.dart';
-import 'features/account/boardgames/widgets/view_boardgame.dart';
-import 'features/account/boardgames/edit_boardgame/edit_boardgame_screen.dart';
-import 'features/bag/bag_screen.dart';
-import 'features/favorites/favorites_screen.dart';
-import 'features/account/account_screen.dart';
-import 'features/addresses/addresses_screen.dart';
-import 'features/account/my_ads/my_ads_screen.dart';
-import 'features/account/my_data/my_data_screen.dart';
-import 'features/payment/payment_screen.dart';
-import 'features/shop/product/product_screen.dart';
-import 'features/filters/filters_screen.dart';
-import 'features/account/mechanics/mechanics_screen.dart';
-import 'features/chat/chat_screen.dart';
-import 'features/account/tools/tools_screen.dart';
-import 'features/shop/shop_screen.dart';
-import 'features/edit_ad/edit_ad_screen.dart';
-import 'features/signin/signin_screen.dart';
-import 'features/addresses/edit_address/edit_address_screen.dart';
-import 'features/signup/signup_screen.dart';
-import 'get_it.dart';
+import 'ui/features/account/boardgames/boardgames_screen.dart';
+import 'ui/features/account/boardgames/widgets/view_boardgame.dart';
+import 'ui/features/account/boardgames/edit_boardgame/edit_boardgame_screen.dart';
+import 'ui/features/bag/bag_screen.dart';
+import 'ui/features/favorites/favorites_screen.dart';
+import 'ui/features/account/account_screen.dart';
+import 'ui/features/addresses/addresses_screen.dart';
+import 'ui/features/account/my_ads/my_ads_screen.dart';
+import 'ui/features/account/my_data/my_data_screen.dart';
+import 'ui/features/payment/payment_screen.dart';
+import 'ui/features/shop/product/product_screen.dart';
+import 'ui/features/filters/filters_screen.dart';
+import 'ui/features/account/mechanics/mechanics_screen.dart';
+import 'ui/features/chat/chat_screen.dart';
+import 'ui/features/account/tools/tools_screen.dart';
+import 'ui/features/shop/shop_screen.dart';
+import 'ui/features/edit_ad/edit_ad_screen.dart';
+import 'ui/features/signin/signin_screen.dart';
+import 'ui/features/addresses/edit_address/edit_address_screen.dart';
+import 'ui/features/signup/signup_screen.dart';
+import 'core/get_it.dart';
 
 class App extends StatefulWidget {
   const App({super.key});

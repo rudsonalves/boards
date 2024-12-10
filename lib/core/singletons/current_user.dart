@@ -4,13 +4,13 @@ import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 
-import '../../data_managers/bag_manager.dart';
-import '../../repository/data/interfaces/i_user_repository.dart';
-import '/get_it.dart';
-import '../../data_managers/addresses_manager.dart';
-import '../../data_managers/favorites_manager.dart';
-import '../models/address.dart';
-import '../models/user.dart';
+import '../../logic/managers/bag_manager.dart';
+import '../../data/repository/interfaces/remote/i_user_repository.dart';
+import '../get_it.dart';
+import '../../logic/managers/addresses_manager.dart';
+import '../../logic/managers/favorites_manager.dart';
+import '../../data/models/address.dart';
+import '../../data/models/user.dart';
 
 class CurrentUser {
   CurrentUser();

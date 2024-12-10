@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/filter.dart';
+import '../../data/models/filter.dart';
 
 class SearchFilter {
   final _search = ValueNotifier<String>('');

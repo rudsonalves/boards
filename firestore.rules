@@ -66,6 +66,7 @@ service cloud.firestore {
       // Qualquer usuário logado pode criar uma nova ad.
       allow create: if request.auth != null && 
                 request.auth.uid == request.resource.data.ownerId;
+
       // Apenas o proprietário do anúncio pode escrever
       allow update, delete: if request.auth != null && 
                 request.auth.uid == resource.data.ownerId;
@@ -78,11 +79,13 @@ service cloud.firestore {
         // Apenas o remetente pode criar uma mensagem
         allow update: if request.auth != null;
 
-        // Somente o destinatário e o remetente podem atualizar 'read' ou 'answered'
+        // Somente o destinatário e o remetente podem atualizar 'read' ou 
+        // 'answered'
         allow update: if request.auth != null &&
                 (request.auth.uid == resource.data.senderId ||
                  request.auth.uid == resource.data.ownerId) &&
                 (request.resource.data.keys().hasOnly(['read', 'answered']));
+      }
     }
   }
 }

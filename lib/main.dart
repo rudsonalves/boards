@@ -9,10 +9,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import 'services/parse_server/parse_server_server.dart';
-import 'get_it.dart';
+import 'data/services/parse_server/parse_server_server.dart';
+import 'core/get_it.dart';
 import 'app.dart';
-import 'store/database/providers/database_provider.dart';
+import 'data/store/database/providers/database_provider.dart';
 
 void main() async {
   const isLocalServer = false;
