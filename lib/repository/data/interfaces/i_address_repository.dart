@@ -18,5 +18,5 @@ abstract class IAddressRepository {
     required bool selected,
   });
   Future<DataResult<void>> delete(String addressId);
-  Future<DataResult<List<AddressModel>?>> getAll();
+  Future<DataResult<List<AddressModel>?>> get();
 }
