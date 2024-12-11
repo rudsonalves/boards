@@ -9,6 +9,8 @@ const {onDocumentCreated, onDocumentDeleted} =
     require("firebase-functions/v2/firestore");
 const {onCall} = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
+const {getFirestore} = require("firebase-admin/firestore");
+const {getMessaging} = require("firebase-admin/messaging");
 
 // Inicializar o Firebase Admin SDK
 admin.initializeApp();
@@ -19,11 +21,77 @@ const auth = admin.auth();
 // Funções Relacionadas a Boardgames
 // =====================
 
+// Função para notificar usuários alvo de mensagem
+exports.notifySpecificUser = onDocumentCreated(
+    {
+      document: "ads/{adId}/messages/{messageId}",
+      region: "southamerica-east1",
+    }, async (event) => {
+      try {
+        const snapshot = event.data; // O documento criado
+        if (!snapshot) {
+          console.error("No document snapshot available.");
+          return;
+        }
+
+        const messageData = snapshot.data();
+        const adId = event.params.adId;
+        const targetUserId = messageData.targetUserId;
+
+        if (!targetUserId) {
+          console.error("No target userId found for notification.");
+          return;
+        }
+
+        // Buscar o token FCM do destinatário
+        const firestore = getFirestore();
+        const userDoc = await firestore.collection("users")
+            .doc(targetUserId)
+            .get();
+
+        if (!userDoc.exists) {
+          console.error(`No user document found for userId: ${targetUserId}`);
+          return;
+        }
+
+        const userData = userDoc.data();
+        const fcmToken = userData.fcmToken;
+        const msgTitle = userData.title;
+
+        if (!fcmToken) {
+          console.error(`No FCM token found for userId: ${targetUserId}`);
+          return;
+        }
+
+        // Configurar a notificação
+        const notification = {
+          notification: {
+            title: "Nova mensagem da Boards",
+            body: `${messageData.senderName || "Alguém"}
+                enviou/respondeu uma mensagem no anúncio ${msgTitle}.`,
+          },
+          token: fcmToken,
+          data: {
+            adId: adId, // Passar ID do anúncio para navegação
+          },
+        };
+
+        // Enviar a notificação
+        const messaging = getMessaging();
+        await messaging.send(notification);
+
+        console.log(`Notification sent to userId: ${targetUserId},
+              Ad: ${adId}, Title: ${msgTitle}`);
+      } catch (error) {
+        console.error("Error sending notification:", error);
+      }
+    });
+
 // Função para sincronizar boardgames com bgnames na criação
 exports.syncBoardgameToBGNames = onDocumentCreated(
     {
       document: "boardgames/{boardgameId}",
-      region: "southamerica-east1", // Define a região explicitamente
+      region: "southamerica-east1",
     },
     async (event) => {
       const newValue = event.data;
@@ -61,7 +129,7 @@ exports.syncBoardgameToBGNames = onDocumentCreated(
 exports.deleteBGName = onDocumentDeleted(
     {
       document: "boardgames/{boardgameId}",
-      region: "southamerica-east1", // Define a região explicitamente
+      region: "southamerica-east1",
     },
     async (event) => {
       const boardgameId = event.params.boardgameId;

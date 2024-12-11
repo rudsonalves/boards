@@ -17,9 +17,9 @@
 
 import 'package:flutter/material.dart';
 
-import '../../components/widgets/state_message.dart';
+import '../../components/state_messages/state_message.dart';
 import '../../components/collection_views/shop_grid_view/shop_grid_view.dart';
-import '../../components/widgets/state_loading_message.dart';
+import '../../components/state_messages/state_loading_message.dart';
 import 'favorites_controller.dart';
 import 'favorites_store.dart';
 

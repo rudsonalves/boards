@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import '../../../components/widgets/state_error_message.dart';
-import '../../../components/widgets/state_count_loading_message.dart';
+import '../../../components/state_messages/state_error_message.dart';
+import '../../../components/state_messages/state_count_loading_message.dart';
 import 'tools_controller.dart';
 import 'tools_store.dart';
 

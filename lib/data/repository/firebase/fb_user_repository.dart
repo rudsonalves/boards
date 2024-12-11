@@ -4,12 +4,14 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../../core/get_it.dart';
 import '/core/abstracts/data_result.dart';
 import '../../models/user.dart';
 import 'common/data_functions.dart';
 import '../interfaces/remote/i_user_repository.dart';
 import 'common/fb_functions.dart';
 import 'common/errors_codes.dart';
+import '../../services/firebase/firebase_messaging_service.dart';
 
 extension ToUserModel on User {
   UserModel get toUserModel => UserModel(
@@ -30,6 +32,8 @@ class FbUserRepository implements IUserRepository {
   static const keyUsers = 'users';
   static const keyUnverifiedPhone = 'unverifiedPhoneNumber';
 
+  final _messagesService = getIt<FirebaseMessagingService>();
+
   @override
   Future<DataResult<UserModel>> getCurrentUser() async {
     try {
@@ -49,6 +53,10 @@ class FbUserRepository implements IUserRepository {
 
       // Recover cunstom claims
       currentUser = await _getClaims(user, currentUser);
+
+      // Get firebase message token
+      final token = await _messagesService.getAndUpdateToken();
+      currentUser.fcmToken = token;
 
       return DataResult.success(currentUser);
     } catch (err) {
@@ -90,6 +98,10 @@ class FbUserRepository implements IUserRepository {
 
       // Recover cunstom claims
       logedUser = await _getClaims(fbUser, logedUser);
+
+      // Get faribase message token in user
+      final token = await _messagesService.getAndUpdateToken();
+      logedUser.fcmToken = token;
 
       return DataResult.success(logedUser);
     } on FirebaseAuthException catch (err) {

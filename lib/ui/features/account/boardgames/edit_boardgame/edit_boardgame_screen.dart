@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'widgets/custom_filled_button.dart';
 import 'edit_boardgame_form/edit_boardgame_form.dart';
 import '../../../../../data/models/boardgame.dart';
-import '../../../../components/widgets/state_error_message.dart';
-import '../../../../components/widgets/state_loading_message.dart';
+import '../../../../components/state_messages/state_error_message.dart';
+import '../../../../components/state_messages/state_loading_message.dart';
 import 'edit_boardgame_controller.dart';
 import 'edit_boardgame_store.dart';
 

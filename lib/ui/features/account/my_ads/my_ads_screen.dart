@@ -7,8 +7,8 @@ import 'my_ads_controller.dart';
 import 'my_ads_store.dart';
 import 'widgets/my_tab_bar.dart';
 import 'widgets/my_tab_bar_view.dart';
-import '../../../components/widgets/state_error_message.dart';
-import '../../../components/widgets/state_loading_message.dart';
+import '../../../components/state_messages/state_error_message.dart';
+import '../../../components/state_messages/state_loading_message.dart';
 import 'widgets/no_ads_found_card.dart';
 
 class MyAdsScreen extends StatefulWidget {

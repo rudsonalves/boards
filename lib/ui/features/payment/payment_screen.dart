@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import '../../components/widgets/state_error_message.dart';
+import '../../components/state_messages/state_error_message.dart';
 import 'payment_controller.dart';
 import 'payment_store.dart';
 

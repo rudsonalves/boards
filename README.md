@@ -78,6 +78,73 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/11 - version: 0.5.00+27
+
+This commit introduces significant updates to the messaging functionality, enabling Firebase Messaging for notifications, restructuring state management, and improving user experience in the app. Key changes include the addition of Firebase Messaging service, restructuring state message widgets, and various enhancements in controllers and stores.
+
+### Changes made:
+
+1. **firestore.rules**:
+   - Updated read and create permissions for messages to allow any authenticated user.
+   - Simplified permission logic and added inline comments for clarity.
+
+2. **functions/index.js**:
+   - Added a new `notifySpecificUser` function to send Firebase notifications when a message is created.
+   - Introduced imports for `getFirestore` and `getMessaging` to handle Firestore and Firebase Messaging operations.
+   - Updated Firebase Functions version to `6.1.2`.
+
+3. **lib/core/get_it.dart**:
+   - Registered `FirebaseMessagingService` as a singleton.
+   - Added `MessagesManager` as a factory for managing messages.
+
+4. **lib/data/models/message.dart**:
+   - Added the `targetUserId` property for targeting specific users in messages.
+   - Updated methods (`toMap`, `fromMap`, `copyWith`, and `toString`) to include `targetUserId`.
+
+5. **lib/data/models/user.dart**:
+   - Added `fcmToken` property to store Firebase Cloud Messaging token.
+   - Updated `copyWith` and `toString` methods to handle the new `fcmToken`.
+
+6. **lib/data/repository/firebase/fb_user_repository.dart**:
+   - Integrated `FirebaseMessagingService` to fetch and update the user's FCM token during authentication.
+
+7. **lib/data/services/firebase/firebase_messaging_service.dart**:
+   - Implemented a new service to manage Firebase Messaging tokens and permissions.
+   - Added token refresh and update logic for Firestore.
+
+8. **lib/logic/managers/messages_manager.dart**:
+   - Created a new manager to handle message operations, including sending and reading messages.
+
+9. **lib/main.dart**:
+   - Configured Firebase Messaging handlers for foreground, background, and app launch notifications.
+
+10. **lib/ui/components/widgets/app_snackbar.dart**:
+    - Added a new reusable component for displaying SnackBar messages in the app.
+
+11. **lib/ui/features/shop/product/message/message_controller.dart**:
+    - Refactored to use `MessagesManager` for sending and reading messages.
+    - Improved error handling and logging.
+
+12. **lib/ui/features/shop/product/message/message_store.dart**:
+    - Removed redundant `messages` state and centralized management in `MessagesManager`.
+
+13. **lib/ui/features/shop/product/message/message_widget.dart**:
+    - Updated to use `MessagesManager` and improved error feedback with `AppSnackbar`.
+
+14. **lib/ui/features/shop/product/message/widget/chat_bubble.dart**:
+    - Adjusted layout and styling for better message display, including padding and alignment.
+
+15. **lib/ui/components/widgets/state_*.dart → lib/ui/components/state_messages/state_*.dart**:
+    - Renamed and reorganized state message components into a dedicated directory.
+
+16. **pubspec.yaml & pubspec.lock**:
+    - Added `firebase_messaging` dependency.
+
+### Conclusion:
+
+These updates significantly enhance the messaging functionality by integrating Firebase Messaging, improving state management, and reorganizing UI components. The changes ensure better scalability and user experience, while maintaining a clean and modular codebase.
+
+
 ## 2024/12/11 - version: 0.5.00+26
 
 This commit introduces a robust messaging functionality for the shop product feature, enhancing user interaction through a new message module. Key updates include adding a message widget, store, and controller, along with improvements to Firestore rules and model definitions.

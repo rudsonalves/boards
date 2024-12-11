@@ -1,5 +1,7 @@
+import 'package:boards/ui/components/widgets/app_snackbar.dart';
 import 'package:boards/ui/features/shop/product/message/widget/chat_bubble.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../../../core/theme/app_text_style.dart';
@@ -31,7 +33,7 @@ class _MessageWidgetState extends State<MessageWidget> {
     ctrl = MessageController(
       store: store,
       adId: widget.adId,
-      onweId: widget.ownerId,
+      owneId: widget.ownerId,
     );
   }
 
@@ -107,9 +109,9 @@ class _MessageWidgetState extends State<MessageWidget> {
                 } else if (store.isSuccess) {
                   return ListView.builder(
                     shrinkWrap: true,
-                    itemCount: store.messages.length,
+                    itemCount: ctrl.messages.length,
                     itemBuilder: (cotx, index) {
-                      final message = store.messages[index];
+                      final message = ctrl.messages[index];
                       final isAdOwner = message.ownerId == message.senderId;
 
                       return ChatBubble(
@@ -121,9 +123,17 @@ class _MessageWidgetState extends State<MessageWidget> {
                       );
                     },
                   );
-                } else {
-                  return Container();
+                } else if (store.isError) {
+                  SchedulerBinding.instance.addPostFrameCallback((_) {
+                    AppSnackbar.show(
+                      context,
+                      message: store.errorMessage ??
+                          'Ocorreu um erro. Tente mais tarde.',
+                      onClosed: store.setStateSuccess,
+                    );
+                  });
                 }
+                return Container();
               },
             ),
             TextButton(

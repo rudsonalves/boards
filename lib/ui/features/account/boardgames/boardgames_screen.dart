@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../components/dialogs/simple_question.dart';
-import '../../../components/widgets/state_error_message.dart';
-import '../../../components/widgets/state_loading_message.dart';
+import '../../../components/state_messages/state_error_message.dart';
+import '../../../components/state_messages/state_loading_message.dart';
 import '../../../../data/models/bg_name.dart';
 import 'edit_boardgame/edit_boardgame_screen.dart';
 import '../../shop/widgets/search/search_dialog.dart';

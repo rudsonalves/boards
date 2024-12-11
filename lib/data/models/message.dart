@@ -6,8 +6,9 @@ class MessageModel {
   DateTime timestamp;
   String text;
   bool read;
-  String? parentMessageId;
   bool answered;
+  String? targetUserId;
+  String? parentMessageId;
 
   MessageModel({
     this.id,
@@ -18,6 +19,7 @@ class MessageModel {
     required this.text,
     this.read = false,
     this.answered = false,
+    this.targetUserId,
     this.parentMessageId,
   }) : timestamp = timestamp ?? DateTime.now();
 
@@ -30,8 +32,9 @@ class MessageModel {
       'timestamp': timestamp.millisecondsSinceEpoch,
       'text': text,
       'read': read,
-      'parentMessageId': parentMessageId,
       'answered': answered,
+      'targetUserId': targetUserId,
+      'parentMessageId': parentMessageId,
     };
   }
 
@@ -44,10 +47,11 @@ class MessageModel {
       timestamp: DateTime.fromMillisecondsSinceEpoch(map['timestamp'] as int),
       text: map['text'] as String,
       read: map['read'] as bool,
+      answered: map['answered'] as bool,
+      targetUserId: map['targetUserId'] as String?,
       parentMessageId: map['parentMessageId'] != null
           ? map['parentMessageId'] as String
           : null,
-      answered: map['answered'] as bool,
     );
   }
 
@@ -60,8 +64,9 @@ class MessageModel {
         ' timestamp: $timestamp,'
         ' text: $text,'
         ' read: $read,'
-        ' parentMessageId: $parentMessageId,'
-        ' answered: $answered)';
+        ' answered: $answered,'
+        ' targetUserId: $targetUserId,'
+        ' parentMessageId: $parentMessageId)';
   }
 
   MessageModel copyWith({
@@ -72,8 +77,9 @@ class MessageModel {
     DateTime? timestamp,
     String? text,
     bool? read,
-    String? parentMessageId,
     bool? answered,
+    String? targetUserId,
+    String? parentMessageId,
   }) {
     return MessageModel(
       id: id ?? this.id,
@@ -83,8 +89,9 @@ class MessageModel {
       timestamp: timestamp ?? this.timestamp,
       text: text ?? this.text,
       read: read ?? this.read,
-      parentMessageId: parentMessageId ?? this.parentMessageId,
       answered: answered ?? this.answered,
+      targetUserId: targetUserId ?? this.targetUserId,
+      parentMessageId: parentMessageId ?? this.parentMessageId,
     );
   }
 }

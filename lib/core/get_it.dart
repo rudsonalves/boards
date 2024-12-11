@@ -2,12 +2,14 @@ import 'dart:developer';
 
 import 'package:get_it/get_it.dart';
 
+import '../data/services/firebase/firebase_messaging_service.dart';
 import '../data/repository/firebase/fb_message_repository.dart';
 import '../data/repository/interfaces/remote/i_message_repository.dart';
 import '../logic/managers/ads_manager.dart';
 import '../logic/managers/bag_manager.dart';
 import '../data/repository/app_data/app_share_preferences_repository.dart';
 import '../data/repository/interfaces/remote/i_app_preferences_repository.dart';
+import '../logic/managers/messages_manager.dart';
 import 'singletons/app_settings.dart';
 import 'singletons/current_user.dart';
 import 'singletons/search_filter.dart';
@@ -49,6 +51,8 @@ void setupDependencies() {
     getIt.registerSingleton<IAppPreferencesRepository>(
         AppSharePreferencesRepository());
     getIt.registerSingleton<AppSettings>(AppSettings());
+    getIt.registerSingleton<FirebaseMessagingService>(
+        FirebaseMessagingService());
 
     // Lazy Singletons
     getIt.registerLazySingleton<ParseServerService>(() => ParseServerService());
@@ -63,6 +67,8 @@ void setupDependencies() {
     getIt.registerLazySingleton<DatabaseManager>(() => DatabaseManager());
     getIt.registerLazySingleton<BoardgamesManager>(() => BoardgamesManager());
     getIt.registerLazySingleton<AdsManager>(() => AdsManager());
+    // Managers Factories
+    getIt.registerFactory<MessagesManager>(() => MessagesManager());
 
     // Parse Server Repositories
     getIt.registerFactory<IUserRepository>(() => FbUserRepository());
