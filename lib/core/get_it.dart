@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:get_it/get_it.dart';
 
+import '../data/repository/firebase/fb_message_repository.dart';
+import '../data/repository/interfaces/remote/i_message_repository.dart';
 import '../logic/managers/ads_manager.dart';
 import '../logic/managers/bag_manager.dart';
 import '../data/repository/app_data/app_share_preferences_repository.dart';
@@ -71,6 +73,7 @@ void setupDependencies() {
     getIt.registerFactory<IFavoriteRepository>(() => FbFavoriteRepository());
     getIt.registerFactory<ILocalBagItemRepository>(
         () => SqliteBagItemRepository());
+    getIt.registerFactory<IMessageRepository>(() => FbMessageRepository());
 
     // SQFLite Store
     getIt.registerFactoryAsync<IBgNamesStore>(() async {
