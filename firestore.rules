@@ -72,12 +72,13 @@ service cloud.firestore {
                 request.auth.uid == resource.data.ownerId;
 
       match /messages/{messageId} {
-        allow read: if request.auth != null && 
-                (request.auth.uid == resource.data.senderId || 
-                 request.auth.uid == resource.data.ownerId);
+        allow read: if request.auth != null;
+        //  && 
+        //         (request.auth.uid == resource.data.senderId || 
+        //          request.auth.uid == resource.data.ownerId);
 
         // Apenas o remetente pode criar uma mensagem
-        allow update: if request.auth != null;
+        allow create: if request.auth != null;
 
         // Somente o destinatário e o remetente podem atualizar 'read' ou 
         // 'answered'

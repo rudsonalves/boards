@@ -2,11 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'common/data_functions.dart';
 import '../../models/message.dart';
-import '../interfaces/remote/i_messages_repository.dart';
+import '../interfaces/remote/i_message_repository.dart';
 import '/core/abstracts/data_result.dart';
 import 'common/errors_codes.dart';
 
-class FbMessageRepository implements IMessagesRepository {
+class FbMessageRepository implements IMessageRepository {
   static const keyMessages = 'messages';
   static const keyMessageId = 'id';
   static const keyMessageRead = 'read';
@@ -24,8 +24,12 @@ class FbMessageRepository implements IMessagesRepository {
   @override
   Future<DataResult<List<MessageModel>>> get(String adId) async {
     try {
-      final msgsDocs =
-          await _messageCollection(adId).orderBy(keyMessageTimestamp).get();
+      final msgsDocs = await _messageCollection(adId)
+          .orderBy(
+            keyMessageTimestamp,
+            descending: true,
+          )
+          .get();
 
       final messages = msgsDocs.docs
           .map((doc) => MessageModel.fromMap(doc.data()).copyWith(id: doc.id))

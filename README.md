@@ -78,6 +78,52 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/11 - version: 0.5.00+26
+
+This commit introduces a robust messaging functionality for the shop product feature, enhancing user interaction through a new message module. Key updates include adding a message widget, store, and controller, along with improvements to Firestore rules and model definitions.
+
+### Changes made:
+
+1. **firestore.rules**:
+   - Adjusted `allow read` condition for messages to simplify access rules.
+   - Updated `allow create` to replace `allow update` for message creation.
+
+2. **lib/core/get_it.dart**:
+   - Registered `IMessageRepository` with `FbMessageRepository`.
+
+3. **lib/data/models/message.dart**:
+   - Added `senderName` and `ownerId` fields to `MessageModel`.
+   - Updated `toMap` and `fromMap` methods to handle new fields.
+   - Enhanced `copyWith` and `toString` methods to include the new properties.
+
+4. **lib/data/repository/firebase/fb_message_repository.dart**:
+   - Changed `IMessagesRepository` reference to `IMessageRepository`.
+   - Adjusted `get` method to order messages by `timestamp` in descending order.
+
+5. **lib/data/repository/interfaces/remote/i_messages_repository.dart → lib/data/repository/interfaces/remote/i_message_repository.dart**:
+   - Renamed file and interface from `IMessagesRepository` to `IMessageRepository`.
+
+6. **lib/ui/features/shop/product/message/message_controller.dart**:
+   - Introduced `MessageController` to handle message operations, including sending and reading messages.
+
+7. **lib/ui/features/shop/product/message/message_store.dart**:
+   - Added `MessageStore` to manage message state and lifecycle, including a `TextEditingController` for message input.
+
+8. **lib/ui/features/shop/product/message/message_widget.dart**:
+   - Created `MessageWidget` to integrate messaging functionality into the UI.
+   - Included input field and message list display with state management.
+
+9. **lib/ui/features/shop/product/message/widget/chat_bubble.dart**:
+   - Added `ChatBubble` and `ChatBubbleTriangle` widgets for visually distinct message display styles.
+
+10. **lib/ui/features/shop/product/product_screen.dart**:
+    - Integrated `MessageWidget` into the product screen for user interaction.
+
+### Conclusion:
+
+These updates significantly enhance the shop product feature by adding a messaging system that improves communication between users. The modular structure ensures maintainability, while the refined Firestore rules and model updates align with best practices.
+
+
 ## 2024/12/10 - version: 0.0.05+25
 
 This commit focuses on the restructuring of the `lib/` directory to align with the architectural layers of the application, separating core functionality, data management, business logic, and user interface components into distinct directories.

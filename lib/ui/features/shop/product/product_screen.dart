@@ -7,6 +7,7 @@ import '../../../../data/models/ad.dart';
 import '/core/singletons/current_user.dart';
 import '../../../components/widgets/favorite_button.dart';
 import '../../../../core/get_it.dart';
+import 'message/message_widget.dart';
 import 'procuct_store.dart';
 import 'product_controller.dart';
 import 'widgets/description_product.dart';
@@ -131,6 +132,11 @@ class _ProductScreenState extends State<ProductScreen> {
                     createAt: ad.ownerCreateAt!,
                     address: ad.ownerCity!,
                     rate: ad.ownerRate ?? 0,
+                  ),
+                  const Divider(indent: indent, endIndent: indent),
+                  MessageWidget(
+                    adId: ad.id!,
+                    ownerId: ad.ownerId!,
                   ),
                   const SizedBox(height: 50),
                 ],

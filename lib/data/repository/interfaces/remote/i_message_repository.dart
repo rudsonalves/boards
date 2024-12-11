@@ -3,7 +3,7 @@ import '../../../models/message.dart';
 
 /// A repository implementation for managing chat messages related to ads.
 /// This class interacts with Firebase Firestore to handle message operations.
-abstract class IMessagesRepository {
+abstract class IMessageRepository {
   /// Fetches all messages for a specific ad in ascending order of their
   /// timestamp.
   ///
