@@ -15,12 +15,16 @@ class ChatBubble extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if (isAdOwner) SizedBox(width: 40),
+        if (isAdOwner) SizedBox(width: 60),
         if (!isAdOwner)
-          ChatBubbleTriangle(
-            isAdOwner: isAdOwner,
-            isRight: false,
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: ChatBubbleTriangle(
+              isAdOwner: isAdOwner,
+              isRight: false,
+            ),
           ),
         Expanded(
           child: Container(
@@ -39,11 +43,14 @@ class ChatBubble extends StatelessWidget {
             child: widget,
           ),
         ),
-        if (!isAdOwner) SizedBox(width: 40),
+        if (!isAdOwner) SizedBox(width: 60),
         if (isAdOwner)
-          ChatBubbleTriangle(
-            isAdOwner: isAdOwner,
-            isRight: true,
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: ChatBubbleTriangle(
+              isAdOwner: isAdOwner,
+              isRight: true,
+            ),
           ),
       ],
     );
@@ -67,19 +74,13 @@ class ChatBubbleTriangle extends StatelessWidget {
         ? colorScheme.onPrimaryFixedVariant
         : colorScheme.surfaceContainerHigh;
 
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        CustomPaint(
-          size: const Size(10, 10), // Adjust size if needed
-          painter: _TrianglePainter(
-            color: color,
-            isAdOwner: isAdOwner,
-            isRight: isRight,
-          ),
-        ),
-      ],
+    return CustomPaint(
+      size: const Size(10, 10),
+      painter: _TrianglePainter(
+        color: color,
+        isAdOwner: isAdOwner,
+        isRight: isRight,
+      ),
     );
   }
 }
@@ -104,14 +105,14 @@ class _TrianglePainter extends CustomPainter {
       // Triangle pointing to the right
       path
         ..moveTo(0, 0)
-        ..lineTo(size.width, size.height / 2)
+        ..lineTo(size.width, size.height)
         ..lineTo(0, size.height)
         ..close();
     } else {
       // Triangle pointing to the left
       path
         ..moveTo(size.width, 0)
-        ..lineTo(0, size.height / 2)
+        ..lineTo(0, size.height)
         ..lineTo(size.width, size.height)
         ..close();
     }

@@ -1,71 +1,73 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:developer';
 
-import '/data/repository/interfaces/remote/i_message_repository.dart';
+import '/data/models/message.dart';
+import '/logic/managers/messages_manager.dart';
 import '/core/get_it.dart';
 import '/core/singletons/current_user.dart';
-import '/data/models/message.dart';
 import 'message_store.dart';
 
 class MessageController {
   final MessageStore store;
   final String adId;
-  final String onweId;
+  final String owneId;
 
   MessageController({
     required this.store,
     required this.adId,
-    required this.onweId,
+    required this.owneId,
   });
 
   final user = getIt<CurrentUser>().user;
-  final messageRepository = getIt<IMessageRepository>();
+  final messagesManager = getIt<MessagesManager>();
 
-  Future<void> sendMessage() async {
+  List<MessageModel> get messages => messagesManager.messages;
+
+  Future<void> sendMessage([String? targetId]) async {
     try {
-      if (user == null) {
-        throw Exception('É preciso estar logado para enviar uma mensagem'
-            ' para o vendedor.');
-      }
       store.setStateLoading();
-      final message = MessageModel(
-        senderId: user!.id!,
-        senderName: user!.name!,
-        ownerId: onweId,
-        text: store.messageController.text,
-      );
-      store.messageController.text = '';
-      final result = await messageRepository.sendMessage(
+      final result = await messagesManager.sendMessage(
         adId: adId,
-        message: message,
+        ownerId: owneId,
+        msg: store.messageController.text,
+        targetUserId: targetId,
       );
       if (result.isFailure) {
-        throw Exception('Desculpe. Ocorreu um erro.');
+        if (result.error != null && result.error!.code == 1000) {
+          store.setError('É preciso estar logado para enviar uma mensagem.');
+          return;
+        }
+        throw Exception('Unknow error');
       }
+
+      store.messageController.text = '';
 
       store.setStateSuccess();
     } catch (err) {
-      store.setError(err.toString());
+      log('Messagecontroller.sendMessage: $err');
+      store.setError('Desculpe. Ocorreu um erro.');
     }
   }
 
   Future<void> readMessages() async {
     try {
-      if (user == null) {
-        throw Exception('É preciso estar logado para enviar uma mensagem'
-            ' para o vendedor.');
-      }
       store.setStateLoading();
-      final result = await messageRepository.get(adId);
+      final result = await messagesManager.readMessages(adId);
       if (result.isFailure) {
-        throw Exception('Desculpe. Ocorreu um erro.');
+        if (result.error != null && result.error!.code == 1000) {
+          store.setError('É preciso estar logado para enviar uma mensagem.');
+          return;
+        }
+        throw Exception('Unknow error');
       }
-      await Future.delayed(Duration(seconds: 5));
 
-      final messages = result.data ?? [];
-      store.setMessages(messages);
+      if (messages.isEmpty) {
+        store.setError('Não há mensagens para este anúncio.');
+        return;
+      }
 
       store.setStateSuccess();
     } catch (err) {
+      log('MessageController.readMessages: $err');
       store.setError(err.toString());
     }
   }

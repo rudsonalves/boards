@@ -11,6 +11,7 @@ class UserModel {
   bool isPhoneVerified;
   String? password;
   UserRole role;
+  String? fcmToken;
   DateTime? createdAt;
 
   UserModel({
@@ -23,6 +24,7 @@ class UserModel {
     this.password,
     DateTime? createdAt,
     this.role = UserRole.user,
+    this.fcmToken,
   }) : createdAt = createdAt ?? DateTime.now();
 
   @override
@@ -33,6 +35,7 @@ class UserModel {
         ' phone: $phone (verified: $isPhoneVerified),'
         ' password: $password,'
         ' role: ${role.name},'
+        ' token: $fcmToken,'
         ' createdAt: $createdAt';
   }
 
@@ -45,17 +48,19 @@ class UserModel {
     bool? isPhoneVerified,
     String? password,
     UserRole? role,
+    String? fcmToken,
     DateTime? createdAt,
   }) {
     return UserModel(
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
+      password: password ?? this.password,
       isEmailVerified: isEmailVerified ?? this.isEmailVerified,
       phone: phone ?? this.phone,
       isPhoneVerified: isPhoneVerified ?? this.isPhoneVerified,
       role: role ?? this.role,
-      password: password ?? this.password,
+      fcmToken: fcmToken ?? this.fcmToken,
       createdAt: createdAt ?? this.createdAt,
     );
   }

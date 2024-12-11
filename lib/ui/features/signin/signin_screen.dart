@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../components/buttons/big_button.dart';
-import '../../components/widgets/state_error_message.dart';
-import '../../components/widgets/state_loading_message.dart';
+import '../../components/state_messages/state_error_message.dart';
+import '../../components/state_messages/state_loading_message.dart';
 import '../signup/signup_screen.dart';
 import 'signin_controller.dart';
 import 'signin_store.dart';

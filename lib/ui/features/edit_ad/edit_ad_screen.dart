@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../data/models/ad.dart';
 import '../../components/buttons/big_button.dart';
-import '../../components/widgets/state_error_message.dart';
-import '../../components/widgets/state_loading_message.dart';
+import '../../components/state_messages/state_error_message.dart';
+import '../../components/state_messages/state_loading_message.dart';
 import 'edit_ad_controller.dart';
 import 'edit_ad_form/edit_ad_form.dart';
 import 'edit_ad_store.dart';

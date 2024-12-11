@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../components/widgets/state_error_message.dart';
-import '../../components/widgets/state_loading_message.dart';
+import '../../components/state_messages/state_error_message.dart';
+import '../../components/state_messages/state_loading_message.dart';
 import '/core/theme/app_text_style.dart';
 import '../shop/shop_screen.dart';
 import 'splash_page_store.dart';

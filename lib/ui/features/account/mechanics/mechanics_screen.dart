@@ -2,8 +2,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../data/models/mechanic.dart';
-import '../../../components/widgets/state_error_message.dart';
-import '../../../components/widgets/state_loading_message.dart';
+import '../../../components/state_messages/state_error_message.dart';
+import '../../../components/state_messages/state_loading_message.dart';
 import 'mechanics_store.dart';
 import 'mechanics_controller.dart';
 import 'widgets/mach_floating_action_button.dart';
