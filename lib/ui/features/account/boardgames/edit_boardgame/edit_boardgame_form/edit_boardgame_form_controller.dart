@@ -73,7 +73,7 @@ class EditBoardgameFormController {
 
   void _updateMechsController() {
     mechsController.text =
-        mechManager.namesFromPsIdList(store.bg.mechIds).join(', ');
+        mechManager.namesFromMechIdList(store.bg.mechIds).join(', ');
   }
 
   void setImage(String? image) {

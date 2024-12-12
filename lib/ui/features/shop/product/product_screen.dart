@@ -11,7 +11,7 @@ import 'message/message_widget.dart';
 import 'procuct_store.dart';
 import 'product_controller.dart';
 import 'widgets/description_product.dart';
-import 'widgets/game_data.dart';
+import 'widgets/gama_data/game_data_widget.dart';
 import 'widgets/image_carousel.dart';
 import 'widgets/price_product.dart';
 import 'widgets/title_product.dart';
@@ -121,7 +121,7 @@ class _ProductScreenState extends State<ProductScreen> {
                   // FIXME: verificar se é melhor copiar as informações em uma
                   // leiture no PS ou se carregar estas informalções depois.
                   if (ad.boardgameId != null)
-                    GameData(
+                    GameDataWidget(
                       bgId: ad.boardgameId!,
                       indent: indent,
                     ),

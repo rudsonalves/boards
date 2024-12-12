@@ -4,11 +4,11 @@ import 'dart:io';
 
 import 'package:csv/csv.dart';
 
-import '../../core/get_it.dart';
-import '../../core/abstracts/data_result.dart';
-import '../../data/models/mechanic.dart';
-import '../../data/repository/interfaces/remote/i_mechanic_repository.dart';
-import '../../data/repository/interfaces/local/i_local_mechanic_repository.dart';
+import '/core/get_it.dart';
+import '/core/abstracts/data_result.dart';
+import '/data/models/mechanic.dart';
+import '/data/repository/interfaces/remote/i_mechanic_repository.dart';
+import '/data/repository/interfaces/local/i_local_mechanic_repository.dart';
 
 enum ManagerStatus { ok, error, duplicated }
 
@@ -66,12 +66,12 @@ class MechanicsManager {
 
   /// Returns the name of the mechanic given its ID.
   ///
-  /// [psId] - The ID of the mechanic.
+  /// [mechId] - The ID of the mechanic.
   /// Returns the name of the mechanic if found, otherwise returns null.
-  String? nameFromPsId(String psId) {
+  String? nameFromMechId(String mechId) {
     return _mechanics
         .firstWhere(
-          (item) => item.id == psId,
+          (item) => item.id == mechId,
           orElse: () => MechanicModel(id: null, name: ''),
         )
         .name;
@@ -79,31 +79,35 @@ class MechanicsManager {
 
   /// Returns a list of mechanic names given a list of mechanic IDs.
   ///
-  /// [psIds] - A list of mechanic IDs.
+  /// [mechIds] - A list of mechanic IDs.
   /// Returns a list of mechanic names corresponding to the provided IDs.
   /// If a mechanic ID does not correspond to a mechanic, it logs an error.
-  List<String> namesFromPsIdList(List<String> psIds) {
+  List<String> namesFromMechIdList(List<String> mechIds) {
     List<String> names = [];
-    for (final psId in psIds) {
-      final name = nameFromPsId(psId);
+    for (final mechId in mechIds) {
+      final name = nameFromMechId(mechId);
       if (name != null) {
         names.add(name);
         continue;
       }
-      log('MechanicsManager.namesFromIdList: name from MechanicModel.id $psId return erro');
+      log('MechanicsManager.namesFromIdList: name from MechanicModel.id $mechId return erro');
     }
 
     return names;
   }
 
+  MechanicModel mechFromId(String mechId) {
+    return _mechanics.firstWhere((m) => m.id! == mechId);
+  }
+
   String namesFromIdListString(List<String> psIds) {
-    return namesFromPsIdList(psIds)
+    return namesFromMechIdList(psIds)
         .toString()
         .replaceAll('[', '')
         .replaceAll(']', '');
   }
 
-  MechanicModel mechanicOfPsId(String psId) {
+  MechanicModel mechanicOfMechId(String psId) {
     return _mechanics.firstWhere((item) => item.id == psId);
   }
 
@@ -219,8 +223,8 @@ class MechanicsManager {
     return DataResult.success(null);
   }
 
-  Future<DataResult<MechanicModel>> get(String psId) async {
-    return await mechRepository.get(psId);
+  Future<DataResult<MechanicModel>> get(String mechId) async {
+    return await mechRepository.get(mechId);
   }
 
   Future<DataResult<void>> resetLocalDatabase() async {
@@ -239,7 +243,7 @@ class MechanicsManager {
     }
   }
 
-  Future<DataResult<List<MechanicModel>>> getMechanics() async {
+  Future<DataResult<List<MechanicModel>>> getAll() async {
     try {
       final result = await mechRepository.getAll();
       if (result.isFailure) {
