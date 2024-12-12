@@ -49,7 +49,7 @@ class ToolsController {
       await mechManager.resetLocalDatabase();
       // await _loadCSVMechs();
       // Read all Mechanics from Server
-      final resultMechs = await mechManager.getMechanics();
+      final resultMechs = await mechManager.getAll();
       if (resultMechs.isFailure) {
         throw Exception(resultMechs);
       }

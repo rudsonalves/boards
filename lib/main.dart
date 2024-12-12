@@ -53,9 +53,9 @@ void main() async {
   });
 
   // Backgound handler
-  FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
-    log('Mensagem recebida em backgound: ${message.notification?.title}');
-  });
+  // FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
+  // log('Mensagem recebida em backgound: ${message.notification?.title}');
+  // });
 
   runApp(const App());
 }

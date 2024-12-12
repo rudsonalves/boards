@@ -78,6 +78,52 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/11 - version: 0.5.00+28
+
+This commit refactors several methods in the mechanics manager to improve naming consistency and better align with the mechanic ID handling. It also introduces new UI elements, such as updated controllers and widgets for displaying boardgame data, and updates relevant files to reflect these changes.
+
+### Changes made:
+1. **lib/logic/managers/mechanics_manager.dart**:
+   - Renamed method `nameFromPsId` to `nameFromMechId` for better clarity and consistency with the mechanic ID.
+   - Renamed method `namesFromPsIdList` to `namesFromMechIdList` to reflect the updated method naming.
+   - Renamed method `mechanicOfPsId` to `mechanicOfMechId` to match the new naming convention for mechanic IDs.
+   - Updated internal references in the methods to handle mechanic ID (`mechId`) consistently.
+   - Added a new method `mechFromId` to fetch mechanics by ID from the list.
+   - Updated the method `get` to accept `mechId` instead of `psId` when fetching mechanic data from the repository.
+
+2. **lib/main.dart**:
+   - Commented out `FirebaseMessaging.onBackgroundMessage` for background message handling temporarily.
+
+3. **lib/ui/features/account/boardgames/edit_boardgame/edit_boardgame_form/edit_boardgame_form_controller.dart**:
+   - Updated the call to `mechManager.namesFromPsIdList` to `mechManager.namesFromMechIdList` for consistency with the new naming of methods.
+   
+4. **lib/ui/features/account/tools/tools_controller.dart**:
+   - Updated the method call `mechManager.getMechanics()` to `mechManager.getAll()` to use the new method for fetching mechanics.
+
+5. **lib/ui/features/filters/filters_controller.dart**:
+   - Updated the method call `mechManager.namesFromPsIdList` to `mechManager.namesFromMechIdList` for consistency with the updated method names.
+
+6. **lib/ui/features/shop/product/product_screen.dart**:
+   - Renamed `GameData` widget to `GameDataWidget` to resolve naming conflict and maintain consistency.
+
+7. **lib/ui/features/shop/product/widgets/gama_data/game_data_controller.dart**:
+   - Created a new controller class `GameDataController` to handle boardgame data and mechanics fetching.
+   - Added `loadBoardgame` method to fetch boardgame details asynchronously and update the UI state accordingly.
+
+8. **lib/ui/features/shop/product/widgets/gama_data/game_data_store.dart**:
+   - Created a new store class `GameDataStore` to manage state for the boardgame data loading process.
+
+9. **lib/ui/features/shop/product/widgets/gama_data/game_data_widget.dart**:
+   - Created `GameDataWidget` as a new widget to display detailed boardgame data and mechanics.
+   - Added logic to display boardgame information such as players, duration, age, and mechanics, as well as handle loading and error states.
+
+10. **lib/ui/features/shop/product/widgets/game_data.dart**:
+    - Removed old `GameData` widget in favor of the newly created `GameDataWidget`.
+
+### Conclusion:
+The commit refactors the `MechanicsManager` methods to improve consistency in naming conventions and the handling of mechanic IDs. It also introduces new UI elements and controllers for managing and displaying boardgame data. Additionally, it updates method calls across various files to align with the new naming and method structure, ensuring better code clarity and maintainability.
+
+
 ## 2024/12/11 - version: 0.5.00+27
 
 This commit introduces significant updates to the messaging functionality, enabling Firebase Messaging for notifications, restructuring state management, and improving user experience in the app. Key changes include the addition of Firebase Messaging service, restructuring state message widgets, and various enhancements in controllers and stores.

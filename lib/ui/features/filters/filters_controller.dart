@@ -104,7 +104,7 @@ class FiltersController extends ChangeNotifier {
   void mechUpdateNames(List<String> mechPsIds) {
     _selectedMechIds.clear();
     _selectedMechIds.addAll(mechPsIds);
-    final mechNames = mechManager.namesFromPsIdList(_selectedMechIds);
+    final mechNames = mechManager.namesFromMechIdList(_selectedMechIds);
     mechsController.text = _joinMechNames(mechNames);
   }
 
