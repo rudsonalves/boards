@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
+import '/core/abstracts/data_result.dart';
 import '../../models/viacep_address.dart';
 
 /// This class provides methods to interact with the ViaCEP API
@@ -14,7 +15,8 @@ class ViacepRepository {
   /// [cep] - The Brazilian postal code to lookup.
   /// Returns a `ViaCEPAddressModel` containing the address information if successful,
   /// otherwise returns `null`.
-  static Future<ViaCEPAddressModel> getLocalByCEP(String cep) async {
+  static Future<DataResult<ViaCEPAddressModel>> getLocalByCEP(
+      String cep) async {
     try {
       String cleanCEP = _cleanCEP(cep);
       final urlCEP = 'https://viacep.com.br/ws/$cleanCEP/json/';
@@ -28,13 +30,13 @@ class ViacepRepository {
         }
 
         final address = ViaCEPAddressModel.fromMap(data);
-        return address;
+        return DataResult.success(address);
       } else {
         throw Exception('failed to load data (${response.statusCode}).');
       }
     } catch (err) {
       log('ViacepRepository.getLocalByCEP: $err');
-      throw Exception(err);
+      return DataResult.failure(GenericFailure(message: err.toString()));
     }
   }
 

@@ -73,8 +73,13 @@ class EditAddressController {
   Future<void> getAddressFromViacep() async {
     try {
       store.setStateLoading();
-      final response =
+      final result =
           await ViacepRepository.getLocalByCEP(zipCodeController.text);
+      if (result.isFailure || result.data == null) {
+        store.setZipCodeInvalid();
+        throw Exception(result.error ?? 'unknow error');
+      }
+      final response = result.data!;
       streetController.text = response.logradouro;
       neighborhoodController.text = response.bairro;
       cityController.text = response.localidade;
@@ -83,7 +88,8 @@ class EditAddressController {
     } catch (err) {
       final message = err.toString();
       log(message);
-      store.setError(message);
+      // store.setError(message);
+      store.setStateSuccess();
     }
   }
 

@@ -78,6 +78,67 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/12 - version: 0.5.01+29
+
+Added improvements and fixes across multiple files for better functionality, consistency, and performance.
+
+### Changes made:
+1. **android/app/src/main/AndroidManifest.xml**:
+   - Enabled `OnBackInvokedCallback` with the attribute `android:enableOnBackInvokedCallback`.
+   - Added a comment reminding to set `android:usesCleartextTraffic` to "false" in production.
+
+2. **lib/data/repository/firebase/fb_ads_repository.dart**:
+   - Added `status` filter to the `get` method.
+   - Refactored query-building logic by extracting it into a new `_applyFilter` method for better maintainability.
+   - Updated the `update` method to return the updated `AdModel` instead of `null`.
+
+3. **lib/data/repository/gov_apis/viacep_repository.dart**:
+   - Updated `getLocalByCEP` to return a `DataResult` instead of throwing exceptions for error handling.
+   - Added import for `DataResult`.
+
+4. **lib/logic/managers/mechanics_manager.dart**:
+   - Fixed a log message formatting issue in `namesFromIdList`.
+
+5. **lib/ui/components/state/state_store.dart**:
+   - Enhanced state management methods (`setStateInitial`, `setStateLoading`, `setStateSuccess`) to reset `errorMessage`.
+
+6. **lib/ui/features/account/my_ads/my_ads_screen.dart**:
+   - Replaced `Icons.delete` with `Symbols.delete` for improved consistency.
+   - Adjusted formatting in `_editAd` for better readability.
+
+7. **lib/ui/features/addresses/edit_address/edit_address_controller.dart**:
+   - Updated `getAddressFromViacep` to handle `DataResult` properly.
+   - Adjusted error handling to set state as successful when an error occurs.
+
+8. **lib/ui/features/addresses/edit_address/edit_address_store.dart**:
+   - Removed unused setter methods (`setStreet`, `setNeighborhood`, etc.).
+   - Added `setZipCodeInvalid` method to manage invalid ZIP code errors.
+
+9. **lib/ui/features/addresses/edit_address/widgets/address_form.dart**:
+   - Wrapped `CustomFormField` for `Número` with a `ValueListenableBuilder` for reactive error handling.
+   - Commented out unused validators for neighborhood, state, and city.
+
+10. **lib/ui/features/edit_ad/edit_ad_controller.dart**:
+    - Updated `saveAd` to differentiate between adding and updating ads based on the `id`.
+
+11. **lib/ui/features/shop/product/product_screen.dart**:
+    - Added padding to `ImageCarousel` for better visual layout.
+
+12. **lib/ui/features/shop/product/widgets/gama_data/game_data_widget.dart**:
+    - Adjusted text styles dynamically based on `colorScheme`.
+    - Improved layout customization with additional padding and styling.
+
+13. **lib/ui/features/shop/shop_controller.dart**:
+    - Refactored `_initialize` to separate the logic into a `reloadAds` method for better clarity and reusability.
+
+14. **lib/ui/features/shop/shop_screen.dart**:
+    - Added padding to the body for consistent UI spacing.
+    - Improved structure and formatting for better readability.
+
+### Conclusion:
+These updates significantly enhance the code's clarity, maintainability, and functionality, laying the groundwork for more robust features and a better user experience.
+
+
 ## 2024/12/12 - version: 0.5.00+28
 
 This commit refactors several methods in the mechanics manager to improve naming consistency and better align with the mechanic ID handling. It also introduces new UI elements, such as updated controllers and widgets for displaying boardgame data, and updates relevant files to reflect these changes.

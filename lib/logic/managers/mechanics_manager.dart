@@ -90,7 +90,8 @@ class MechanicsManager {
         names.add(name);
         continue;
       }
-      log('MechanicsManager.namesFromIdList: name from MechanicModel.id $mechId return erro');
+      log('MechanicsManager.namesFromIdList: name from'
+          ' MechanicModel.id $mechId return erro');
     }
 
     return names;

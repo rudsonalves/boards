@@ -67,6 +67,7 @@ class FbAdsRepository implements IAdsRepository {
   Future<DataResult<List<AdModel>?>> get({
     required FilterModel filter,
     required String search,
+    AdStatus status = AdStatus.active,
     int page = 0,
   }) async {
     try {
@@ -78,37 +79,15 @@ class FbAdsRepository implements IAdsRepository {
       // Build the query dynamically based on the provided filters
       Query query = _adsCollection;
 
+      // Apply status filter
+      query = query.where(keyAdsStatus, isEqualTo: status.name);
+
       // Apply search filter if the search term is not empty
       if (search.trim().isNotEmpty) {
         query = query.where(keyAdsTitle, arrayContains: search.trim());
       }
 
-      // Apply mechanics filter if there are selected mechanics IDs
-      if (filter.mechanicsId.isNotEmpty) {
-        query =
-            query.where(keyAdsMechanics, arrayContainsAny: filter.mechanicsId);
-      }
-
-      // Apply price filters if they are set
-      if (filter.minPrice > 0) {
-        query =
-            query.where(keyAdsPrice, isGreaterThanOrEqualTo: filter.minPrice);
-      }
-      if (filter.maxPrice > 0) {
-        query = query.where(keyAdsPrice, isLessThanOrEqualTo: filter.maxPrice);
-      }
-
-      // Apply product condition filter if it is not 'all'
-      if (filter.condition != ProductCondition.all) {
-        query = query.where(keyAdsCondition, isEqualTo: filter.condition.name);
-      }
-
-      // Sort by price or date as specified by the filter
-      if (filter.sortBy == SortOrder.price) {
-        query.orderBy(keyAdsPrice, descending: false);
-      } else {
-        query.orderBy(keyAdsCreatedAt, descending: true);
-      }
+      query = _applyFilter(query, filter);
 
       // Add pagination using startAfterDocument if provided
       if (_lastFetchedDocument != null) {
@@ -133,6 +112,53 @@ class FbAdsRepository implements IAdsRepository {
     } catch (err) {
       return _handleError('get', err, ErrorCodes.unknownError);
     }
+  }
+
+  Query<Object?> _applyFilter(Query<Object?> query, FilterModel filter) {
+    // Apply mechanics filter if there are selected mechanics IDs
+    if (filter.mechanicsId.isNotEmpty) {
+      query = query.where(
+        keyAdsMechanics,
+        arrayContainsAny: filter.mechanicsId,
+      );
+    }
+
+    // Apply price filters if they are set
+    if (filter.minPrice > 0) {
+      query = query.where(
+        keyAdsPrice,
+        isGreaterThanOrEqualTo: filter.minPrice,
+      );
+    }
+    if (filter.maxPrice > 0) {
+      query = query.where(
+        keyAdsPrice,
+        isLessThanOrEqualTo: filter.maxPrice,
+      );
+    }
+
+    // Apply product condition filter if it is not 'all'
+    if (filter.condition != ProductCondition.all) {
+      query = query.where(
+        keyAdsCondition,
+        isEqualTo: filter.condition.name,
+      );
+    }
+
+    // Sort by price or date as specified by the filter
+    if (filter.sortBy == SortOrder.price) {
+      query = query.orderBy(
+        keyAdsPrice,
+        descending: false,
+      );
+    } else {
+      query = query.orderBy(
+        keyAdsCreatedAt,
+        descending: true,
+      );
+    }
+
+    return query;
   }
 
   @override
@@ -185,7 +211,7 @@ class FbAdsRepository implements IAdsRepository {
 
       await doc.update(ad.toMap()..remove('id'));
 
-      return DataResult.success(null);
+      return DataResult.success(ad);
     } catch (err) {
       return _handleError('update', err, ErrorCodes.unknownError);
     }

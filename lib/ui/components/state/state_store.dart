@@ -12,9 +12,21 @@ class StateStore {
   bool get isSuccess => state.value == PageState.success;
   bool get isError => state.value == PageState.error;
 
-  void setStateInitial() => state.value = PageState.initial;
-  void setStateLoading() => state.value = PageState.loading;
-  void setStateSuccess() => state.value = PageState.success;
+  void setStateInitial() {
+    state.value = PageState.initial;
+    errorMessage = null;
+  }
+
+  void setStateLoading() {
+    state.value = PageState.loading;
+    errorMessage = null;
+  }
+
+  void setStateSuccess() {
+    state.value = PageState.success;
+    errorMessage = null;
+  }
+
   void setStateError() => state.value = PageState.error;
 
   setError(String message) {

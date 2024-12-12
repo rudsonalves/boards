@@ -46,16 +46,20 @@ class ShopController {
     _initialize();
   }
 
-  Future<void> _initialize() async {
+  void _initialize() {
+    searchFilter.filterNotifier.addListener(getAds);
+    searchFilter.searchNotifier.addListener(getAds);
+    currentUser.isLogedListernable.addListener(getAds);
+    currentUser.isLogedListernable.addListener(setPageTitle);
+
+    reloadAds();
+  }
+
+  Future<void> reloadAds() async {
     try {
       store.setStateLoading();
       _getMorePages = await adManager.getAds();
       setPageTitle();
-      searchFilter.filterNotifier.addListener(getAds);
-      searchFilter.searchNotifier.addListener(getAds);
-      currentUser.isLogedListernable.addListener(getAds);
-      currentUser.isLogedListernable.addListener(setPageTitle);
-
       store.setStateSuccess();
     } catch (err) {
       final message = 'ShopController._initialize: $err';

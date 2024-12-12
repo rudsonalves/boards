@@ -95,7 +95,10 @@ class _ProductScreenState extends State<ProductScreen> {
           children: [
             Stack(
               children: [
-                ImageCarousel(ad: ad),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: ImageCarousel(ad: ad),
+                ),
                 if (isLogged) FavoriteStackButton(ad: ad),
               ],
             ),
@@ -118,8 +121,6 @@ class _ProductScreenState extends State<ProductScreen> {
                   TitleProduct(title: ad.title),
                   const Divider(indent: indent, endIndent: indent),
                   DescriptionProduct(description: ad.description),
-                  // FIXME: verificar se é melhor copiar as informações em uma
-                  // leiture no PS ou se carregar estas informalções depois.
                   if (ad.boardgameId != null)
                     GameDataWidget(
                       bgId: ad.boardgameId!,
