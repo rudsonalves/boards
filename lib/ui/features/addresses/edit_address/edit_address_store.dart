@@ -47,10 +47,6 @@ class EditAddressStore extends StateStore {
     _validateZipCode();
   }
 
-  void setStreet(String value) {
-    address.street = value;
-  }
-
   void setNumber(String value) {
     address.number = value;
 
@@ -61,24 +57,16 @@ class EditAddressStore extends StateStore {
     address.complement = value;
   }
 
-  void setNeighborhood(String value) {
-    address.neighborhood = value;
-  }
-
-  void setAddressState(String value) {
-    address.state = value;
-  }
-
-  void setCity(String value) {
-    address.city = value;
-  }
-
   void _validateName() {
     errorName.value = AddressValidator.name(address.name);
   }
 
   void _validateZipCode() {
     errorZipCode.value = AddressValidator.zipCode(address.zipCode);
+  }
+
+  void setZipCodeInvalid() {
+    errorZipCode.value = 'CEP inválido!';
   }
 
   void _validateNumber() {

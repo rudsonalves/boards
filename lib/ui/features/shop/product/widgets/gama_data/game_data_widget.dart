@@ -1,8 +1,10 @@
-import 'package:boards/ui/components/widgets/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '/core/singletons/app_settings.dart';
+import '/ui/components/widgets/app_snackbar.dart';
+import '/core/get_it.dart';
 import '/data/models/boardgame.dart';
 import '/core/theme/app_text_style.dart';
 import '../sub_title_product.dart';
@@ -26,6 +28,7 @@ class GameDataWidget extends StatefulWidget {
 class _GameDataWidgetState extends State<GameDataWidget> {
   final store = GameDataStore();
   late final GameDataController ctrl;
+  final app = getIt<AppSettings>();
 
   BoardgameModel? get boardgame => ctrl.boardgame;
 
@@ -44,6 +47,9 @@ class _GameDataWidgetState extends State<GameDataWidget> {
   }
 
   Widget _richTextRow(String title, String value) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    // Color? color = app.isDark ? colorScheme.onSurface
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: RichText(
@@ -51,11 +57,15 @@ class _GameDataWidgetState extends State<GameDataWidget> {
           children: [
             TextSpan(
               text: '$title: ',
-              style: AppTextStyle.font15SemiBold,
+              style: AppTextStyle.font15SemiBold.copyWith(
+                color: colorScheme.onSurface,
+              ),
             ),
             TextSpan(
               text: value,
-              style: AppTextStyle.font15,
+              style: AppTextStyle.font15.copyWith(
+                color: colorScheme.onSurface,
+              ),
             ),
           ],
         ),
@@ -64,16 +74,22 @@ class _GameDataWidgetState extends State<GameDataWidget> {
   }
 
   Widget _richTextColumn(String title, String value) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: RichText(
         text: TextSpan(
           text: '$title:\n',
-          style: AppTextStyle.font16SemiBold,
+          style: AppTextStyle.font16SemiBold.copyWith(
+            color: colorScheme.onSurface,
+          ),
           children: [
             TextSpan(
               text: value,
-              style: AppTextStyle.font15,
+              style: AppTextStyle.font15.copyWith(
+                color: colorScheme.onSurface,
+              ),
             ),
           ],
         ),
@@ -82,6 +98,8 @@ class _GameDataWidgetState extends State<GameDataWidget> {
   }
 
   Widget bgInfo() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -102,7 +120,9 @@ class _GameDataWidgetState extends State<GameDataWidget> {
           child: RichText(
             text: TextSpan(
               text: 'Mecânicas:',
-              style: AppTextStyle.font16SemiBold,
+              style: AppTextStyle.font16SemiBold.copyWith(
+                color: colorScheme.onSurface,
+              ),
             ),
           ),
         ),

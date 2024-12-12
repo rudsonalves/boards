@@ -237,40 +237,43 @@ class _ShopScreenState extends State<ShopScreen>
                 ),
         ),
       ),
-      body: NotificationListener<ScrollStartNotification>(
-        onNotification: (scrollNotification) {
-          _hideFab();
-          _resetTimer();
-          return false;
-        },
-        child: ListenableBuilder(
-          listenable: store.state,
-          builder: (context, _) => Stack(
-            children: [
-              // state State Success
-              if (ctrl.ads.isEmpty && store.isSuccess) AdsNotFoundMessage(),
-              if (ctrl.ads.isNotEmpty && store.isSuccess)
-                Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: ShopGridView(
-                    ads: ctrl.ads,
-                    getMoreAds: ctrl.getMoreAds,
-                    scrollController: _scrollController,
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: NotificationListener<ScrollStartNotification>(
+          onNotification: (scrollNotification) {
+            _hideFab();
+            _resetTimer();
+            return false;
+          },
+          child: ListenableBuilder(
+            listenable: store.state,
+            builder: (context, _) => Stack(
+              children: [
+                // state State Success
+                if (ctrl.ads.isEmpty && store.isSuccess) AdsNotFoundMessage(),
+                if (ctrl.ads.isNotEmpty && store.isSuccess)
+                  Padding(
+                    padding: const EdgeInsets.all(0),
+                    child: ShopGridView(
+                      ads: ctrl.ads,
+                      getMoreAds: ctrl.getMoreAds,
+                      scrollController: _scrollController,
+                    ),
                   ),
-                ),
-              // state State Error
-              if (store.isError)
-                Positioned.fill(
-                  child: StateErrorMessage(
-                    closeDialog: ctrl.closeErroMessage,
+                // state State Error
+                if (store.isError)
+                  Positioned.fill(
+                    child: StateErrorMessage(
+                      closeDialog: ctrl.closeErroMessage,
+                    ),
                   ),
-                ),
-              // state State Loading
-              if (store.isLoading)
-                const Positioned.fill(
-                  child: StateLoadingMessage(),
-                ),
-            ],
+                // state State Loading
+                if (store.isLoading)
+                  const Positioned.fill(
+                    child: StateLoadingMessage(),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

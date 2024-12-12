@@ -59,7 +59,12 @@ class EditAdController {
   Future<DataResult<AdModel>> saveAd() async {
     try {
       store.setStateLoading();
-      final result = await adRepository.add(store.ad);
+      DataResult<AdModel?> result;
+      if (store.ad.id == null) {
+        result = await adRepository.add(store.ad);
+      } else {
+        result = await adRepository.update(store.ad);
+      }
       if (result.isFailure) {
         throw Exception(result.error);
       }

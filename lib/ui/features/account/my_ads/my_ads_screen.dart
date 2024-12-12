@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../../data/models/ad.dart';
 import '../../edit_ad/edit_ad_screen.dart';
@@ -37,8 +38,11 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
   }
 
   void _editAd(AdModel ad) async {
-    final result = await Navigator.pushNamed(context, EditAdScreen.routeName,
-        arguments: ad) as AdModel?;
+    final result = await Navigator.pushNamed(
+      context,
+      EditAdScreen.routeName,
+      arguments: ad,
+    ) as AdModel?;
     if (result != null) {
       ctrl.updateAd(result);
     }
@@ -65,7 +69,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
               FilledButton.tonalIcon(
                 onPressed: () => Navigator.pop(context, true),
                 label: const Text('Remover'),
-                icon: const Icon(Icons.delete),
+                icon: const Icon(Symbols.delete),
               ),
               FilledButton.tonal(
                 onPressed: () => Navigator.pop(context, false),
