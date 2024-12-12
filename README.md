@@ -78,7 +78,7 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
-## 2024/12/11 - version: 0.5.00+28
+## 2024/12/12 - version: 0.5.00+28
 
 This commit refactors several methods in the mechanics manager to improve naming consistency and better align with the mechanic ID handling. It also introduces new UI elements, such as updated controllers and widgets for displaying boardgame data, and updates relevant files to reflect these changes.
 
