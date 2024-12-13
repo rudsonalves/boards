@@ -50,9 +50,9 @@ class MyAdsDsimissible {
   Color? _getColorLeft() {
     switch (adStatus) {
       case AdStatus.pending:
-        return Colors.blue.withOpacity(0.45);
+        return Colors.blue.withValues(alpha: 0.45);
       case AdStatus.active:
-        return Colors.green.withOpacity(0.45);
+        return Colors.green.withValues(alpha: 0.45);
       case AdStatus.sold:
         return null;
       case AdStatus.deleted:
@@ -65,9 +65,9 @@ class MyAdsDsimissible {
       case AdStatus.pending:
         return null;
       case AdStatus.active:
-        return Colors.yellow.withOpacity(0.45);
+        return Colors.yellow.withValues(alpha: 0.45);
       case AdStatus.sold:
-        return Colors.blue.withOpacity(0.45);
+        return Colors.blue.withValues(alpha: 0.45);
       case AdStatus.deleted:
         return null;
     }

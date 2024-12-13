@@ -37,6 +37,8 @@ RichText parseRichText(String text, TextStyle defaultStyle) {
 
 // Example usage in a Flutter widget:
 class RichTextExample extends StatelessWidget {
+  const RichTextExample({super.key});
+
   @override
   Widget build(BuildContext context) {
     const exampleText = 'This is **bold** and this is *italic*.';

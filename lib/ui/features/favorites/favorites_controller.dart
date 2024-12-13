@@ -34,6 +34,18 @@ class FavoritesController {
     }
   }
 
+  Future<void> reloadAds() async {
+    try {
+      store.setStateLoading();
+      await adManager.getAds();
+      store.setStateSuccess();
+    } catch (err) {
+      final message = 'ShopController._initialize: $err';
+      log(message);
+      store.setError(message);
+    }
+  }
+
   Future<void> getMoreAds() async {}
 
   Future<void> _refresh() async {

@@ -225,7 +225,7 @@ class _ShopScreenState extends State<ShopScreen>
                     Navigator.pushNamed(context, EditAdScreen.routeName);
                   },
                   backgroundColor:
-                      colorScheme.primaryContainer.withOpacity(0.75),
+                      colorScheme.primaryContainer.withValues(alpha: 0.75),
                   icon: const Icon(Icons.camera),
                   label: const Text('Adicionar anúncio'),
                 )
@@ -257,6 +257,7 @@ class _ShopScreenState extends State<ShopScreen>
                     child: ShopGridView(
                       ads: ctrl.ads,
                       getMoreAds: ctrl.getMoreAds,
+                      reloadAds: ctrl.reloadAds,
                       scrollController: _scrollController,
                     ),
                   ),

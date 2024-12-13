@@ -33,7 +33,7 @@ class BigButton extends StatelessWidget {
                   ),
                 ),
                 backgroundColor: WidgetStateProperty.all(
-                  color.withOpacity(.3),
+                  color.withValues(alpha: .3),
                 ),
               ),
               child: Padding(

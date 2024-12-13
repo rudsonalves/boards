@@ -40,7 +40,7 @@ class DismissibleMech extends StatelessWidget {
       background: baseDismissibleContainer(
         context,
         alignment: Alignment.centerLeft,
-        color: colorLeft.withOpacity(0.3),
+        color: colorLeft.withValues(alpha: 0.3),
         icon: iconLeft,
         label: labelLeft,
         enable: saveMech != null,
@@ -48,7 +48,7 @@ class DismissibleMech extends StatelessWidget {
       secondaryBackground: baseDismissibleContainer(
         context,
         alignment: Alignment.centerRight,
-        color: colorRight.withOpacity(0.3),
+        color: colorRight.withValues(alpha: 0.3),
         icon: iconRight,
         label: labelRight,
         enable: deleteMech != null,

@@ -76,7 +76,7 @@ class AdModel {
     List<String>? mechanicsIds,
     List<String>? images,
     ProductCondition? condition,
-    String? boardgame,
+    String? boardgameId,
     int? views,
     DateTime? createdAt,
   }) {
@@ -96,7 +96,7 @@ class AdModel {
       mechanicsIds: mechanicsIds ?? this.mechanicsIds,
       images: images ?? this.images,
       condition: condition ?? this.condition,
-      boardgameId: boardgame ?? this.boardgameId,
+      boardgameId: boardgameId ?? this.boardgameId,
       views: views ?? this.views,
       createdAt: createdAt ?? this.createdAt,
     );

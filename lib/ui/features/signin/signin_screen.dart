@@ -76,8 +76,9 @@ class _SignInScreenState extends State<SignInScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor:
-          ctrl.app.isDark ? null : colorScheme.onPrimary.withOpacity(0.85),
+      backgroundColor: ctrl.app.isDark
+          ? null
+          : colorScheme.onPrimary.withValues(alpha: 0.85),
       appBar: AppBar(
         title: const Text('Entrar'),
         centerTitle: true,
@@ -96,7 +97,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   child: SingleChildScrollView(
                     child: Card(
                       color: ctrl.app.isDark
-                          ? colorScheme.primary.withOpacity(.15)
+                          ? colorScheme.primary.withValues(alpha: .15)
                           : null,
                       margin: const EdgeInsets.all(20),
                       child: Padding(

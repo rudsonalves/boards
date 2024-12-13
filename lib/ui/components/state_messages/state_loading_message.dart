@@ -14,7 +14,7 @@ class StateLoadingMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.surface.withOpacity(0.7);
+    final color = Theme.of(context).colorScheme.surface.withValues(alpha: 0.7);
 
     return containerCircularProgressIndicator(color);
   }

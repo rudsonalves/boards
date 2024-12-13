@@ -42,7 +42,7 @@ class _ImagesListViewState extends State<ImagesListView> {
           decoration: BoxDecoration(
             color: isDark
                 ? colorScheme.onSecondary
-                : colorScheme.primary.withOpacity(0.25),
+                : colorScheme.primary.withValues(alpha: 0.25),
             borderRadius: BorderRadius.circular(12),
           ),
           height: 150,

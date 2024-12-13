@@ -38,8 +38,6 @@ class SimpleMessage extends StatelessWidget {
         return const Icon(Icons.error, size: 60, color: Colors.red);
       case MessageType.warning:
         return const Icon(Icons.warning, size: 60, color: Colors.yellow);
-      default:
-        return null;
     }
   }
 

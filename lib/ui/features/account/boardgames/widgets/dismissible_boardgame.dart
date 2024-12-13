@@ -42,7 +42,7 @@ class DismissibleBoardgame extends StatelessWidget {
       background: baseDismissibleContainer(
         context,
         alignment: Alignment.centerLeft,
-        color: colorLeft.withOpacity(0.3),
+        color: colorLeft.withValues(alpha: 0.3),
         icon: iconLeft,
         label: labelLeft,
         enable: saveBg != null,
@@ -50,7 +50,7 @@ class DismissibleBoardgame extends StatelessWidget {
       secondaryBackground: baseDismissibleContainer(
         context,
         alignment: Alignment.centerRight,
-        color: colorRight.withOpacity(0.3),
+        color: colorRight.withValues(alpha: 0.3),
         icon: iconRight,
         label: labelRight,
         enable: deleteBg != null,

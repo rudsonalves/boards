@@ -33,7 +33,7 @@ class DuoSegmentedButton extends StatelessWidget {
             child: SegmentedButton<int>(
               style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.all(
-                    colorScreme.primaryContainer.withOpacity(0.85)),
+                    colorScreme.primaryContainer.withValues(alpha: 0.85)),
               ),
               segments: [
                 if (!hideButton1)

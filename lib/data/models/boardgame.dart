@@ -90,7 +90,7 @@ class BoardgameModel {
     String? designer,
     String? artist,
     String? description,
-    List<String>? mechsPsIds,
+    List<String>? mechIds,
   }) {
     return BoardgameModel(
       id: id ?? this.id,
@@ -105,7 +105,7 @@ class BoardgameModel {
       designer: designer ?? this.designer,
       artist: artist ?? this.artist,
       description: description ?? this.description,
-      mechIds: mechsPsIds ?? this.mechIds,
+      mechIds: mechIds ?? this.mechIds,
     );
   }
 

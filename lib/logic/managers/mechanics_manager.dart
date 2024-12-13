@@ -45,7 +45,9 @@ class MechanicsManager {
     final result = await mechRepository.getAll();
     if (result.isFailure ||
         result.data == null ||
-        result.data!.length == _mechanics.length) return;
+        result.data!.length == _mechanics.length) {
+      return;
+    }
 
     final dbMechs = result.data!;
 

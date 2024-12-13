@@ -78,6 +78,69 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/12 - version: 0.5.02+30
+
+Added significant improvements and new configurations across various files, enhancing functionality, performance, and development environment.
+
+### Changes made:
+1. **.vscode/launch.json**:
+   - Added a new launch configuration file for debugging with multiple modes: normal, profile, and release.
+
+2. **android/app/src/main/AndroidManifest.xml**:
+   - Added permissions for `READ_EXTERNAL_STORAGE` and `WRITE_EXTERNAL_STORAGE`.
+
+3. **android/build.gradle**:
+   - Updated Kotlin version to `1.7.10`.
+   - Updated Gradle plugin to version `8.0.0`.
+
+4. **lib/data/models/ad.dart**:
+   - Renamed `boardgame` to `boardgameId` for consistency.
+
+5. **lib/data/models/boardgame.dart**:
+   - Renamed `mechsPsIds` to `mechIds` for better naming clarity.
+
+6. **lib/data/store/database/database_manager.dart**:
+   - Removed the `_copyBggDb` method, simplifying database handling logic.
+
+7. **lib/logic/managers/mechanics_manager.dart**:
+   - Adjusted conditional structure for clarity in the `getAll` result evaluation.
+
+8. **lib/ui/components/buttons/big_button.dart**:
+   - Replaced `color.withOpacity()` with `color.withValues()` for alpha adjustment.
+
+9. **lib/ui/components/collection_views/ad_list_view/ad_list_view.dart**:
+   - Replaced multiple instances of `.withOpacity()` with `.withValues()` for better clarity and consistency.
+
+10. **lib/ui/components/collection_views/shop_grid_view/shop_grid_view.dart**:
+    - Added a `reloadAds` method to the widget for refreshing ads.
+    - Simplified the structure by removing unused image loading logic.
+
+11. **lib/ui/components/dialogs/simple_message.dart**:
+    - Removed an unused `default` case in the `_getIcon` method.
+
+12. **lib/ui/components/drawers/custom_drawer.dart**:
+    - Used `.withValues()` for adjusting alpha on colors.
+
+13. **lib/ui/components/state_messages/state_*_message.dart**:
+    - Replaced `withOpacity` with `withValues` for color modifications.
+
+14. **lib/ui/features/account/my_ads/my_ads_screen.dart**:
+    - Updated the floating action button background color using `withValues`.
+
+15. **lib/ui/features/favorites/favorites_controller.dart**:
+    - Added a `reloadAds` method to reload favorite ads.
+
+16. **pubspec.yaml**:
+    - Updated the `file_picker` dependency to a local path for custom modifications.
+
+17. **pubspec.lock**:
+    - Updated multiple dependencies to newer versions for improved functionality and compatibility.
+
+### Conclusion:
+
+These changes bring substantial improvements to the codebase, including enhanced maintainability, better naming conventions, and updated dependencies for improved performance and development flexibility.
+
+
 ## 2024/12/12 - version: 0.5.01+29
 
 Added improvements and fixes across multiple files for better functionality, consistency, and performance.

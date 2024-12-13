@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -55,14 +54,6 @@ class DatabaseManager {
     );
 
     return _database!;
-  }
-
-  Future<void> _copyBggDb(String path) async {
-    final file = await File(path).create();
-    ByteData data = await rootBundle.load(dbAssertPath);
-    List<int> bytes =
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    await file.writeAsBytes(bytes);
   }
 
   Future<void> _onCreate(Database db, int version) async {

@@ -110,7 +110,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: _addNewAd,
-          backgroundColor: colorScheme.primaryContainer.withOpacity(0.75),
+          backgroundColor: colorScheme.primaryContainer.withValues(alpha: 0.75),
           icon: const Icon(Icons.camera),
           label: const Text('Adicionar anúncio'),
         ),
