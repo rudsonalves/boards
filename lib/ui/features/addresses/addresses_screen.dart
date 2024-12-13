@@ -92,7 +92,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
                               background: baseDismissibleContainer(
                                 context,
                                 alignment: Alignment.centerLeft,
-                                color: Colors.green.withOpacity(0.45),
+                                color: Colors.green.withValues(alpha: 0.45),
                                 icon: Symbols.edit_square_rounded,
                                 label: 'Editar',
                                 enable: false,
@@ -100,7 +100,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
                               secondaryBackground: baseDismissibleContainer(
                                 context,
                                 alignment: Alignment.centerRight,
-                                color: Colors.red.withOpacity(0.45),
+                                color: Colors.red.withValues(alpha: 0.45),
                                 icon: Symbols.delete_rounded,
                                 label: 'Remover',
                               ),
@@ -108,7 +108,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
                                 color: isSelected
                                     ? colorScheme.tertiaryContainer
                                     : colorScheme.primaryContainer
-                                        .withOpacity(0.4),
+                                        .withValues(alpha: 0.4),
                                 child: ListTile(
                                   title: Text(address.name),
                                   subtitle: Text(address.addressString()),

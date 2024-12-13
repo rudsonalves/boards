@@ -24,7 +24,7 @@ class CustomFilledButton extends StatelessWidget {
       label: Text(label),
       style: ButtonStyle(
         backgroundColor: WidgetStatePropertyAll(
-          backgroundColor?.withOpacity(0.45),
+          backgroundColor?.withValues(alpha: 0.45),
         ),
         foregroundColor: WidgetStatePropertyAll(foregroundColor),
       ),

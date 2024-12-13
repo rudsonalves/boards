@@ -96,7 +96,7 @@ class _AdListViewState extends State<AdListView> {
       },
       icon: Icon(
         Icons.edit,
-        color: Colors.yellowAccent.withOpacity(0.65),
+        color: Colors.yellowAccent.withValues(alpha: 0.65),
       ),
     );
   }
@@ -108,7 +108,7 @@ class _AdListViewState extends State<AdListView> {
       },
       icon: Icon(
         Icons.delete,
-        color: Colors.redAccent.withOpacity(0.65),
+        color: Colors.redAccent.withValues(alpha: 0.65),
       ),
     );
   }
@@ -151,7 +151,8 @@ class _AdListViewState extends State<AdListView> {
                   Container(
                     margin: const EdgeInsets.only(top: 8),
                     decoration: BoxDecoration(
-                        color: colorScheme.secondaryContainer.withOpacity(0.6),
+                        color: colorScheme.secondaryContainer
+                            .withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(8)),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

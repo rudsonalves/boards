@@ -66,8 +66,8 @@ class CustomDrawer extends StatelessWidget {
 
     return Drawer(
       backgroundColor: app.isDark
-          ? colorScheme.onSecondary.withOpacity(0.90)
-          : colorScheme.onPrimary.withOpacity(0.90),
+          ? colorScheme.onSecondary.withValues(alpha: 0.90)
+          : colorScheme.onPrimary.withValues(alpha: 0.90),
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
         topRight: Radius.circular(35),

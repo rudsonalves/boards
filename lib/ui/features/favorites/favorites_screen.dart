@@ -87,6 +87,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     ShopGridView(
                       ads: ctrl.ads,
                       getMoreAds: ctrl.getMoreAds,
+                      reloadAds: () async {},
                       scrollController: _scrollController,
                     ),
                     if (store.isLoading) const StateLoadingMessage()

@@ -31,7 +31,7 @@ class ViewBoardgame extends StatelessWidget {
             children: [
               BGInfoCard(bg),
               BigButton(
-                color: Colors.limeAccent.withOpacity(0.45),
+                color: Colors.limeAccent.withValues(alpha: 0.45),
                 onPressed: Navigator.of(context).pop,
                 label: 'Voltar',
               ),

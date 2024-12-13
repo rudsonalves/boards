@@ -84,7 +84,8 @@ class _EditBoardgamesScreenState extends State<EditBoardgamesScreen> {
                             onPressed: _backPageWithSave,
                             icon: Icons.save,
                             label: 'Salvar',
-                            backgroundColor: Colors.green.withOpacity(0.45),
+                            backgroundColor:
+                                Colors.green.withValues(alpha: 0.45),
                             foregroundColor: Colors.white,
                           ),
                           CustomFilledButton(

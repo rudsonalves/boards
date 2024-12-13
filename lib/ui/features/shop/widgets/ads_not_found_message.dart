@@ -14,7 +14,7 @@ class AdsNotFoundMessage extends StatelessWidget {
       children: [
         Center(
           child: Card(
-            color: colorScheme.primaryContainer.withOpacity(.45),
+            color: colorScheme.primaryContainer.withValues(alpha: .45),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(

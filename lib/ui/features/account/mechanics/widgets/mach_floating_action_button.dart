@@ -28,7 +28,8 @@ class MechFloatingActionButton extends StatelessWidget {
           padding: const EdgeInsets.only(right: 12),
           child: FloatingActionButton(
             heroTag: 'hero-0',
-            backgroundColor: colorScheme.primaryContainer.withOpacity(0.85),
+            backgroundColor:
+                colorScheme.primaryContainer.withValues(alpha: 0.85),
             onPressed: onPressBack,
             tooltip: 'Voltar',
             child: const Icon(Icons.arrow_back_ios_new_rounded),
@@ -39,7 +40,8 @@ class MechFloatingActionButton extends StatelessWidget {
             padding: const EdgeInsets.only(right: 12),
             child: FloatingActionButton(
               heroTag: 'hero-1',
-              backgroundColor: colorScheme.primaryContainer.withOpacity(0.85),
+              backgroundColor:
+                  colorScheme.primaryContainer.withValues(alpha: 0.85),
               onPressed: onPressAdd,
               tooltip: 'Adicionar',
               child: const Icon(Icons.add),
@@ -49,7 +51,8 @@ class MechFloatingActionButton extends StatelessWidget {
             padding: const EdgeInsets.only(right: 12),
             child: FloatingActionButton(
               heroTag: 'hero-2',
-              backgroundColor: colorScheme.primaryContainer.withOpacity(0.85),
+              backgroundColor:
+                  colorScheme.primaryContainer.withValues(alpha: 0.85),
               onPressed: onPressImportCSV,
               tooltip: 'Importar CSV',
               child: const Icon(Symbols.csv),
@@ -57,7 +60,7 @@ class MechFloatingActionButton extends StatelessWidget {
           ),
         ],
         FloatingActionButton(
-          backgroundColor: colorScheme.primaryContainer.withOpacity(0.85),
+          backgroundColor: colorScheme.primaryContainer.withValues(alpha: 0.85),
           heroTag: 'hero-3',
           onPressed: onPressDeselect,
           tooltip: 'Deselecionar',
