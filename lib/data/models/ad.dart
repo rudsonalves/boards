@@ -2,7 +2,7 @@ import '../../core/utils/extensions.dart';
 import '../../logic/managers/mechanics_manager.dart';
 import '../../core/get_it.dart';
 
-enum AdStatus { pending, active, sold, deleted }
+enum AdStatus { pending, active, sold, deleted, reserved }
 
 enum ProductCondition { all, used, sealed }
 

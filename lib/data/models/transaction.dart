@@ -2,11 +2,11 @@
 
 enum TransType { deposit, withdraw, refund, purchase, adjustment }
 
-enum TransPayMethod { pix, mercadoPago, creditCard, debitCard }
+enum TransPayMethod { pix, bill, creditCard, debitCard }
 
 enum TransStatus { pending, completed, failed, canceled }
 
-class Transaction {
+class TransactionModel {
   String? id;
   TransType type;
   TransStatus status;
@@ -16,7 +16,7 @@ class Transaction {
   String description;
   DateTime createdAt;
 
-  Transaction({
+  TransactionModel({
     required this.id,
     required this.type,
     required this.status,
@@ -27,7 +27,7 @@ class Transaction {
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
-  Transaction copyWith({
+  TransactionModel copyWith({
     String? id,
     TransType? type,
     TransStatus? status,
@@ -37,7 +37,7 @@ class Transaction {
     String? description,
     DateTime? createdAt,
   }) {
-    return Transaction(
+    return TransactionModel(
       id: id ?? this.id,
       type: type ?? this.type,
       status: status ?? this.status,
