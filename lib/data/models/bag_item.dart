@@ -70,7 +70,7 @@ class BagItemModel {
     };
   }
 
-  Map<String, dynamic> toMPParameter() {
+  Map<String, dynamic> toPaymentParameters() {
     return <String, dynamic>{
       'title': title,
       'unit_price': unitPrice,

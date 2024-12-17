@@ -9,6 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 import 'core/get_it.dart';
 import 'app.dart';
@@ -32,9 +33,6 @@ void main() async {
 
   setupDependencies();
 
-  // final parseServer = getIt<ParseServerService>();
-  // parseServer.init(isLocalServer);
-
   // This DatabaseProvider.initialize call initializes the AppSettings and
   // IAppPreferencesRepository in sequence.
   await DatabaseProvider.initialize();
@@ -56,6 +54,12 @@ void main() async {
   // FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
   // log('Mensagem recebida em backgound: ${message.notification?.title}');
   // });
+
+  // Inicializar o Stripe
+  Stripe.publishableKey = dotenv.get('STRIPE_PUBLIC_KEY');
+  // Opcional: configurar o merchant identifier para Apple Pay (iOS)
+  // Stripe.merchantIdentifier = 'merchant.com.seuapp';
+  await Stripe.instance.applySettings();
 
   runApp(const App());
 }
