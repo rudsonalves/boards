@@ -78,7 +78,7 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
-2024/12/17 - version: 0.5.03+31
+## 2024/12/17 - version: 0.5.03+31
 
 This commit introduces the integration of Stripe for payment processing and enhances Android build configurations with code minification using R8.
 
