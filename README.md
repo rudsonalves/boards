@@ -78,6 +78,83 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+2024/12/17 - version: 0.5.03+31
+
+This commit introduces the integration of Stripe for payment processing and enhances Android build configurations with code minification using R8.
+
+#### **Files Changed**
+
+1. **android/app/build.gradle**
+   - Enabled `minifyEnabled` and configured ProGuard rules for R8.
+   - Added `proguardFiles` configuration for `proguard-android-optimize.txt` and `proguard-rules.pro`.
+
+2. **android/app/proguard-rules.pro** *(New File)*
+   - Added rules to keep Stripe SDK, Flutter classes, and critical JSON serialization intact.
+   - Avoids breaking changes due to reflection and optimization.
+
+3. **android/app/src/main/AndroidManifest.xml**
+   - Added `INTERNET` permission for Stripe API communication.
+
+4. **android/app/src/main/kotlin/br/dev/rralves/boards/MainActivity.kt**
+   - Changed `MainActivity` to extend `FlutterFragmentActivity` to ensure compatibility with Stripe SDK.
+
+5. **android/build.gradle**
+   - Updated `kotlin_version` to `1.8.0`.
+
+6. **android/gradle/wrapper/gradle-wrapper.properties**
+   - Upgraded Gradle distribution to `8.9`.
+
+7. **functions/index.js**
+   - Added new Firebase Cloud Functions:
+     - `createCheckoutSession`: Generates a Stripe Checkout session.
+     - `createPaymentIntent`: Creates a PaymentIntent for card payments.
+     - `stripeWebhook`: Handles Stripe webhook events (`payment_intent.succeeded` and `payment_intent.payment_failed`).
+
+8. **functions/package.json & functions/package-lock.json**
+   - Added dependencies: `stripe`, `dotenv`, and `flatted`.
+   - Upgraded `express` and related packages.
+
+9. **lib/main.dart**
+   - Initialized `flutter_stripe` with Stripe's publishable key.
+
+10. **lib/core/get_it.dart**
+    - Registered `PaymentStripeService` under `IPaymentService`.
+
+11. **lib/data/models/bag_item.dart**
+    - Renamed `toMPParameter` to `toPaymentParameters`.
+
+12. **lib/data/services/payment/interfaces/i_payment_service.dart** *(New File)*
+    - Defined `IPaymentService` interface for payment abstraction.
+
+13. **lib/data/services/payment/payment_stripe_service.dart** *(New File)*
+    - Implemented Stripe payment logic (`createCheckoutSession` and `createPaymentIntent`).
+
+14. **lib/ui/features/bag/bag_controller.dart**
+    - Replaced old payment service calls with Stripe's `createCheckoutSession`.
+
+15. **lib/ui/features/bag/bag_screen.dart**
+    - Updated logic to initiate Stripe Checkout using the session URL.
+
+16. **lib/ui/features/payment/payment_screen.dart**
+    - Removed legacy payment implementation.
+    - Replaced WebView logic to load Stripe Checkout session URL.
+
+17. **pubspec.yaml**
+    - Added `flutter_stripe` dependency (`^11.3.0`).
+
+18. **pubspec.lock**
+    - Updated lock file with new dependencies (`flutter_stripe`, `stripe_android`, `stripe_ios`).
+
+19. **Deleted Files**
+    - **lib/data/services/parse_server/functions/cloud_functions.dart**
+    - **lib/data/services/parse_server/parse_server_server.dart**
+    - **lib/data/services/payment/payment_service.dart**
+    - Removed legacy Parse Server-based payment logic.
+
+### Conclusion
+This commit replaces the Parse Server-based payment system with Stripe integration, introduces R8 minification, and ensures compatibility with FlutterFragmentActivity. The WebView now handles Stripe Checkout URLs effectively, improving the payment flow.
+
+
 ## 2024/12/12 - version: 0.5.02+30
 
 Added significant improvements and new configurations across various files, enhancing functionality, performance, and development environment.
