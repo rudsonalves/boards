@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import '../../components/state_messages/state_error_message.dart';
 import 'payment_controller.dart';
 import 'payment_store.dart';
 
 class PaymentScreen extends StatefulWidget {
-  final String preferenceId;
-  final double amount;
+  final String sessionUrl;
 
   const PaymentScreen({
     super.key,
-    required this.preferenceId,
-    required this.amount,
+    required this.sessionUrl,
   });
 
   static const routeName = '/payment';
@@ -24,6 +21,7 @@ class PaymentScreen extends StatefulWidget {
 class _PaymentScreenState extends State<PaymentScreen> {
   final ctrl = PaymentController();
   final store = PaymentStore();
+  late final WebViewController _controller;
 
   @override
   void initState() {
@@ -32,9 +30,31 @@ class _PaymentScreenState extends State<PaymentScreen> {
     ctrl.init(
       context,
       store: store,
-      preferenceId: widget.preferenceId,
-      amount: widget.amount,
     );
+
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (url) {
+            // Caso você queira fazer algo ao iniciar o carregamento de uma págin
+          },
+          onPageFinished: (url) {
+            // Caso queira fazer algo quando a página carregar completamente
+          },
+          onNavigationRequest: (request) {
+            // Se quiser interceptar a navegação, por exemplo, quando redirecionar para success_url
+            if (request.url.contains('https://exemplo.com/sucesso')) {
+              // A página de sucesso da compra: você pode fechar a WebView ou mostrar mensagem de sucesso.
+              Navigator.pop(context, 'payment_success');
+              return NavigationDecision.prevent;
+            }
+
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(widget.sessionUrl));
   }
 
   @override
@@ -50,31 +70,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       appBar: AppBar(
         title: Text('Pagamento'),
       ),
-      body: ValueListenableBuilder(
-        valueListenable: store.state,
-        builder: (context, value, _) {
-          if (store.isLoading) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              ],
-            );
-          }
-          if (store.isSuccess) {
-            return WebViewWidget(controller: ctrl.webview);
-          }
-          if (store.isError) {
-            StateErrorMessage(
-              message: store.errorMessage,
-              closeDialog: store.setStateSuccess,
-            );
-          }
-          return Container();
-        },
-      ),
+      body: WebViewWidget(controller: _controller),
     );
   }
 }

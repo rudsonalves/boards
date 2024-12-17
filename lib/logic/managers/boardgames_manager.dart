@@ -13,7 +13,6 @@ import '../../core/get_it.dart';
 import '../../data/repository/firebase/common/fb_functions.dart';
 import '../../data/repository/interfaces/remote/i_boardgame_repository.dart';
 import '../../data/repository/interfaces/remote/i_bg_names_repository.dart';
-import '../../data/services/parse_server/parse_server_server.dart';
 import '../../core/utils/utils.dart';
 
 /// Class that holds the paths of the converted image and the downloaded local
@@ -31,7 +30,6 @@ class ImageConversionResult {
 }
 
 class BoardgamesManager {
-  final parseServer = getIt<ParseServerService>();
   final boardgameRepository = getIt<IBoardgameRepository>();
   late final IBgNamesRepository localBoardgameRepository;
 

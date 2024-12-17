@@ -1,18 +1,17 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-
+import '/data/services/payment/interfaces/i_payment_service.dart';
 import '/core/abstracts/data_result.dart';
-import '../../../data/models/ad.dart';
-import '../../../data/models/bag_item.dart';
-import '../../../logic/managers/ads_manager.dart';
-import '../../../logic/managers/bag_manager.dart';
-import '../../../core/get_it.dart';
-import '../../../data/services/payment/payment_service.dart';
+import '/data/models/ad.dart';
+import '/data/models/bag_item.dart';
+import '/logic/managers/ads_manager.dart';
+import '/logic/managers/bag_manager.dart';
+import '/core/get_it.dart';
 import 'bag_store.dart';
 
 class BagController {
   final BagStore store;
   final bagManager = getIt<BagManager>();
   final adManager = getIt<AdsManager>();
+  final payment = getIt<IPaymentService>();
 
   Set<BagItemModel> items(String sellerId) => bagManager.bagBySeller[sellerId]!;
 
@@ -33,13 +32,29 @@ class BagController {
     return result;
   }
 
-  Future<String?> getPreferenceId(List<BagItemModel> items) async {
+  Future<String?> createPaymentIntent(List<BagItemModel> items) async {
     try {
       store.setStateLoading();
-      final result = await PaymentService.generatePreferenceId(items);
+      final result = await payment.createPaymentIntent(items);
       if (result.isFailure) {
         throw Exception(
             'makePayment erro: ${result.error?.toString() ?? 'unknow error!'}');
+      }
+      store.setStateSuccess();
+      return result.data!;
+    } catch (err) {
+      store.setError('Ocorreu um erro. Tente mais tarde.');
+      return null;
+    }
+  }
+
+  Future<String?> createCheckoutSession(List<BagItemModel> items) async {
+    try {
+      store.setStateLoading();
+      final result = await payment.createCheckoutSession(items);
+      if (result.isFailure || result.data == null) {
+        store.setError('Ocorreu um erro. Tente maios tarde.');
+        return null;
       }
       store.setStateSuccess();
       return result.data!;

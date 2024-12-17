@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../data/models/bag_item.dart';
+import '/data/models/bag_item.dart';
 import '../payment/payment_screen.dart';
 import '../shop/product/product_screen.dart';
-import '../../components/state_messages/state_error_message.dart';
-import '../../components/state_messages/state_loading_message.dart';
-import '../../../logic/managers/bag_manager.dart';
-import '../../../core/get_it.dart';
+import '/ui/components/state_messages/state_error_message.dart';
+import '/ui/components/state_messages/state_loading_message.dart';
+import '/logic/managers/bag_manager.dart';
+import '/core/get_it.dart';
 import 'bag_controller.dart';
 import 'bag_store.dart';
 import 'widgets/saller_bag.dart';
@@ -46,18 +46,16 @@ class _BagScreenState extends State<BagScreen> {
   }
 
   Future<void> _makePayment(List<BagItemModel> items) async {
-    final preferenceId = await ctrl.getPreferenceId(items);
-    if (preferenceId == null) return;
-
-    if (mounted) {
-      Navigator.pushNamed(
+    final sessionUrl = await ctrl.createCheckoutSession(items);
+    if (sessionUrl != null) {
+      if (!mounted) return;
+      final result = await Navigator.pushNamed(
         context,
         PaymentScreen.routeName,
-        arguments: {
-          'preferenceId': preferenceId,
-          'amount': ctrl.calculateAmount(items),
-        },
+        arguments: sessionUrl,
       );
+
+      print(result);
     }
   }
 

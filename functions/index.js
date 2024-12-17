@@ -7,7 +7,7 @@ if (process.env.FUNCTIONS_EMULATOR === "true") {
 // Importações necessárias
 const {onDocumentCreated, onDocumentDeleted} =
     require("firebase-functions/v2/firestore");
-const {onCall} = require("firebase-functions/v2/https");
+const {onCall, onRequest, HttpsError} = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 const {getFirestore} = require("firebase-admin/firestore");
 const {getMessaging} = require("firebase-admin/messaging");
@@ -16,6 +16,196 @@ const {getMessaging} = require("firebase-admin/messaging");
 admin.initializeApp();
 const firestore = admin.firestore();
 const auth = admin.auth();
+
+// =====================
+// Funções do Stripe
+// =====================
+//
+exports.createCheckoutSession = onCall(
+    {
+      region: "southamerica-east1",
+      secrets: ["STRIPE_SECRET_KEY"],
+    },
+    async (request) => {
+      try {
+        // Inicie o Stripe usando a secret do ambiente
+        const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
+        // Verificar autenticação do usuário
+        const auth = request.auth;
+        if (!auth) {
+          console.error("User is not authenticated.");
+          throw new HttpsError(
+              "unauthenticated",
+              "User must be authenticated.",
+          );
+        }
+
+        const userId = auth.uid;
+        console.log(`Authenticated user ID: ${userId}`);
+
+        const items = request.data.items;
+        if (!items || !Array.isArray(items)) {
+          console.error("Items are required and must be an array.");
+          throw new HttpsError("invalid-argument", "Items must be an array.");
+        }
+
+        // Calcular o valor total
+        const lineItems = items.map((item) => ({
+          price_data: {
+            currency: "brl",
+            product_data: {
+              name: item.title,
+            },
+            unit_amount: Math.round(item.unit_price * 100),
+          },
+          quantity: item.quantity,
+        }));
+
+        // Criar a sessão de checkout
+        const session = await stripe.checkout.sessions.create({
+          payment_method_types: ["card", "boleto"],
+          line_items: lineItems,
+          mode: "payment",
+          // substitua pela URL do seu site/app
+          success_url: "https://rralves.dev.br/boards-pagamento-sucesso/",
+          // substitua pela URL do seu site/app
+          cancel_url: "https://rralves.dev.br/boards-pagamento-cancelado/",
+          locale: "pt-BR",
+          metadata: {
+            userId,
+            items: JSON.stringify(items),
+          },
+        });
+
+        return {url: session.url};
+      } catch (error) {
+        console.error("Error in createCheckoutSession:", error);
+        throw new HttpsError("internal", error.message);
+      }
+    });
+
+
+// Função de Payment Intent do Stripe
+exports.createPaymentIntent = onCall(
+    {
+      region: "southamerica-east1",
+      secrets: ["STRIPE_SECRET_KEY"],
+    },
+    async (request) => {
+      try {
+        // Inicie o Stripe usando a secret do ambiente
+        const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
+        console.log("Function createPaymentIntent called.");
+
+        // Verificar autenticação do usuário
+        const auth = request.auth;
+        if (!auth) {
+          console.error("User is not authenticated.");
+          throw new HttpsError(
+              "unauthenticated",
+              "User must be authenticated to call this function.",
+          );
+        }
+
+        const userId = auth.uid;
+        console.log(`Authenticated user ID: ${userId}`);
+
+        // Verificar se os itens foram enviados
+        console.log("Received request data:", request.data);
+        const items = request.data.items;
+        if (!items || !Array.isArray(items)) {
+          console.error("Items are required and must be an array.");
+          throw new HttpsError(
+              "invalid-argument",
+              "Items are required and must be an array.",
+          );
+        }
+
+        // Calcular o valor total
+        const totalAmount = items.reduce((total, item) => {
+          return total + Math.round(item.unit_price * 100) * item.quantity;
+        }, 0);
+
+        // Criar o PaymentIntent
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: totalAmount,
+          payment_method_types: ["card"],
+          description: "Compra de produtos",
+          currency: "brl",
+          metadata: {
+            userId,
+            items: JSON.stringify(items),
+          },
+        });
+
+        console.log("PaymentIntent created successfully:", {
+          clientSecret: paymentIntent.client_secret,
+          totalAmount,
+        });
+
+        return {clientSecret: paymentIntent.client_secret};
+      } catch (error) {
+        console.error("Error in createPaymentIntent:", error);
+        throw new HttpsError("internal", error.message);
+      }
+    });
+
+
+// Função Stripe Webhook do Stripe
+exports.stripeWebhook = onRequest(
+    {
+      region: "southamerica-east1",
+      // Substitua pelo nome da secret definida previamente
+      secrets: ["STRIPE_API_KEY"],
+      cors: true,
+      maxInstances: 1,
+    },
+    async (req, res) => {
+      // Secret do Webhook obtido do Stripe
+      const endpointSecret = "whsec_oi60ZJjCdRISxMVGInrSvyiulZ8DRCsM";
+      const sig = req.headers["stripe-signature"];
+
+      try {
+        // Inicializa o Stripe usando a secret injetada
+        const stripe = require("stripe")(process.env.STRIPE_API_KEY);
+
+        // Valida a requisição do webhook
+        const event = stripe.webhooks.constructEvent(
+            req.rawBody,
+            sig,
+            endpointSecret,
+        );
+
+        // Tratamento dos eventos recebidos do webhook
+        switch (event.type) {
+          case "payment_intent.succeeded": {
+            const paymentIntent = event.data.object;
+            console.log("Pagamento bem-sucedido:", paymentIntent);
+            // Aqui você pode atualizar o Firestore, enviar notificações etc.
+            break;
+          }
+
+          case "payment_intent.payment_failed": {
+            const failedIntent = event.data.object;
+            console.error("Pagamento falhou:", failedIntent);
+            // Notifique o cliente, registre logs, etc.
+            break;
+          }
+
+          default: {
+            console.log(`Evento não tratado: ${event.type}`);
+            break;
+          }
+        }
+
+        res.status(200).send("Webhook processado com sucesso");
+      } catch (err) {
+        console.error("Falha na verificação da assinatura:", err.message);
+        res.status(400).send(`Erro no Webhook: ${err.message}`);
+      }
+    });
 
 // =====================
 // Funções Relacionadas a Boardgames

@@ -15,10 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with xlo_mobx.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:boards/ui/features/splash/splash_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import '/ui/features/splash/splash_page_screen.dart';
 import 'data/models/address.dart';
 import 'data/models/ad.dart';
 import 'data/models/boardgame.dart';
@@ -99,12 +99,9 @@ class _AppState extends State<App> {
               switch (settings.name) {
                 case PaymentScreen.routeName:
                   return MaterialPageRoute(builder: (context) {
-                    final map = settings.arguments as Map<String, dynamic>;
-                    final preferenceId = map['preferenceId'] as String;
-                    final amount = map['amount'] as double;
+                    final sessionUrl = settings.arguments as String;
                     return PaymentScreen(
-                      preferenceId: preferenceId,
-                      amount: amount,
+                      sessionUrl: sessionUrl,
                     );
                   });
                 case EditBoardgamesScreen.routeName:
