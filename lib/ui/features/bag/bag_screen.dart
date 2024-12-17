@@ -1,5 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import '/data/models/bag_item.dart';
@@ -55,7 +57,7 @@ class _BagScreenState extends State<BagScreen> {
         arguments: sessionUrl,
       );
 
-      print(result);
+      log(result.toString());
     }
   }
 

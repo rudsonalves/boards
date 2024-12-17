@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../data/models/ad.dart';
+import '/data/models/ad.dart';
 
 enum DismissSide { left, right }
 
@@ -57,6 +57,8 @@ class MyAdsDsimissible {
         return null;
       case AdStatus.deleted:
         return null;
+      case AdStatus.reserved:
+        return null;
     }
   }
 
@@ -69,6 +71,8 @@ class MyAdsDsimissible {
       case AdStatus.sold:
         return Colors.blue.withValues(alpha: 0.45);
       case AdStatus.deleted:
+        return null;
+      case AdStatus.reserved:
         return null;
     }
   }
@@ -83,6 +87,8 @@ class MyAdsDsimissible {
         return '';
       case AdStatus.deleted:
         return '';
+      case AdStatus.reserved:
+        return '';
     }
   }
 
@@ -95,6 +101,8 @@ class MyAdsDsimissible {
       case AdStatus.sold:
         return 'Mover para Ativos';
       case AdStatus.deleted:
+        return '';
+      case AdStatus.reserved:
         return '';
     }
   }
@@ -109,6 +117,8 @@ class MyAdsDsimissible {
         return null;
       case AdStatus.deleted:
         return null;
+      case AdStatus.reserved:
+        return null;
     }
   }
 
@@ -121,6 +131,8 @@ class MyAdsDsimissible {
       case AdStatus.sold:
         return Icons.notifications_active;
       case AdStatus.deleted:
+        return null;
+      case AdStatus.reserved:
         return null;
     }
   }
@@ -135,6 +147,8 @@ class MyAdsDsimissible {
         return null;
       case AdStatus.deleted:
         return null;
+      case AdStatus.reserved:
+        return null;
     }
   }
 
@@ -147,6 +161,8 @@ class MyAdsDsimissible {
       case AdStatus.sold:
         return AdStatus.active;
       case AdStatus.deleted:
+        return null;
+      case AdStatus.reserved:
         return null;
     }
   }

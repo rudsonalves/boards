@@ -78,6 +78,49 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/17 - version: 0.5.03+32
+
+Refactored Stripe payment functions to improve modularity and added new helper methods for item validation, reservation, and payment handling.
+
+### Changes made:
+
+1. **functions/index.js**:  
+   - Added `const db = admin.firestore();` for streamlined Firestore references.  
+   - Refactored `createCheckoutSession` function:  
+     - Extracted user authentication logic into `verifyAuth`.  
+     - Moved item validation to a new helper `validateItems`.  
+     - Added `reserveItems` for reserving items before session creation.  
+     - Delegated session creation logic to `createStripeSession`.  
+   - Refactored `createPaymentIntent` to use `verifyAuth` for authentication.  
+   - Simplified webhook event handling:  
+     - Added `handlePaymentSuccess` for successful Stripe payments.  
+     - Added `handlePaymentFailure` for failed or expired payments.  
+
+2. **lib/data/models/user_account.dart → lib/data/models/account.dart**:  
+   - Renamed `UserAccount` class to `AccountModel` for better naming consistency.  
+   - Renamed field `mercadoPagoAccountId` to `accountId`.  
+
+3. **lib/data/models/ad.dart**:  
+   - Added a new status `reserved` to the `AdStatus` enum.  
+
+4. **lib/data/models/transaction.dart**:  
+   - Renamed `Transaction` class to `TransactionModel` for consistency.  
+   - Renamed `TransPayMethod.mercadoPago` to `TransPayMethod.bill`.  
+
+5. **lib/data/services/payment/payment_stripe_service.dart**:  
+   - Added `adId` to the item payload sent to the Stripe payment function.  
+
+6. **lib/ui/features/account/my_ads/model/my_ads_dismissible.dart**:  
+   - Added support for the new `reserved` status to various methods and conditions.  
+
+7. **lib/ui/features/bag/bag_screen.dart**:  
+   - Replaced `print` with `log` for better debugging practices.  
+
+### Conclusion:
+
+The codebase has been modularized with reusable helper functions for Stripe payments and Firestore operations. Naming conventions were improved across models for consistency, and support for the new `reserved` status was added.
+
+
 ## 2024/12/17 - version: 0.5.03+31
 
 This commit introduces the integration of Stripe for payment processing and enhances Android build configurations with code minification using R8.
