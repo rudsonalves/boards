@@ -78,6 +78,45 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/19 - version: 0.5.03+34
+
+Enhanced configurations and dependencies for Firebase Functions and Stripe integration, along with updated ignore rules and deployment utilities.
+
+### Changes made:
+
+1. **.gitignore**:  
+   - Added entries to ignore `node_modules/` in both the project root and `functions` directory.  
+
+2. **Makefile**:  
+   - Renamed the `functions_deploy` target to `deploy_functions`.  
+   - Added new targets:  
+     - `ngrok_tunnel`: Creates an ngrok tunnel for local testing.  
+     - `stripe_listen_webhook`: Sets up Stripe webhook listener.  
+     - `lint_functions`: Runs linting on the `functions` directory.  
+
+3. **firebase.json**:  
+   - Added `runtimeOptions.rawBody` configuration for webhook compatibility.  
+
+4. **functions/index.js**:  
+   - Introduced Firebase Secrets for managing sensitive keys (`STRIPE_API_KEY`, `WEBHOOK_SEC`).  
+   - Refactored the Stripe webhook to enforce rawBody usage and validate events securely using the `stripe.webhooks.constructEvent` method.  
+   - Updated `createCheckoutSession` and `createPaymentIntent` to use the new secret-based Stripe API key handling.  
+
+5. **functions/package.json**:  
+   - Updated `firebase-admin` to version `^13.0.1`.  
+   - Updated `firebase-functions-test` to version `^3.4.0`.  
+
+6. **functions/package-lock.json**:  
+   - Synced dependencies with the updated `package.json`.  
+
+7. **pubspec.yaml**:  
+   - Incremented project version to `0.5.03+33`.  
+
+### Conclusion:
+
+These updates enhance the security and maintainability of Stripe integration by leveraging Firebase Secrets, improve development workflows with new Makefile commands, and ensure compatibility with updated dependencies.
+
+
 ## 2024/12/17 - version: 0.5.03+32
 
 Refactored Stripe payment functions to improve modularity and added new helper methods for item validation, reservation, and payment handling.

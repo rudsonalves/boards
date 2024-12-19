@@ -45,3 +45,9 @@ app.*.map.json
 
 /android/app/google-services.json
 /emulator_data
+
+# Ignorar node_modules na raiz do projeto
+/node_modules/
+
+# Ignorar node_modules dentro da pasta functions
+/functions/node_modules/

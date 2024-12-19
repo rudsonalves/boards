@@ -54,6 +54,9 @@
       "runtime": "nodejs18",
       "region": "southamerica-east1",
       "codebase": "default",
+      "runtimeOptions": {
+        "rawBody": true
+      },
       "ignore": [
         "node_modules",
         ".git",
