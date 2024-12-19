@@ -11,6 +11,11 @@ const {onCall, onRequest, HttpsError} = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 const {getFirestore} = require("firebase-admin/firestore");
 const {getMessaging} = require("firebase-admin/messaging");
+const {FieldValue} = require("firebase-admin/firestore");
+const {defineSecret} = require("firebase-functions/params");
+const stripe = require("stripe");
+
+require("dotenv").config();
 
 // Inicializar o Firebase Admin SDK
 admin.initializeApp();
@@ -18,14 +23,113 @@ const firestore = admin.firestore();
 const auth = admin.auth();
 const db = admin.firestore();
 
+// Defina os segredos utilizando o Firebase Secret Manager
+const STRIPE_API_KEY = defineSecret("STRIPE_API_KEY");
+const WEBHOOK_SEC = defineSecret("WEBHOOK_SEC");
+
 // =====================
 // Funções do Stripe
 // =====================
 //
+// Função Stripe Webhook
+exports.stripeWebhook = onRequest(
+    {
+      region: "southamerica-east1",
+      secrets: [STRIPE_API_KEY, WEBHOOK_SEC],
+      maxInstances: 1,
+      enforceRawBody: true,
+    },
+    async (req, res) => {
+      try {
+        console.log("*** Starting webhook. ***");
+
+        // Verifique o Content-Type
+        const contentType = req.headers["content-type"];
+
+        // Acesse o rawBody diretamente
+        const rawBody = req.rawBody;
+
+        // Recupera os segredos corretamente
+        // Se estiver rodando localmente, use as variáveis de ambiente
+        const endpointSecret = (req.secret && req.secret.WEBHOOK_SEC) ||
+            process.env.WEBHOOK_SEC;
+        const stripeApiKey = (req.secret && req.secret.STRIPE_API_KEY) ||
+            process.env.STRIPE_API_KEY;
+
+        if (!endpointSecret) {
+          console.error("WEBHOOK_SEC is not defined.");
+          return res.status(500).send("Webhook secret not configured.");
+        }
+
+        if (!stripeApiKey) {
+          console.error("STRIPE_API_KEY is not defined.");
+          return res.status(500).send("Stripe API key not configured.");
+        }
+
+        const sig = req.headers["stripe-signature"];
+
+        // Inicializa o Stripe usando a chave API correta
+        const stripeInstance = stripe(stripeApiKey);
+
+        let event;
+
+        try {
+          if (!rawBody || !(rawBody instanceof Buffer)) {
+            throw new Error("rawBody is missing or not a Buffer.");
+          }
+
+          // Valida a requisição do webhook
+          event = stripeInstance.webhooks.constructEvent(
+              rawBody,
+              sig,
+              endpointSecret,
+          );
+
+          console.log(`Evento Stripe recebido: ${event.type}`);
+        } catch (err) {
+          console.error(`Erro no webhook: ${err.message}`);
+          return res.status(400).send(`Erro no Webhook: ${err.message}`);
+        }
+
+        // Tratamento dos eventos recebidos do webhook
+        try {
+          switch (event.type) {
+            case "checkout.session.completed": {
+              const session = event.data.object;
+              await handlePaymentSuccess(session);
+              console.log(`Webhook evento: ${event.type}`);
+              break;
+            }
+
+            case "checkout.session.expired":
+            case "checkout.session.async_payment_failed": {
+              const session = event.data.object;
+              await handlePaymentFailure(session);
+              console.log(`Session payment event: ${event.type}`);
+              break;
+            }
+
+            default: {
+              console.log(`Evento não tratado: ${event.type}`);
+              break;
+            }
+          }
+
+          res.status(200).send("Webhook processado com sucesso");
+        } catch (err) {
+          console.error(`Erro no Webhook: ${err.message}`);
+          res.status(400).send(`Erro no Webhook: ${err.message}`);
+        }
+      } catch (err) {
+        console.error(`Erro geral no webhook: ${err.message}`);
+        res.status(500).send(`Erro geral no webhook: ${err.message}`);
+      }
+    });
+
 exports.createCheckoutSession = onCall(
     {
       region: "southamerica-east1",
-      secrets: ["STRIPE_SECRET_KEY"],
+      secrets: [STRIPE_API_KEY],
     },
     async (request) => {
       try {
@@ -42,6 +146,7 @@ exports.createCheckoutSession = onCall(
         // 4. Criar sessão no Stripe
         const sessionUrl = await createStripeSession(items, userId);
 
+        console.log(`session return: ${sessionUrl}`);
         return {url: sessionUrl};
       } catch (error) {
         console.error("Error in createCheckoutSession:", error);
@@ -53,12 +158,20 @@ exports.createCheckoutSession = onCall(
 exports.createPaymentIntent = onCall(
     {
       region: "southamerica-east1",
-      secrets: ["STRIPE_SECRET_KEY"],
+      secrets: ["STRIPE_API_KEY"],
     },
     async (request) => {
       try {
+        // Recupera os segredos
+        const stripeApiKey = STRIPE_API_KEY.value();
+
+        if (!stripeApiKey) {
+          console.error("STRIPE_API_KEY is not defined.");
+          throw new HttpsError("internal", "STRIPE_API_KEY is not defined.");
+        }
+
         // Inicie o Stripe usando a secret do ambiente
-        const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+        const stripeInstance = stripe(stripeApiKey);
 
         // Verificar autenticação do usuário
         const userId = verifyAuth(request);
@@ -80,7 +193,7 @@ exports.createPaymentIntent = onCall(
         }, 0);
 
         // Criar o PaymentIntent
-        const paymentIntent = await stripe.paymentIntents.create({
+        const paymentIntent = await stripeInstance.paymentIntents.create({
           amount: totalAmount,
           payment_method_types: ["card"],
           description: "Compra de produtos",
@@ -98,60 +211,6 @@ exports.createPaymentIntent = onCall(
       }
     });
 
-
-// Função Stripe Webhook do Stripe
-exports.stripeWebhook = onRequest(
-    {
-      region: "southamerica-east1",
-      // Substitua pelo nome da secret definida previamente
-      secrets: ["STRIPE_API_KEY"],
-      cors: true,
-      maxInstances: 1,
-    },
-    async (req, res) => {
-      // Secret do Webhook obtido do Stripe
-      const endpointSecret = "whsec_oi60ZJjCdRISxMVGInrSvyiulZ8DRCsM";
-      const sig = req.headers["stripe-signature"];
-
-      try {
-        // Inicializa o Stripe usando a secret injetada
-        const stripe = require("stripe")(process.env.STRIPE_API_KEY);
-
-        // Valida a requisição do webhook
-        const event = stripe.webhooks.constructEvent(
-            req.rawBody,
-            sig,
-            endpointSecret,
-        );
-
-        // Tratamento dos eventos recebidos do webhook
-        switch (event.type) {
-          case "checkout.session.completed": {
-            const session = event.data.object;
-            await handlePaymentSuccess(session);
-            break;
-          }
-
-          case "checkout.session.expired":
-          case "checkout.session.async_payment_failed": {
-            const session = event.data.object;
-            await handlePaymentFailure(session);
-            break;
-          }
-
-          default: {
-            console.log(`Evento não tratado: ${event.type}`);
-            break;
-          }
-        }
-
-        res.status(200).send("Webhook processado com sucesso");
-      } catch (err) {
-        console.error("Falha na verificação da assinatura:", err.message);
-        res.status(400).send(`Erro no Webhook: ${err.message}`);
-      }
-    });
-
 // ==============================
 // Funções auxiliares do Webhook
 // ==============================
@@ -161,14 +220,24 @@ exports.stripeWebhook = onRequest(
  * @param {Object} session - Objeto da sessão do Stripe.
  */
 async function handlePaymentSuccess(session) {
+  console.log(`Starting handlePaymentSuccess:`);
   const metadata = session.metadata;
+  if (!metadata || !metadata.items || !metadata.userId) {
+    console.error("Metadata missing in session:", session.id);
+    return;
+  }
+
   const items = JSON.parse(metadata.items);
   const userId = metadata.userId;
 
   const batch = db.batch();
+
   for (const item of items) {
-    const adRef = db.collection("ads").doc(item.adId);
-    const reserveRef = adRef.collection("reserve").doc(userId);
+    const reserveRef = db
+        .collection("ads")
+        .doc(item.adId)
+        .collection("reserve")
+        .doc(userId);
 
     // Remove a reserva ao confirmar a venda
     batch.delete(reserveRef);
@@ -183,27 +252,37 @@ async function handlePaymentSuccess(session) {
  * @param {Object} session - Objeto da sessão do Stripe.
  */
 async function handlePaymentFailure(session) {
+  console.log(`Starting handlePaymentFailure:`);
   const metadata = session.metadata;
+  if (!metadata || !metadata.items || !metadata.userId) {
+    console.error("Metadata missing in session:", session.id);
+    return;
+  }
+
   const items = JSON.parse(metadata.items);
   const userId = metadata.userId;
 
   const batch = db.batch();
+
   for (const item of items) {
     const adRef = db.collection("ads").doc(item.adId);
     const reserveRef = adRef.collection("reserve").doc(userId);
 
-    const adDoc = await adRef.get();
-    const adData = adDoc.data();
+    const reservedQty = item.quantity;
 
-    // Restaurar a quantidade e remover reserva
+    // Restaurar o estoque
     batch.update(adRef, {
-      quantity: adData.quantity + item.quantity,
+      quantity: FieldValue.increment(reservedQty),
     });
+
+    // Remove reserva
     batch.delete(reserveRef);
+    console.log(`Restoring stock for user: ${userId},
+        adId: ${item.adId}, qty: ${item.quantity}`);
   }
 
   await batch.commit();
-  console.log(`Payment failed/canceled. Stock restored for user: ${userId}`);
+  console.log(`Restoring stock for user: ${userId}`);
 }
 
 // ===================================
@@ -487,18 +566,13 @@ function validateItems(items) {
  */
 async function reserveItems(items, userId) {
   const batch = db.batch();
+  const now = Date.now();
+  const reservedUntil = now + 30 * 60 * 1000;
 
   for (const item of items) {
-    if (item.quantity <= 0) {
-      throw new HttpsError(
-          "invalid-argument",
-          "Quantity must be greater than zero.",
-      );
-    }
-
     const adRef = db.collection("ads").doc(item.adId);
-    console.log(`userId: ${userId} -> adId: ${item.adId}`);
     const reserveRef = adRef.collection("reserve").doc(userId);
+    console.log(`userId: ${userId} -> adId: ${item.adId}`);
 
     const adDoc = await adRef.get();
 
@@ -507,9 +581,8 @@ async function reserveItems(items, userId) {
     }
 
     const adData = adDoc.data();
-    let adquantity = adData.quantity;
 
-    if (adquantity < item.quantity) {
+    if (adData.quantity < item.quantity) {
       throw new HttpsError(
           "failed-precondition",
           `Not enough stock for item ${adData.title}.
@@ -517,17 +590,52 @@ async function reserveItems(items, userId) {
       );
     }
 
-    // Atualizar os campos: decrementar quantity e incrementar reservedQt
-    adquantity -= item.quantity;
-    batch.update(adRef, {
-      quantity: adquantity,
-      status: adquantity === 0 ? "sold" : adData.status,
-    });
+    // Verifica se existe uma reserva para este item neste userId
+    const reservedItem = await reserveRef.get();
+    if (reservedItem.exists) {
+      // Verifica de a quantidade reservada corresponde a esta compra
+      const reservedData = reservedItem.data();
 
-    // Criar sub-coleção de reserva de jogo
-    batch.set(reserveRef, {
-      quantity: item.quantity,
-    });
+      if (reservedData.quantity === item.quantity) {
+        // Apenas altera o tempo de espiração da reserva
+        console.log("Updating reservedUntil for existing reservation");
+        batch.update(reserveRef, {reservedUntil: reservedUntil});
+        continue;
+      }
+
+      // Corrige a quantidade da reserva e no estoque
+      const quantityDiff = reservedData.quantity - item.quantity;
+
+      console.log(
+          `Adjusting reservation: ReservedQt=${reservedData.quantity},
+          NewQt=${item.quantity}, Diff=${quantityDiff}`);
+
+      // Corrige estoque do produto.
+      const newQuantity = adData.quantity + quantityDiff;
+      batch.update(adRef, {
+        quantity: newQuantity,
+        status: newQuantity === 0 ? "sold" : adData.status,
+      });
+
+      batch.set(reserveRef, {
+        quantity: item.quantity,
+        reservedUntil: reservedUntil,
+      });
+    } else {
+      // Atualizar os campos: decrementar quantity e incrementar
+      // reservedData.quantity
+      console.log("Creating new reservation.");
+      batch.update(adRef, {
+        quantity: FieldValue.increment(-item.quantity),
+        status: adData.quantity - item.quantity === 0 ? "sold" : adData.status,
+      });
+
+      // Criar sub-coleção de reserva de jogo
+      batch.set(reserveRef, {
+        quantity: item.quantity,
+        reservedUntil: reservedUntil, // Expidação da reserva
+      });
+    }
   }
 
   // Commit do batch
@@ -544,7 +652,16 @@ async function reserveItems(items, userId) {
  * @throws {Error} - Lança erro caso ocorra falha ao criar a sessão no Stripe.
  */
 async function createStripeSession(items, userId) {
-  const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+  const now = Math.floor(Date.now() / 1000); // Tempo atual em segundos
+  const expiresAt = now + 30 * 60; // 5 minutos em segundos
+  const stripeApiKey = STRIPE_API_KEY.value();
+
+  if (!stripeApiKey) {
+    console.error("STRIPE_API_KEY is not defined.");
+    throw new HttpsError("internal", "Stripe API key not configured.");
+  }
+
+  const stripeInstance = stripe(stripeApiKey);
 
   const lineItems = items.map((item) => ({
     price_data: {
@@ -555,7 +672,7 @@ async function createStripeSession(items, userId) {
     quantity: item.quantity,
   }));
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await stripeInstance.checkout.sessions.create({
     payment_method_types: ["card", "boleto"],
     line_items: lineItems,
     mode: "payment",
@@ -571,6 +688,7 @@ async function createStripeSession(items, userId) {
       userId,
       items: JSON.stringify(items),
     },
+    expires_at: expiresAt,
   });
 
   console.log("createStripeSession resolved");

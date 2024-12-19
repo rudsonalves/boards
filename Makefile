@@ -40,5 +40,14 @@ firebase_emu:
 firebase_emusavecache:
 	firebase emulators:export ./emulator_data -f
 
-functions_deploy:
+deploy_functions:
 	firebase deploy --only functions
+
+ngrok_tunnel:
+	ngrok config add-authtoken 2qMT4XFwP43IDKOFa46jntSukLk_64g7SdmbmBSBjUJyrKt3B && ngrok http 5001
+
+stripe_listen_webhook:
+	stripe listen --forward-to http://127.0.0.1:5001/boards-fc3e5/southamerica-east1/stripeWebhook
+
+lint_functions:
+	cd functions/ && npm run lint

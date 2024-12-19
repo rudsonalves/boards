@@ -6,14 +6,14 @@ import 'package:image/image.dart' as img;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../../core/abstracts/data_result.dart';
-import '../../data/models/bg_name.dart';
-import '../../data/models/boardgame.dart';
-import '../../core/get_it.dart';
-import '../../data/repository/firebase/common/fb_functions.dart';
-import '../../data/repository/interfaces/remote/i_boardgame_repository.dart';
-import '../../data/repository/interfaces/remote/i_bg_names_repository.dart';
-import '../../core/utils/utils.dart';
+import '/core/abstracts/data_result.dart';
+import '/data/models/bg_name.dart';
+import '/data/models/boardgame.dart';
+import '/core/get_it.dart';
+import '/data/repository/firebase/common/fb_functions.dart';
+import '/data/repository/interfaces/remote/i_boardgame_repository.dart';
+import '/data/repository/interfaces/remote/i_bg_names_repository.dart';
+import '/core/utils/utils.dart';
 
 /// Class that holds the paths of the converted image and the downloaded local
 /// image.
