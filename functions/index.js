@@ -27,11 +27,28 @@ const db = admin.firestore();
 const STRIPE_API_KEY = defineSecret("STRIPE_API_KEY");
 const WEBHOOK_SEC = defineSecret("WEBHOOK_SEC");
 
-// =====================
-// Funções do Stripe
-// =====================
-//
-// Função Stripe Webhook
+/** =====================
+ *  Funções do Stripe
+ *  =====================
+ */
+
+/**
+ * Função que lida com o recebimento de webhooks do Stripe, validando a
+ * assinatura e processando eventos como conclusão ou falha de checkout.
+ *
+ * @function stripeWebhook
+ * @param {Object} request - Objeto de requisição HTTP do Firebase Functions.
+ * @param {Object} response - Objeto de resposta HTTP do Firebase Functions.
+ * @description
+ * Esta função é acionada quando o Stripe envia um evento (webhook) para o
+ * endpoint.
+ * Ela valida a origem e a integridade do evento, processa-o de acordo com
+ * seu tipo, e envia uma resposta apropriada (200 para sucesso, 400 ou 500
+ * para erros).
+ *
+ * @throws {Error} - Lança erro caso não seja possível validar o webhook,
+ *                   processar o evento ou acessar as chaves de ambiente.
+ */
 exports.stripeWebhook = onRequest(
     {
       region: "southamerica-east1",
@@ -39,93 +56,125 @@ exports.stripeWebhook = onRequest(
       maxInstances: 1,
       enforceRawBody: true,
     },
-    async (req, res) => {
+    async (request, response) => {
       try {
-        console.log("*** Starting webhook. ***");
+        console.log("Starting webhook.");
 
-        // Verifique o Content-Type
-        const contentType = req.headers["content-type"];
+        // Inicializa a instância do Stripe
+        const stripeInstance = initializeStripe(request);
 
-        // Acesse o rawBody diretamente
-        const rawBody = req.rawBody;
+        // Valida o evento recebido do Stripe
+        const event = validateWebhook(request, stripeInstance);
 
-        // Recupera os segredos corretamente
-        // Se estiver rodando localmente, use as variáveis de ambiente
-        const endpointSecret = (req.secret && req.secret.WEBHOOK_SEC) ||
-            process.env.WEBHOOK_SEC;
-        const stripeApiKey = (req.secret && req.secret.STRIPE_API_KEY) ||
+        console.log(`Evento Stripe validado: ${event.type}`);
+        // Processa o evento do Stripe
+        await processStripeEvent(event);
+
+        response.status(200).send("Webhook processado com sucesso");
+      } catch (err) {
+        console.error(`Erro no webhook: ${err.message}`);
+        response.status(err.statusCode || 500)
+            .send(`Erro no Webhook: ${err.message}`);
+      }
+    },
+);
+
+/**
+ * Inicializa a instância do Stripe usando as chaves de API apropriadas.
+ *
+ * @param {Object} request - Objeto de requisição HTTP.
+ * @return {Object} - Instância do Stripe.
+ */
+function initializeStripe(request) {
+  const stripeApiKey = (request.secret && request.secret.STRIPE_API_KEY) ||
             process.env.STRIPE_API_KEY;
 
-        if (!endpointSecret) {
-          console.error("WEBHOOK_SEC is not defined.");
-          return res.status(500).send("Webhook secret not configured.");
-        }
+  if (!stripeApiKey) {
+    const message = "Stripe API key not configured.";
+    console.error(message);
+    throw new Error(message);
+  }
 
-        if (!stripeApiKey) {
-          console.error("STRIPE_API_KEY is not defined.");
-          return res.status(500).send("Stripe API key not configured.");
-        }
+  return require("stripe")(stripeApiKey);
+}
 
-        const sig = req.headers["stripe-signature"];
+/**
+ * Valida o evento recebido do Stripe usando o webhook secret.
+ *
+ * @param {Object} request - Objeto de requisição HTTP.
+ * @param {Object} stripeInstance - Instância do Stripe.
+ * @return {Object} - Evento validado do Stripe.
+ */
+function validateWebhook(request, stripeInstance) {
+  const endpointSecret = (request.secret && request.secret.WEBHOOK_SEC) ||
+      process.env.WEBHOOK_SEC;
 
-        // Inicializa o Stripe usando a chave API correta
-        const stripeInstance = stripe(stripeApiKey);
+  if (!endpointSecret) {
+    console.error("WEBHOOK_SEC is not defined.");
+    throw new Error("Webhook secret not configured.");
+  }
 
-        let event;
+  const sig = request.headers["stripe-signature"];
 
-        try {
-          if (!rawBody || !(rawBody instanceof Buffer)) {
-            throw new Error("rawBody is missing or not a Buffer.");
-          }
+  if (!request.rawBody || !(request.rawBody instanceof Buffer)) {
+    throw new Error("rawBody is missing or not a Buffer.");
+  }
 
-          // Valida a requisição do webhook
-          event = stripeInstance.webhooks.constructEvent(
-              rawBody,
-              sig,
-              endpointSecret,
-          );
+  try {
+    return stripeInstance.webhooks.constructEvent(
+        request.rawBody,
+        sig,
+        endpointSecret);
+  } catch (err) {
+    throw new Error(`Erro ao validar webhook: ${err.message}`);
+  }
+}
 
-          console.log(`Evento Stripe recebido: ${event.type}`);
-        } catch (err) {
-          console.error(`Erro no webhook: ${err.message}`);
-          return res.status(400).send(`Erro no Webhook: ${err.message}`);
-        }
+/**
+ * Processa o evento do Stripe baseado no tipo.
+ *
+ * @param {Object} event - Evento validado do Stripe.
+ */
+async function processStripeEvent(event) {
+  switch (event.type) {
+    case "checkout.session.completed": {
+      await handlePaymentSuccess(event.data.object);
+      console.log(`Webhook evento: ${event.type}`);
+      break;
+    }
 
-        // Tratamento dos eventos recebidos do webhook
-        try {
-          switch (event.type) {
-            case "checkout.session.completed": {
-              const session = event.data.object;
-              await handlePaymentSuccess(session);
-              console.log(`Webhook evento: ${event.type}`);
-              break;
-            }
+    case "checkout.session.expired":
+    case "checkout.session.async_payment_failed": {
+      await handlePaymentFailure(event.data.object);
+      console.log(`Session payment event: ${event.type}`);
+      break;
+    }
 
-            case "checkout.session.expired":
-            case "checkout.session.async_payment_failed": {
-              const session = event.data.object;
-              await handlePaymentFailure(session);
-              console.log(`Session payment event: ${event.type}`);
-              break;
-            }
+    default: {
+      console.log(`Evento não tratado: ${event.type}`);
+      break;
+    }
+  }
+}
 
-            default: {
-              console.log(`Evento não tratado: ${event.type}`);
-              break;
-            }
-          }
-
-          res.status(200).send("Webhook processado com sucesso");
-        } catch (err) {
-          console.error(`Erro no Webhook: ${err.message}`);
-          res.status(400).send(`Erro no Webhook: ${err.message}`);
-        }
-      } catch (err) {
-        console.error(`Erro geral no webhook: ${err.message}`);
-        res.status(500).send(`Erro geral no webhook: ${err.message}`);
-      }
-    });
-
+/**
+ * Função que lida com o recebimento de webhooks do Stripe, validando a
+ * assinatura e processando eventos como conclusão ou falha de checkout.
+ *
+ * @function stripeWebhook
+ * @param {Object} req - Objeto de requisição HTTP do Firebase Functions.
+ * @param {Object} res - Objeto de resposta HTTP do Firebase Functions.
+ * @description
+ *
+ * Esta função é acionada quando o Stripe envia um evento (webhook) para o
+ * endpoint.
+ * Ela valida a origem e a integridade do evento, processa-o de acordo com
+ * seu tipo, e envia uma resposta apropriada (200 para sucesso, 400 ou 500
+ * para erros).
+ *
+ * @throws {Error} - Lança erro caso não seja possível validar o webhook,
+ *                   processar o evento ou acessar as chaves de ambiente.
+ */
 exports.createCheckoutSession = onCall(
     {
       region: "southamerica-east1",
@@ -137,8 +186,7 @@ exports.createCheckoutSession = onCall(
         const userId = verifyAuth(request);
 
         // 2. Validar os itens
-        const items = request.data.items;
-        validateItems(items);
+        const items = validateItems(items);
 
         // 3. Reservar os itens
         await reserveItems(items, userId);
@@ -154,7 +202,28 @@ exports.createCheckoutSession = onCall(
       }
     });
 
-// Função de Payment Intent do Stripe
+
+/**
+ * Cria um PaymentIntent no Stripe, retornando um client_secret para realizar
+ * o pagamento.
+ *
+ * @function createPaymentIntent
+ * @param {Object} request - Objeto da requisição onCall do Firebase Functions.
+ * @param {Object} request.data - Dados enviados na requisição, incluindo:
+ * @param {Array} request.data.items - Lista de itens (com unit_price e
+ *                                     quantity).
+ * @param {Object} request.auth - Contexto de autenticação do usuário.
+ * @return {Promise<Object>} - Retorna um objeto contendo o clientSecret do
+ *                             PaymentIntent.
+ * @description
+ * 1. Verifica se o usuário está autenticado.
+ * 2. Valida a lista de itens.
+ * 3. Calcula o valor total dos itens.
+ * 4. Cria um PaymentIntent no Stripe e retorna o clientSecret para o front-end.
+ *
+ * @throws {HttpsError} - Caso o usuário não esteja autenticado, os itens sejam
+ *                        inválidos ou ocorra erro ao criar o PaymentIntent.
+ */
 exports.createPaymentIntent = onCall(
     {
       region: "southamerica-east1",
@@ -162,46 +231,23 @@ exports.createPaymentIntent = onCall(
     },
     async (request) => {
       try {
-        // Recupera os segredos
-        const stripeApiKey = STRIPE_API_KEY.value();
-
-        if (!stripeApiKey) {
-          console.error("STRIPE_API_KEY is not defined.");
-          throw new HttpsError("internal", "STRIPE_API_KEY is not defined.");
-        }
-
         // Inicie o Stripe usando a secret do ambiente
-        const stripeInstance = stripe(stripeApiKey);
+        const stripeInstance = initializeStripe(request);
 
         // Verificar autenticação do usuário
         const userId = verifyAuth(request);
 
         // Verificar se os itens foram enviados
-        // console.log("Received request data:", request.data);
-        const items = request.data.items;
-        if (!items || !Array.isArray(items)) {
-          console.error("Items are required and must be an array.");
-          throw new HttpsError(
-              "invalid-argument",
-              "Items are required and must be an array.",
-          );
-        }
+        const items = validateItems(items);
 
-        // Calcular o valor total
-        const totalAmount = items.reduce((total, item) => {
-          return total + Math.round(item.unit_price * 100) * item.quantity;
-        }, 0);
+        // Calcula o valor total em centavos
+        const totalAmount = calculateTotal(items);
 
-        // Criar o PaymentIntent
-        const paymentIntent = await stripeInstance.paymentIntents.create({
-          amount: totalAmount,
-          payment_method_types: ["card"],
-          description: "Compra de produtos",
-          currency: "brl",
-          metadata: {
-            userId,
-            items: JSON.stringify(items),
-          },
+        // Cria um PaymentIntent no Stripe
+        const paymentIntent = await createStripePaymentIntent(stripeInstance, {
+          totalAmount,
+          userId,
+          items,
         });
 
         return {clientSecret: paymentIntent.client_secret};
@@ -211,13 +257,64 @@ exports.createPaymentIntent = onCall(
       }
     });
 
+
+/**
+ * Calcula o valor total em centavos baseado nos itens fornecidos.
+ *
+ * @function calculateTotal
+ * @param {Array} items - Lista de itens, cada um contendo unit_price e
+ *                        quantity.
+ * @return {number} - Valor total calculado em centavos.
+ */
+function calculateTotal(items) {
+  return items.reduce((total, item) => {
+    return total + Math.round(item.unit_price * 100) * item.quantity;
+  }, 0);
+}
+
+
+/**
+ * Cria um PaymentIntent no Stripe.
+ *
+ * @function createStripePaymentIntent
+ * @param {Object} stripeInstance - Instância inicializada do Stripe.
+ * @param {Object} params - Parâmetros para o PaymentIntent.
+ * @param {number} params.totalAmount - Valor total em centavos.
+ * @param {string} params.userId - UID do usuário.
+ * @param {Array} params.items - Lista de itens para o pagamento.
+ * @return {Promise<Object>} - Objeto do PaymentIntent criado.
+ */
+async function createStripePaymentIntent(stripeInstance,
+    {totalAmount, userId, items}) {
+  return stripeInstance.paymentIntents.create({
+    amount: totalAmount,
+    payment_method_types: ["card"],
+    description: "Compra de produtos",
+    currency: "brl",
+    metadata: {
+      userId,
+      items: JSON.stringify(items),
+    },
+  });
+}
+
+
 // ==============================
 // Funções auxiliares do Webhook
 // ==============================
 
 /**
- * Lida com o sucesso do pagamento.
- * @param {Object} session - Objeto da sessão do Stripe.
+ * Trata o evento de sucesso no pagamento do Stripe, removendo reservas
+ * dos itens já comprados.
+ *
+ * @async
+ * @function handlePaymentSuccess
+ * @param {Object} session - Objeto da sessão do Stripe (checkout.session).
+ * @description
+ * Extrai o userId e itens do metadata da sessão, remove as reservas
+ * correspondentes do Firestore, confirmando assim a compra do(s) item(ns).
+ *
+ * @throws {Error} - Caso falte metadata ou items no session.
  */
 async function handlePaymentSuccess(session) {
   console.log(`Starting handlePaymentSuccess:`);
@@ -247,9 +344,20 @@ async function handlePaymentSuccess(session) {
   console.log(`Payment confirmed and reservations cleared for user: ${userId}`);
 }
 
+
 /**
- * Lida com o cancelamento ou falha do pagamento.
- * @param {Object} session - Objeto da sessão do Stripe.
+ * Trata eventos de falha ou expiração do checkout do Stripe, restaurando o
+ * estoque dos itens e removendo as reservas.
+ *
+ * @async
+ * @function handlePaymentFailure
+ * @param {Object} session - Objeto da sessão do Stripe (checkout.session).
+ * @description
+ * Extrai o userId e itens do metadata, restaura a quantidade original dos
+ * produtos no estoque do Firestore e remove as reservas, já que o pagamento
+ * não foi concluído.
+ *
+ * @throws {Error} - Caso falte metadata ou items no session.
  */
 async function handlePaymentFailure(session) {
   console.log(`Starting handlePaymentFailure:`);
@@ -285,11 +393,28 @@ async function handlePaymentFailure(session) {
   console.log(`Restoring stock for user: ${userId}`);
 }
 
+
 // ===================================
 // Funções Relacionadas a Boardgames
 // ===================================
 
-// Função para notificar usuários alvo de mensagem
+/**
+ * Notifica um usuário específico sobre uma nova mensagem adicionada a
+ * um anúncio.
+ *
+ * @function notifySpecificUser
+ * @param {Object} event - Evento Firestore onDocumentCreated.
+ * @param {Object} event.data - Documento criado no Firestore.
+ * @param {Object} event.params - Parâmetros da rota, incluindo adId e
+ *                                messageId.
+ * @description
+ * Ao criar um novo documento em "ads/{adId}/messages/{messageId}", esta função:
+ * 1. Obtém dados do destinatário da mensagem (targetUserId).
+ * 2. Busca o token FCM do usuário.
+ * 3. Envia uma notificação push informando sobre a nova mensagem.
+ *
+ * @throws {Error} - Caso não exista documento do usuário ou FCM token.
+ */
 exports.notifySpecificUser = onDocumentCreated(
     {
       document: "ads/{adId}/messages/{messageId}",
@@ -355,7 +480,22 @@ exports.notifySpecificUser = onDocumentCreated(
       }
     });
 
-// Função para sincronizar boardgames com bgnames na criação
+
+/**
+ * Sincroniza um documento recém-criado em "boardgames/{boardgameId}"
+ * com a coleção "bgnames", criando ou atualizando o documento correspondente.
+ *
+ * @function syncBoardgameToBGNames
+ * @param {Object} event - Evento Firestore onDocumentCreated.
+ * @param {Object} event.data - Documento criado no Firestore.
+ * @param {Object} event.params - Parâmetros da rota, incluindo boardgameId.
+ * @description
+ * Ao criar um novo boardgame, a função verifica se name e publishYear estão
+ * definidos. Cria então um documento em "bgnames/{boardgameId}" formatando o
+ * nome e ano.
+ *
+ * @throws {Error} - Caso faltem campos obrigatórios (name, publishYear).
+ */
 exports.syncBoardgameToBGNames = onDocumentCreated(
     {
       document: "boardgames/{boardgameId}",
@@ -393,7 +533,20 @@ exports.syncBoardgameToBGNames = onDocumentCreated(
     });
 
 
-// Função para deletar bgnames quando um boardgame é deletado
+/**
+ * Deleta o documento correspondente em "bgnames/{boardgameId}" ao apagar
+ * um boardgame.
+ *
+ * @function deleteBGName
+ * @param {Object} event - Evento Firestore onDocumentDeleted.
+ * @param {Object} event.params - Parâmetros da rota, incluindo boardgameId.
+ * @description
+ * Quando um boardgame é removido de "boardgames/{boardgameId}", esta função
+ * busca o documento correspondente em "bgnames/{boardgameId}" e o deleta,
+ * caso exista.
+ *
+ * @throws {Error} - Caso haja falha ao deletar o documento de "bgnames".
+ */
 exports.deleteBGName = onDocumentDeleted(
     {
       document: "boardgames/{boardgameId}",
@@ -422,11 +575,26 @@ exports.deleteBGName = onDocumentDeleted(
       }
     });
 
+
 // =====================
 // Funções Gerais
 // =====================
 
-// Função assignDefaultUserRole
+/**
+ * Atribui a função (role) "user" a um usuário autenticado, definindo custom
+ * claims.
+ *
+ * @function assignDefaultUserRole
+ * @param {Object} request - Objeto da requisição onCall do Firebase Functions.
+ * @param {Object} request.auth - Contexto de autenticação do usuário.
+ * @return {Promise<Object>} - Retorna um objeto com uma mensagem de sucesso.
+ * @description
+ * Verifica se o usuário está autenticado, atribui o custom claim role = "user".
+ * Pode ser ajustado para atribuir role = "admin" durante a inicialização.
+ *
+ * @throws {Error} - Caso o usuário não esteja autenticado ou haja falha ao
+ *                   definir o custom claim.
+ */
 exports.assignDefaultUserRole = onCall(
     {
       region: "southamerica-east1",
@@ -468,7 +636,27 @@ exports.assignDefaultUserRole = onCall(
       }
     });
 
-// Função changeUserRole
+
+/**
+ * Altera a função (role) de um usuário, requerendo que o chamador seja um
+ * "admin".
+ *
+ * @function changeUserRole
+ * @param {Object} request - Objeto da requisição onCall do Firebase Functions.
+ * @param {Object} request.data - Dados da requisição, incluindo:
+ *   @param {string} request.data.userId - UID do usuário cujo role será
+ *                                         alterado.
+ *   @param {string} request.data.role - Novo role a ser atribuído.
+ * @param {Object} request.auth - Contexto de autenticação do usuário chamador.
+ * @return {Promise<Object>} - Retorna um objeto com uma mensagem de sucesso.
+ * @description
+ * 1. Verifica se o chamador está autenticado e é admin.
+ * 2. Atualiza o custom claim do usuário alvo com o novo role.
+ *
+ * @throws {Error} - Caso o chamador não esteja autenticado, não seja admin,
+ *                   falte userId ou role na requisição, ou haja falha ao
+ *                   definir o custom claim.
+ */
 exports.changeUserRole = onCall(
     {
       region: "southamerica-east1",
@@ -509,16 +697,20 @@ exports.changeUserRole = onCall(
       }
     });
 
+
 // ==============================
 // Módulos auxiliares
 // ==============================
 /**
- * Verifica se o usuário está autenticado e retorna seu UID.
+ * Verifica se o usuário está autenticado no contexto da requisição.
  *
- * @param {object} request - O objeto da requisição do Firebase Functions.
- * @param {object} request.auth - O contexto de autenticação do Firebase.
- * @return {string} - O UID do usuário autenticado.
- * @throws {HttpsError} - Lança erro caso o usuário não esteja autenticado.
+ * @function verifyAuth
+ * @param {Object} request - Objeto da requisição do Firebase Functions
+ *                           (onCall).
+ * @param {Object} request.auth - Contexto de autenticação do usuário.
+ * @return {string} - Retorna o UID do usuário autenticado.
+ * @throws {HttpsError} - Caso não haja contexto de autenticação (usuário
+ *                        não logado).
  */
 function verifyAuth(request) {
   const auth = request.auth;
@@ -533,36 +725,39 @@ function verifyAuth(request) {
   return auth.uid;
 }
 
+
 /**
- * Valida a estrutura dos itens recebidos na requisição.
+ * Valida e retorna os itens enviados na requisição.
  *
- * @param {Array} items - Lista de itens a serem validados.
- * @throws {HttpsError} - Lança erro caso os itens sejam inválidos ou não
- *      sejam um array.
+ * @function validateItems
+ * @param {Object} request - Objeto da requisição Firebase Functions (onCall).
+ * @return {Array} - Lista de itens validados.
+ * @throws {HttpsError} - Caso items não sejam encontrados ou não sejam um
+ *                        array válido.
  */
-function validateItems(items) {
+function validateItems(request) {
+  const items = request.data.items;
+
   if (!items || !Array.isArray(items)) {
     throw new HttpsError("invalid-argument", "Items must be an array.");
   }
-  console.log("Validated Items");
+
+  return items;
 }
 
+
 /**
- * Reserva os itens selecionados pelo usuário, atualizando a quantidade
- * disponível no anúncio e criando um registro de reserva em uma sub-coleção.
+ * Reserva os itens selecionados pelo usuário, decrementando a quantidade
+ * em estoque e criando/atualizando um registro de reserva no Firestore.
  *
- * @param {Array<Object>} items - Lista de itens a serem reservados. Cada item
- * deve conter:
- *   @param {string} items[].adId - ID do anúncio (documento) no Firestore.
- *   @param {number} items[].quantity - Quantidade do item a ser reservada. Deve
- *      ser maior que zero.
- * @param {string} userId - ID do usuário que está efetuando a reserva.
- * @return {Promise<void>} - Retorna uma Promise que é resolvida após a reserva
- *      ser concluída.
- * @throws {HttpsError} - Lança erro se:
- *   - `item.quantity` for menor ou igual a zero.
- *   - O documento do anúncio não existir.
- *   - Não houver estoque suficiente para a quantidade solicitada.
+ * @async
+ * @function reserveItems
+ * @param {Array<Object>} items - Lista de itens, cada item contendo adId e
+ *                                quantity.
+ * @param {string} userId - UID do usuário que está fazendo a reserva.
+ * @return {Promise<void>} - Completa quando a reserva estiver confirmada.
+ * @throws {HttpsError} - Caso o item não exista, não haja estoque suficiente ou
+ *                        o usuário não esteja autenticado.
  */
 async function reserveItems(items, userId) {
   const batch = db.batch();
@@ -643,13 +838,18 @@ async function reserveItems(items, userId) {
   console.log("Items reserved successfully.");
 }
 
+
 /**
- * Cria uma sessão de pagamento no Stripe usando os itens reservados.
+ * Cria uma sessão de checkout no Stripe com base nos itens reservados.
  *
- * @param {Array} items - Lista de itens reservados para checkout.
- * @param {string} userId - ID do usuário autenticado.
- * @return {Promise<string>} - URL da sessão de checkout do Stripe.
- * @throws {Error} - Lança erro caso ocorra falha ao criar a sessão no Stripe.
+ * @async
+ * @function createStripeSession
+ * @param {Array} items - Lista de itens reservados para checkout, contendo
+ *                        title e unit_price.
+ * @param {string} userId - UID do usuário autenticado.
+ * @return {Promise<string>} - Retorna a URL da sessão de checkout do Stripe.
+ * @throws {HttpsError} - Caso a chave da API do Stripe não esteja configurada
+ *                        ou haja falha na criação da sessão.
  */
 async function createStripeSession(items, userId) {
   const now = Math.floor(Date.now() / 1000); // Tempo atual em segundos

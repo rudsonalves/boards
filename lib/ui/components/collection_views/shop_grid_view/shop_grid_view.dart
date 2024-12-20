@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../data/models/ad.dart';
-import '../../../features/shop/product/product_screen.dart';
+import '/data/models/ad.dart';
+import '/ui/features/shop/product/product_screen.dart';
 import 'widgets/ad_shop_view.dart';
 
 enum ButtonBehavior { edit, delete }

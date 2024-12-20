@@ -78,6 +78,43 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/20 - version: 0.5.03+35
+
+Improved Stripe integration and developer tools configurations while refactoring code for better readability and maintainability.
+
+### Changes made:
+
+1. **.vscode/settings.json**:  
+   - Added settings to enable Prettier and format code on save for JavaScript.  
+   - Configured ESLint to fix issues automatically on save.  
+
+2. **Makefile**:  
+   - Added a comment about performing `stripe login` every 90 days for webhook setup.  
+
+3. **functions/.eslintrc.js**:  
+   - Updated ESLint rules to enforce single quotes, semicolons, and 2-space indentation.  
+
+4. **functions/index.js**:  
+   - Refactored Stripe webhook handling by splitting logic into helper functions:  
+     - `initializeStripe` for Stripe initialization.  
+     - `validateWebhook` for validating Stripe events.  
+     - `processStripeEvent` for processing different event types.  
+   - Enhanced JSDoc comments for all functions, providing detailed descriptions and parameter information.  
+   - Updated Stripe integration to improve error handling and maintainability.  
+   - Refactored `createCheckoutSession` and `createPaymentIntent` with helper methods for validation and session creation.  
+   - Introduced `calculateTotal` and `createStripePaymentIntent` as helper functions.  
+
+5. **lib/data/models/transaction.dart**:  
+   - Removed unnecessary comments to clean up the file.  
+
+6. **lib/ui/components/collection_views/shop_grid_view/shop_grid_view.dart**:  
+   - Simplified import paths for consistency with project conventions.  
+
+### Conclusion:
+
+These updates introduce better tooling for code consistency, improved modularization for Stripe integration, and enhanced documentation for easier maintenance and scalability.
+
+
 ## 2024/12/19 - version: 0.5.03+34
 
 Enhanced configurations and dependencies for Firebase Functions and Stripe integration, along with updated ignore rules and deployment utilities.
