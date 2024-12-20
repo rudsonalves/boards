@@ -27,10 +27,12 @@ const db = admin.firestore();
 const STRIPE_API_KEY = defineSecret("STRIPE_API_KEY");
 const WEBHOOK_SEC = defineSecret("WEBHOOK_SEC");
 
-/** =====================
- *  Funções do Stripe
- *  =====================
- */
+// ============================================================
+//                     Funções do Stripe
+//                   Sistema de Pagamentos
+//
+//                    Funções Principais
+// ============================================================
 
 /**
  * Função que lida com o recebimento de webhooks do Stripe, validando a
@@ -79,83 +81,6 @@ exports.stripeWebhook = onRequest(
     },
 );
 
-/**
- * Inicializa a instância do Stripe usando as chaves de API apropriadas.
- *
- * @param {Object} request - Objeto de requisição HTTP.
- * @return {Object} - Instância do Stripe.
- */
-function initializeStripe(request) {
-  const stripeApiKey = (request.secret && request.secret.STRIPE_API_KEY) ||
-            process.env.STRIPE_API_KEY;
-
-  if (!stripeApiKey) {
-    const message = "Stripe API key not configured.";
-    console.error(message);
-    throw new Error(message);
-  }
-
-  return require("stripe")(stripeApiKey);
-}
-
-/**
- * Valida o evento recebido do Stripe usando o webhook secret.
- *
- * @param {Object} request - Objeto de requisição HTTP.
- * @param {Object} stripeInstance - Instância do Stripe.
- * @return {Object} - Evento validado do Stripe.
- */
-function validateWebhook(request, stripeInstance) {
-  const endpointSecret = (request.secret && request.secret.WEBHOOK_SEC) ||
-      process.env.WEBHOOK_SEC;
-
-  if (!endpointSecret) {
-    console.error("WEBHOOK_SEC is not defined.");
-    throw new Error("Webhook secret not configured.");
-  }
-
-  const sig = request.headers["stripe-signature"];
-
-  if (!request.rawBody || !(request.rawBody instanceof Buffer)) {
-    throw new Error("rawBody is missing or not a Buffer.");
-  }
-
-  try {
-    return stripeInstance.webhooks.constructEvent(
-        request.rawBody,
-        sig,
-        endpointSecret);
-  } catch (err) {
-    throw new Error(`Erro ao validar webhook: ${err.message}`);
-  }
-}
-
-/**
- * Processa o evento do Stripe baseado no tipo.
- *
- * @param {Object} event - Evento validado do Stripe.
- */
-async function processStripeEvent(event) {
-  switch (event.type) {
-    case "checkout.session.completed": {
-      await handlePaymentSuccess(event.data.object);
-      console.log(`Webhook evento: ${event.type}`);
-      break;
-    }
-
-    case "checkout.session.expired":
-    case "checkout.session.async_payment_failed": {
-      await handlePaymentFailure(event.data.object);
-      console.log(`Session payment event: ${event.type}`);
-      break;
-    }
-
-    default: {
-      console.log(`Evento não tratado: ${event.type}`);
-      break;
-    }
-  }
-}
 
 /**
  * Função que lida com o recebimento de webhooks do Stripe, validando a
@@ -258,6 +183,279 @@ exports.createPaymentIntent = onCall(
     });
 
 
+// ============================================================
+//                Funções auxiliares do Stripe
+// ============================================================
+
+/**
+ * Verifica se o usuário está autenticado no contexto da requisição.
+ *
+ * @function verifyAuth
+ * @param {Object} request - Objeto da requisição do Firebase Functions
+ *                           (onCall).
+ * @param {Object} request.auth - Contexto de autenticação do usuário.
+ * @return {string} - Retorna o UID do usuário autenticado.
+ * @throws {HttpsError} - Caso não haja contexto de autenticação (usuário
+ *                        não logado).
+ */
+function verifyAuth(request) {
+  const auth = request.auth;
+  if (!auth) {
+    console.error("User is not authenticated.");
+    throw new HttpsError(
+        "unauthenticated",
+        "User must be authenticated.",
+    );
+  }
+  console.log("User verified");
+  return auth.uid;
+}
+
+/**
+ * Valida e retorna os itens enviados na requisição.
+ *
+ * @function validateItems
+ * @param {Object} request - Objeto da requisição Firebase Functions (onCall).
+ * @return {Array} - Lista de itens validados.
+ * @throws {HttpsError} - Caso items não sejam encontrados ou não sejam um
+ *                        array válido.
+ */
+function validateItems(request) {
+  const items = request.data.items;
+
+  if (!items || !Array.isArray(items)) {
+    throw new HttpsError("invalid-argument", "Items must be an array.");
+  }
+
+  return items;
+}
+
+/**
+ * Reserva os itens selecionados pelo usuário, decrementando a quantidade
+ * em estoque e criando/atualizando um registro de reserva no Firestore.
+ *
+ * @async
+ * @function reserveItems
+ * @param {Array<Object>} items - Lista de itens, cada item contendo adId e
+ *                                quantity.
+ * @param {string} userId - UID do usuário que está fazendo a reserva.
+ * @return {Promise<void>} - Completa quando a reserva estiver confirmada.
+ * @throws {HttpsError} - Caso o item não exista, não haja estoque suficiente ou
+ *                        o usuário não esteja autenticado.
+ */
+async function reserveItems(items, userId) {
+  const batch = db.batch();
+  const now = Date.now();
+  const reservedUntil = now + 30 * 60 * 1000;
+
+  for (const item of items) {
+    const adRef = db.collection("ads").doc(item.adId);
+    const reserveRef = adRef.collection("reserve").doc(userId);
+    console.log(`userId: ${userId} -> adId: ${item.adId}`);
+
+    const adDoc = await adRef.get();
+
+    if (!adDoc.exists) {
+      throw new HttpsError("not-found", `Item not found: ${item.adId}`);
+    }
+
+    const adData = adDoc.data();
+
+    if (adData.quantity < item.quantity) {
+      throw new HttpsError(
+          "failed-precondition",
+          `Not enough stock for item ${adData.title}.
+           Available: ${adData.quantity}, Requested: ${item.quantity}`,
+      );
+    }
+
+    // Verifica se existe uma reserva para este item neste userId
+    const reservedItem = await reserveRef.get();
+    if (reservedItem.exists) {
+      // Verifica de a quantidade reservada corresponde a esta compra
+      const reservedData = reservedItem.data();
+
+      if (reservedData.quantity === item.quantity) {
+        // Apenas altera o tempo de espiração da reserva
+        console.log("Updating reservedUntil for existing reservation");
+        batch.update(reserveRef, {reservedUntil: reservedUntil});
+        continue;
+      }
+
+      // Corrige a quantidade da reserva e no estoque
+      const quantityDiff = reservedData.quantity - item.quantity;
+
+      console.log(
+          `Adjusting reservation: ReservedQt=${reservedData.quantity},
+          NewQt=${item.quantity}, Diff=${quantityDiff}`);
+
+      // Corrige estoque do produto.
+      const newQuantity = adData.quantity + quantityDiff;
+      batch.update(adRef, {
+        quantity: newQuantity,
+        status: newQuantity === 0 ? "sold" : adData.status,
+      });
+
+      batch.set(reserveRef, {
+        quantity: item.quantity,
+        reservedUntil: reservedUntil,
+      });
+    } else {
+      // Atualizar os campos: decrementar quantity e incrementar
+      // reservedData.quantity
+      console.log("Creating new reservation.");
+      batch.update(adRef, {
+        quantity: FieldValue.increment(-item.quantity),
+        status: adData.quantity - item.quantity === 0 ? "sold" : adData.status,
+      });
+
+      // Criar sub-coleção de reserva de jogo
+      batch.set(reserveRef, {
+        quantity: item.quantity,
+        reservedUntil: reservedUntil, // Expidação da reserva
+      });
+    }
+  }
+
+  // Commit do batch
+  await batch.commit();
+  console.log("Items reserved successfully.");
+}
+
+/**
+ * Cria uma sessão de checkout no Stripe com base nos itens reservados.
+ *
+ * @async
+ * @function createStripeSession
+ * @param {Array} items - Lista de itens reservados para checkout, contendo
+ *                        title e unit_price.
+ * @param {string} userId - UID do usuário autenticado.
+ * @return {Promise<string>} - Retorna a URL da sessão de checkout do Stripe.
+ * @throws {HttpsError} - Caso a chave da API do Stripe não esteja configurada
+ *                        ou haja falha na criação da sessão.
+ */
+async function createStripeSession(items, userId) {
+  const now = Math.floor(Date.now() / 1000); // Tempo atual em segundos
+  const expiresAt = now + 30 * 60; // 5 minutos em segundos
+  const stripeApiKey = STRIPE_API_KEY.value();
+
+  if (!stripeApiKey) {
+    console.error("STRIPE_API_KEY is not defined.");
+    throw new HttpsError("internal", "Stripe API key not configured.");
+  }
+
+  const stripeInstance = stripe(stripeApiKey);
+
+  const lineItems = items.map((item) => ({
+    price_data: {
+      currency: "brl",
+      product_data: {name: item.title},
+      unit_amount: Math.round(item.unit_price * 100),
+    },
+    quantity: item.quantity,
+  }));
+
+  const session = await stripeInstance.checkout.sessions.create({
+    payment_method_types: ["card", "boleto"],
+    line_items: lineItems,
+    mode: "payment",
+    success_url: "https://rralves.dev.br/boards-pagamento-sucesso/",
+    cancel_url: "https://rralves.dev.br/boards-pagamento-cancelado/",
+    locale: "pt-BR",
+    payment_method_options: {
+      card: {
+        installments: {enabled: true},
+      },
+    },
+    metadata: {
+      userId,
+      items: JSON.stringify(items),
+    },
+    expires_at: expiresAt,
+  });
+
+  console.log("createStripeSession resolved");
+  return session.url;
+}
+
+/**
+ * Inicializa a instância do Stripe usando as chaves de API apropriadas.
+ *
+ * @param {Object} request - Objeto de requisição HTTP.
+ * @return {Object} - Instância do Stripe.
+ */
+function initializeStripe(request) {
+  const stripeApiKey = (request.secret && request.secret.STRIPE_API_KEY) ||
+            process.env.STRIPE_API_KEY;
+
+  if (!stripeApiKey) {
+    const message = "Stripe API key not configured.";
+    console.error(message);
+    throw new Error(message);
+  }
+
+  return require("stripe")(stripeApiKey);
+}
+
+/**
+ * Valida o evento recebido do Stripe usando o webhook secret.
+ *
+ * @param {Object} request - Objeto de requisição HTTP.
+ * @param {Object} stripeInstance - Instância do Stripe.
+ * @return {Object} - Evento validado do Stripe.
+ */
+function validateWebhook(request, stripeInstance) {
+  const endpointSecret = (request.secret && request.secret.WEBHOOK_SEC) ||
+      process.env.WEBHOOK_SEC;
+
+  if (!endpointSecret) {
+    console.error("WEBHOOK_SEC is not defined.");
+    throw new Error("Webhook secret not configured.");
+  }
+
+  const sig = request.headers["stripe-signature"];
+
+  if (!request.rawBody || !(request.rawBody instanceof Buffer)) {
+    throw new Error("rawBody is missing or not a Buffer.");
+  }
+
+  try {
+    return stripeInstance.webhooks.constructEvent(
+        request.rawBody,
+        sig,
+        endpointSecret);
+  } catch (err) {
+    throw new Error(`Erro ao validar webhook: ${err.message}`);
+  }
+}
+
+/**
+ * Processa o evento do Stripe baseado no tipo.
+ *
+ * @param {Object} event - Evento validado do Stripe.
+ */
+async function processStripeEvent(event) {
+  switch (event.type) {
+    case "checkout.session.completed": {
+      await handlePaymentSuccess(event.data.object);
+      console.log(`Webhook evento: ${event.type}`);
+      break;
+    }
+
+    case "checkout.session.expired":
+    case "checkout.session.async_payment_failed": {
+      await handlePaymentFailure(event.data.object);
+      console.log(`Session payment event: ${event.type}`);
+      break;
+    }
+
+    default: {
+      console.log(`Evento não tratado: ${event.type}`);
+      break;
+    }
+  }
+}
+
 /**
  * Calcula o valor total em centavos baseado nos itens fornecidos.
  *
@@ -271,7 +469,6 @@ function calculateTotal(items) {
     return total + Math.round(item.unit_price * 100) * item.quantity;
   }, 0);
 }
-
 
 /**
  * Cria um PaymentIntent no Stripe.
@@ -297,11 +494,6 @@ async function createStripePaymentIntent(stripeInstance,
     },
   });
 }
-
-
-// ==============================
-// Funções auxiliares do Webhook
-// ==============================
 
 /**
  * Trata o evento de sucesso no pagamento do Stripe, removendo reservas
@@ -343,7 +535,6 @@ async function handlePaymentSuccess(session) {
   await batch.commit();
   console.log(`Payment confirmed and reservations cleared for user: ${userId}`);
 }
-
 
 /**
  * Trata eventos de falha ou expiração do checkout do Stripe, restaurando o
@@ -394,9 +585,10 @@ async function handlePaymentFailure(session) {
 }
 
 
-// ===================================
-// Funções Relacionadas a Boardgames
-// ===================================
+// ============================================================
+//             Funções de Gerência do Aplicativo
+// ============================================================
+//                  Coleção Boardgames
 
 /**
  * Notifica um usuário específico sobre uma nova mensagem adicionada a
@@ -576,9 +768,8 @@ exports.deleteBGName = onDocumentDeleted(
     });
 
 
-// =====================
-// Funções Gerais
-// =====================
+// ============================================================
+//                        Funções Gerais
 
 /**
  * Atribui a função (role) "user" a um usuário autenticado, definindo custom
@@ -696,202 +887,4 @@ exports.changeUserRole = onCall(
         throw new Error("Failed to set custom claims");
       }
     });
-
-
-// ==============================
-// Módulos auxiliares
-// ==============================
-/**
- * Verifica se o usuário está autenticado no contexto da requisição.
- *
- * @function verifyAuth
- * @param {Object} request - Objeto da requisição do Firebase Functions
- *                           (onCall).
- * @param {Object} request.auth - Contexto de autenticação do usuário.
- * @return {string} - Retorna o UID do usuário autenticado.
- * @throws {HttpsError} - Caso não haja contexto de autenticação (usuário
- *                        não logado).
- */
-function verifyAuth(request) {
-  const auth = request.auth;
-  if (!auth) {
-    console.error("User is not authenticated.");
-    throw new HttpsError(
-        "unauthenticated",
-        "User must be authenticated.",
-    );
-  }
-  console.log("User verified");
-  return auth.uid;
-}
-
-
-/**
- * Valida e retorna os itens enviados na requisição.
- *
- * @function validateItems
- * @param {Object} request - Objeto da requisição Firebase Functions (onCall).
- * @return {Array} - Lista de itens validados.
- * @throws {HttpsError} - Caso items não sejam encontrados ou não sejam um
- *                        array válido.
- */
-function validateItems(request) {
-  const items = request.data.items;
-
-  if (!items || !Array.isArray(items)) {
-    throw new HttpsError("invalid-argument", "Items must be an array.");
-  }
-
-  return items;
-}
-
-
-/**
- * Reserva os itens selecionados pelo usuário, decrementando a quantidade
- * em estoque e criando/atualizando um registro de reserva no Firestore.
- *
- * @async
- * @function reserveItems
- * @param {Array<Object>} items - Lista de itens, cada item contendo adId e
- *                                quantity.
- * @param {string} userId - UID do usuário que está fazendo a reserva.
- * @return {Promise<void>} - Completa quando a reserva estiver confirmada.
- * @throws {HttpsError} - Caso o item não exista, não haja estoque suficiente ou
- *                        o usuário não esteja autenticado.
- */
-async function reserveItems(items, userId) {
-  const batch = db.batch();
-  const now = Date.now();
-  const reservedUntil = now + 30 * 60 * 1000;
-
-  for (const item of items) {
-    const adRef = db.collection("ads").doc(item.adId);
-    const reserveRef = adRef.collection("reserve").doc(userId);
-    console.log(`userId: ${userId} -> adId: ${item.adId}`);
-
-    const adDoc = await adRef.get();
-
-    if (!adDoc.exists) {
-      throw new HttpsError("not-found", `Item not found: ${item.adId}`);
-    }
-
-    const adData = adDoc.data();
-
-    if (adData.quantity < item.quantity) {
-      throw new HttpsError(
-          "failed-precondition",
-          `Not enough stock for item ${adData.title}.
-           Available: ${adData.quantity}, Requested: ${item.quantity}`,
-      );
-    }
-
-    // Verifica se existe uma reserva para este item neste userId
-    const reservedItem = await reserveRef.get();
-    if (reservedItem.exists) {
-      // Verifica de a quantidade reservada corresponde a esta compra
-      const reservedData = reservedItem.data();
-
-      if (reservedData.quantity === item.quantity) {
-        // Apenas altera o tempo de espiração da reserva
-        console.log("Updating reservedUntil for existing reservation");
-        batch.update(reserveRef, {reservedUntil: reservedUntil});
-        continue;
-      }
-
-      // Corrige a quantidade da reserva e no estoque
-      const quantityDiff = reservedData.quantity - item.quantity;
-
-      console.log(
-          `Adjusting reservation: ReservedQt=${reservedData.quantity},
-          NewQt=${item.quantity}, Diff=${quantityDiff}`);
-
-      // Corrige estoque do produto.
-      const newQuantity = adData.quantity + quantityDiff;
-      batch.update(adRef, {
-        quantity: newQuantity,
-        status: newQuantity === 0 ? "sold" : adData.status,
-      });
-
-      batch.set(reserveRef, {
-        quantity: item.quantity,
-        reservedUntil: reservedUntil,
-      });
-    } else {
-      // Atualizar os campos: decrementar quantity e incrementar
-      // reservedData.quantity
-      console.log("Creating new reservation.");
-      batch.update(adRef, {
-        quantity: FieldValue.increment(-item.quantity),
-        status: adData.quantity - item.quantity === 0 ? "sold" : adData.status,
-      });
-
-      // Criar sub-coleção de reserva de jogo
-      batch.set(reserveRef, {
-        quantity: item.quantity,
-        reservedUntil: reservedUntil, // Expidação da reserva
-      });
-    }
-  }
-
-  // Commit do batch
-  await batch.commit();
-  console.log("Items reserved successfully.");
-}
-
-
-/**
- * Cria uma sessão de checkout no Stripe com base nos itens reservados.
- *
- * @async
- * @function createStripeSession
- * @param {Array} items - Lista de itens reservados para checkout, contendo
- *                        title e unit_price.
- * @param {string} userId - UID do usuário autenticado.
- * @return {Promise<string>} - Retorna a URL da sessão de checkout do Stripe.
- * @throws {HttpsError} - Caso a chave da API do Stripe não esteja configurada
- *                        ou haja falha na criação da sessão.
- */
-async function createStripeSession(items, userId) {
-  const now = Math.floor(Date.now() / 1000); // Tempo atual em segundos
-  const expiresAt = now + 30 * 60; // 5 minutos em segundos
-  const stripeApiKey = STRIPE_API_KEY.value();
-
-  if (!stripeApiKey) {
-    console.error("STRIPE_API_KEY is not defined.");
-    throw new HttpsError("internal", "Stripe API key not configured.");
-  }
-
-  const stripeInstance = stripe(stripeApiKey);
-
-  const lineItems = items.map((item) => ({
-    price_data: {
-      currency: "brl",
-      product_data: {name: item.title},
-      unit_amount: Math.round(item.unit_price * 100),
-    },
-    quantity: item.quantity,
-  }));
-
-  const session = await stripeInstance.checkout.sessions.create({
-    payment_method_types: ["card", "boleto"],
-    line_items: lineItems,
-    mode: "payment",
-    success_url: "https://rralves.dev.br/boards-pagamento-sucesso/",
-    cancel_url: "https://rralves.dev.br/boards-pagamento-cancelado/",
-    locale: "pt-BR",
-    payment_method_options: {
-      card: {
-        installments: {enabled: true},
-      },
-    },
-    metadata: {
-      userId,
-      items: JSON.stringify(items),
-    },
-    expires_at: expiresAt,
-  });
-
-  console.log("createStripeSession resolved");
-  return session.url;
-}
 

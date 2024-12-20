@@ -78,6 +78,34 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/20 - version: 0.5.03+36
+
+This commit reorganizes and structures the `index.js` file for better readability and maintainability. The changes focus on logically grouping related functions and updating their headers and descriptions for clarity.
+
+### Changes made
+
+1. **Improved Section Headers**
+   - Updated section titles to clearly indicate their purpose and scope, such as:
+     - **Funções do Stripe**: Main payment functions.
+     - **Funções auxiliares do Stripe**: Supporting functions for Stripe operations.
+     - **Funções Gerais**: General application utilities.
+
+2. **Reorganized Functions**
+   - Moved helper functions (`initializeStripe`, `validateWebhook`, etc.) to a dedicated section under **Funções auxiliares do Stripe**.
+   - Kept the main entry points (`stripeWebhook`, `createPaymentIntent`) under the primary **Funções do Stripe** section.
+   - Ensured all functions follow a consistent order: entry points -> helpers.
+
+3. **Refactored JSDoc Comments**
+   - Enhanced existing comments to align with the reorganized sections, ensuring function descriptions match their new positions.
+
+4. **Simplified Imports and Logging**
+   - Cleaned up unnecessary imports and ensured logging statements are concise and meaningful.
+
+### Conclusion
+
+This reorganization lays the groundwork for improved collaboration and easier debugging in future developments. The logical structure ensures developers can quickly locate and understand different components of the Stripe integration.
+
+
 ## 2024/12/20 - version: 0.5.03+35
 
 Improved Stripe integration and developer tools configurations while refactoring code for better readability and maintainability.
