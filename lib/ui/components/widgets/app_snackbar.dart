@@ -15,6 +15,7 @@ class AppSnackbar {
   static void show(
     BuildContext context, {
     String? title,
+    IconData? iconTitle,
     required String message,
     Duration duration = const Duration(seconds: 3),
     String? actionLabel,
@@ -32,9 +33,22 @@ class AppSnackbar {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (title != null)
-            Text(
-              title,
-              style: AppTextStyle.font18SemiBold,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (iconTitle != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Icon(
+                      iconTitle,
+                      color: colorScheme.onPrimary,
+                    ),
+                  ),
+                Text(
+                  title,
+                  style: AppTextStyle.font18SemiBold,
+                ),
+              ],
             ),
           Text(
             message,

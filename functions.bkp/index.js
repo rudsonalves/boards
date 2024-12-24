@@ -13,7 +13,6 @@ const {getFirestore} = require("firebase-admin/firestore");
 const {getMessaging} = require("firebase-admin/messaging");
 const {FieldValue} = require("firebase-admin/firestore");
 const {defineSecret} = require("firebase-functions/params");
-const stripe = require("stripe");
 
 require("dotenv").config();
 
@@ -26,6 +25,7 @@ const db = admin.firestore();
 // Defina os segredos utilizando o Firebase Secret Manager
 const STRIPE_API_KEY = defineSecret("STRIPE_API_KEY");
 const WEBHOOK_SEC = defineSecret("WEBHOOK_SEC");
+
 
 // ============================================================
 //                     Funções do Stripe
@@ -63,7 +63,7 @@ exports.stripeWebhook = onRequest(
         console.log("Starting webhook.");
 
         // Inicializa a instância do Stripe
-        const stripeInstance = initializeStripe(request);
+        const stripeInstance = initializeStripe();
 
         // Valida o evento recebido do Stripe
         const event = validateWebhook(request, stripeInstance);
@@ -83,35 +83,35 @@ exports.stripeWebhook = onRequest(
 
 
 /**
- * Função que lida com o recebimento de webhooks do Stripe, validando a
- * assinatura e processando eventos como conclusão ou falha de checkout.
+ * Função para criar uma sessão de checkout no Stripe.
  *
- * @function stripeWebhook
- * @param {Object} req - Objeto de requisição HTTP do Firebase Functions.
- * @param {Object} res - Objeto de resposta HTTP do Firebase Functions.
- * @description
+ * Esta função realiza o processo de checkout, executando os seguintes passos:
+ * 1. Verifica a autenticação do usuário.
+ * 2. Valida os itens solicitados para a compra.
+ * 3. Reserva temporariamente os itens no banco de dados.
+ * 4. Cria uma sessão de checkout no Stripe e retorna a URL da sessão.
  *
- * Esta função é acionada quando o Stripe envia um evento (webhook) para o
- * endpoint.
- * Ela valida a origem e a integridade do evento, processa-o de acordo com
- * seu tipo, e envia uma resposta apropriada (200 para sucesso, 400 ou 500
- * para erros).
- *
- * @throws {Error} - Lança erro caso não seja possível validar o webhook,
- *                   processar o evento ou acessar as chaves de ambiente.
+ * @async
+ * @function createCheckoutSession
+ * @param {object} request - Objeto de requisição contendo os dados do
+ *                           usuário e itens da compra.
+ * @throws {HttpsError} - Lança um erro "internal" caso qualquer etapa do
+ *                        processo falhe.
+ * @returns {Promise<object>} - Retorna um objeto contendo a URL da sessão de
+ *                              checkout do Stripe.
  */
 exports.createCheckoutSession = onCall(
     {
       region: "southamerica-east1",
       secrets: [STRIPE_API_KEY],
     },
-    async (request) => {
+    async (data, context) => {
       try {
         // 1. Verificar autenticação do usuário
-        const userId = verifyAuth(request);
+        const userId = verifyAuth(context);
 
         // 2. Validar os itens
-        const items = validateItems(items);
+        const items = fetchAndValidateItems(data);
 
         // 3. Reservar os itens
         await reserveItems(items, userId);
@@ -134,10 +134,6 @@ exports.createCheckoutSession = onCall(
  *
  * @function createPaymentIntent
  * @param {Object} request - Objeto da requisição onCall do Firebase Functions.
- * @param {Object} request.data - Dados enviados na requisição, incluindo:
- * @param {Array} request.data.items - Lista de itens (com unit_price e
- *                                     quantity).
- * @param {Object} request.auth - Contexto de autenticação do usuário.
  * @return {Promise<Object>} - Retorna um objeto contendo o clientSecret do
  *                             PaymentIntent.
  * @description
@@ -154,16 +150,18 @@ exports.createPaymentIntent = onCall(
       region: "southamerica-east1",
       secrets: ["STRIPE_API_KEY"],
     },
-    async (request) => {
+    async (data, context) => {
+      console.log("Data:", data);
+      console.log("Context:", context);
       try {
         // Inicie o Stripe usando a secret do ambiente
-        const stripeInstance = initializeStripe(request);
+        const stripeInstance = initializeStripe();
 
         // Verificar autenticação do usuário
-        const userId = verifyAuth(request);
+        const userId = verifyAuth(context);
 
         // Verificar se os itens foram enviados
-        const items = validateItems(items);
+        const items = fetchAndValidateItems(data);
 
         // Calcula o valor total em centavos
         const totalAmount = calculateTotal(items);
@@ -191,17 +189,17 @@ exports.createPaymentIntent = onCall(
  * Verifica se o usuário está autenticado no contexto da requisição.
  *
  * @function verifyAuth
- * @param {Object} request - Objeto da requisição do Firebase Functions
+ * @param {Object} context - Objeto da requisição do Firebase Functions
  *                           (onCall).
- * @param {Object} request.auth - Contexto de autenticação do usuário.
+ * @param {Object} context.auth - Contexto de autenticação do usuário.
  * @return {string} - Retorna o UID do usuário autenticado.
  * @throws {HttpsError} - Caso não haja contexto de autenticação (usuário
  *                        não logado).
  */
-function verifyAuth(request) {
-  const auth = request.auth;
+function verifyAuth(context) {
+  const auth = context.auth;
   if (!auth) {
-    console.error("User is not authenticated.");
+    console.error("User is not authenticated!!!!!");
     throw new HttpsError(
         "unauthenticated",
         "User must be authenticated.",
@@ -215,13 +213,13 @@ function verifyAuth(request) {
  * Valida e retorna os itens enviados na requisição.
  *
  * @function validateItems
- * @param {Object} request - Objeto da requisição Firebase Functions (onCall).
+ * @param {Object} data - Objeto da requisição Firebase Functions (onCall).
  * @return {Array} - Lista de itens validados.
  * @throws {HttpsError} - Caso items não sejam encontrados ou não sejam um
  *                        array válido.
  */
-function validateItems(request) {
-  const items = request.data.items;
+function fetchAndValidateItems(data) {
+  const items = data.items;
 
   if (!items || !Array.isArray(items)) {
     throw new HttpsError("invalid-argument", "Items must be an array.");
@@ -336,15 +334,8 @@ async function reserveItems(items, userId) {
  */
 async function createStripeSession(items, userId) {
   const now = Math.floor(Date.now() / 1000); // Tempo atual em segundos
-  const expiresAt = now + 30 * 60; // 5 minutos em segundos
-  const stripeApiKey = STRIPE_API_KEY.value();
-
-  if (!stripeApiKey) {
-    console.error("STRIPE_API_KEY is not defined.");
-    throw new HttpsError("internal", "Stripe API key not configured.");
-  }
-
-  const stripeInstance = stripe(stripeApiKey);
+  const expiresAt = now + 30 * 60; // 30 minutos em segundos
+  const stripeInstance = initializeStripe();
 
   const lineItems = items.map((item) => ({
     price_data: {
@@ -384,9 +375,8 @@ async function createStripeSession(items, userId) {
  * @param {Object} request - Objeto de requisição HTTP.
  * @return {Object} - Instância do Stripe.
  */
-function initializeStripe(request) {
-  const stripeApiKey = (request.secret && request.secret.STRIPE_API_KEY) ||
-            process.env.STRIPE_API_KEY;
+function initializeStripe() {
+  const stripeApiKey = process.env.STRIPE_API_KEY;
 
   if (!stripeApiKey) {
     const message = "Stripe API key not configured.";
@@ -790,14 +780,14 @@ exports.assignDefaultUserRole = onCall(
     {
       region: "southamerica-east1",
     },
-    async (request) => {
+    async (request, response) => {
       try {
         console.log("Function assignDefaultUserRole called.");
 
         const context = request.auth;
         // Verificar se o usuário está autenticado
         if (!context) {
-          console.error("User is not authenticated.");
+          console.error("User is not authenticated!");
           throw new Error("User must be authenticated to call this function.");
         }
 
@@ -888,3 +878,9 @@ exports.changeUserRole = onCall(
       }
     });
 
+// Exportando as funções auxiliares
+exports.verifyAuth = verifyAuth;
+exports.fetchAndValidateItems = fetchAndValidateItems;
+exports.initializeStripe = initializeStripe;
+exports.calculateTotal = calculateTotal;
+exports.createStripePaymentIntent = createStripePaymentIntent;

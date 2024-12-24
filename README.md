@@ -78,6 +78,119 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/24 - version: 0.5.04+37
+
+Refactor backend functions by migrating from Go to TypeScript and enhance UI components for improved user experience.
+
+### Changes made:
+
+1. **functions_go_tests/functions/function.go**:
+   - Deleted the `function.go` file as part of the migration to TypeScript.
+
+2. **functions_go_tests/go.mod**:
+   - Removed the `go.mod` file associated with the Go functions.
+
+3. **functions_go_tests/go.sum**:
+   - Deleted the `go.sum` file to eliminate Go dependencies.
+
+4. **functions_go_tests/main.go**:
+   - Removed the `main.go` file which was used to run Go functions locally.
+
+5. **functions_go_tests/start-go-functions.sh**:
+   - Deleted the `start-go-functions.sh` script responsible for starting the Go functions emulator.
+
+6. **functions_go_tests/stop-go-functions.sh**:
+   - Removed the `stop-go-functions.sh` script used to stop the Go functions emulator.
+
+7. **functions_ts/.eslintrc.js**:
+   - Added ESLint configuration to enforce code quality and consistency in TypeScript.
+
+8. **functions_ts/.gitignore**:
+   - Introduced a `.gitignore` file to exclude build artifacts and dependencies from version control.
+
+9. **functions_ts/package-lock.json**:
+   - Renamed from `functions/package-lock.json` to `functions_ts/package-lock.json`.
+   - Updated dependency versions to align with TypeScript setup.
+
+10. **functions_ts/package.json**:
+    - Added `package.json` with necessary scripts and dependencies for TypeScript functions.
+
+11. **functions_ts/src/firebase.ts**:
+    - Added Firebase initialization module to set up Firestore.
+
+12. **functions_ts/src/functions/assignDefaultUserRole.ts**:
+    - Implemented a Cloud Function to assign the default user role.
+
+13. **functions_ts/src/functions/createPaymentIntent.ts**:
+    - Added a Cloud Function to create a Stripe PaymentIntent for handling payments.
+
+14. **functions_ts/src/functions/utils/calculateTotal.ts**:
+    - Introduced a utility function to calculate the total amount for payment.
+
+15. **functions_ts/src/functions/utils/createStripePaymentIntent.ts**:
+    - Added a utility function to interact with Stripe's PaymentIntent API.
+
+16. **functions_ts/src/functions/utils/createStripeSession.ts**:
+    - Implemented a utility to create Stripe checkout sessions.
+
+17. **functions_ts/src/functions/utils/fetchAndValidateItems.ts**:
+    - Added a utility function to fetch and validate items from requests.
+
+18. **functions_ts/src/functions/utils/initializeStripe.ts**:
+    - Created a utility to initialize the Stripe client with API keys.
+
+19. **functions_ts/src/functions/utils/reserveItems.ts**:
+    - Developed a utility to reserve items in Firestore, updating stock accordingly.
+
+20. **functions_ts/src/functions/utils/verifyAuth.ts**:
+    - Added a utility to verify user authentication in function requests.
+
+21. **functions_ts/src/index.ts**:
+    - Set up the entry point for TypeScript Cloud Functions, initializing Firebase Admin SDK.
+
+22. **functions_ts/src/interfaces/IBoardgame.ts**:
+    - Defined the `IBoardgame` interface for boardgame data models.
+
+23. **functions_ts/src/interfaces/IItem.ts**:
+    - Created the `IItem` interface to represent item data structures.
+
+24. **functions_ts/src/interfaces/IPaymentParams.ts**:
+    - Added the `IPaymentParams` interface for payment parameters.
+
+25. **functions_ts/src/interfaces/MessageData.ts**:
+    - Defined the `IMessageData` interface for message-related data.
+
+26. **functions_ts/src/interfaces/UserData.ts**:
+    - Introduced the `IUserData` interface for user data models.
+
+27. **functions_ts/tsconfig.dev.json**:
+    - Added TypeScript development configuration for enhanced tooling support.
+
+28. **functions_ts/tsconfig.json**:
+    - Configured TypeScript compiler options for the project.
+
+29. **lib/data/repository/firebase/common/fb_functions.dart**:
+    - Modified `assignDefaultUserRole` method by removing the unused `uid` parameter.
+
+30. **lib/data/repository/firebase/fb_user_repository.dart**:
+    - Updated the call to `FbFunctions.assignDefaultUserRole` by removing the `uid` parameter.
+
+31. **lib/ui/components/widgets/app_snackbar.dart**:
+    - Enhanced `AppSnackbar.show` method to include an optional icon for better user feedback.
+
+32. **lib/ui/features/bag/bag_screen.dart**:
+    - Changed the screen title from 'Carrinho' to 'Minha Sacola' for better localization.
+
+33. **lib/ui/features/shop/product/product_screen.dart**:
+    - Added snackbar notifications when items are added to the bag.
+    - Updated availability text to display the correct unit quantity.
+    - Removed unnecessary subtitle section to streamline the UI.
+
+### Conclusion:
+
+Successfully migrated backend functions from Go to TypeScript, improved code maintainability, and enhanced UI components for better user experience.
+
+
 ## 2024/12/20 - version: 0.5.03+36
 
 This commit reorganizes and structures the `index.js` file for better readability and maintainability. The changes focus on logically grouping related functions and updating their headers and descriptions for clarity.
