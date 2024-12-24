@@ -1,13 +1,15 @@
-// src/functions/createPaymentIntent.ts
+// src/functions/stripe/createPaymentIntent.ts
 
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 
-import { initializeStripe } from "./utils/initializeStripe";
-import { verifyAuth } from "./utils/verifyAuth";
-import { fetchAndValidateItems } from "./utils/fetchAndValidateItems";
-import { calculateTotal } from "./utils/calculateTotal";
-import { createStripePaymentIntent } from "./utils/createStripePaymentIntent";
+import { initializeStripe } from "../utils/initializeStripe";
+import { fetchAndValidateItems } from "../utils/fetchAndValidateItems";
+import { calculateTotal } from "../utils/calculateTotal";
+import { createStripePaymentIntent }
+  from "../utils/createStripePaymentIntent";
+import { verifyAuth } from "../../auth/utils/verifyAuth";
+
 
 /**
  * Cria um PaymentIntent no Stripe, retornando um client_secret para realizar

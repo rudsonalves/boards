@@ -1,4 +1,4 @@
-// src/interfaces/IItem.ts
+// src/stripe/interfaces/IItem.ts
 
 export interface IItem {
   adId: string; // ID do anúncio (ad) que o usuário quer reservar.

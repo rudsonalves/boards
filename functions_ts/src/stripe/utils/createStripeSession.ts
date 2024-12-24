@@ -1,8 +1,8 @@
-// src/functions/utils/createStripeSession.ts
+// src/stripe/utils/createStripeSession.ts
 
 import { HttpsError } from "firebase-functions/v2/https";
 import { initializeStripe } from "./initializeStripe";
-import { IItem } from "../../interfaces/IItem";
+import { IItem } from "../interfaces/IItem";
 import { logger } from "firebase-functions/v2";
 
 /**

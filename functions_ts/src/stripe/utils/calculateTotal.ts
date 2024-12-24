@@ -1,6 +1,6 @@
-// src/functions/utils/createStripeSession.ts
+// src/stripe/utils/calculateTotal.ts
 
-import { IItem } from "../../interfaces/IItem";
+import { IItem } from "../interfaces/IItem";
 
 /**
  * Calcula o valor total em centavos dos itens.
