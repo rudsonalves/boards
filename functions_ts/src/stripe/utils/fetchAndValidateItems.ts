@@ -1,12 +1,12 @@
-// src/functions/utils/validateItems.ts
+// src/stripe/utils/fetchAndValidateItems.ts
 
 import { HttpsError } from "firebase-functions/v2/https";
-import { IItem } from "../../interfaces/IItem";
+import { IItem } from "../interfaces/IItem";
 
 /**
  * Valida e retorna os itens enviados na requisição.
  *
- * @function validateItems
+ * @function fetchAndValidateItems
  * @param {Object} data - Objeto da requisição Firebase Functions (onCall).
  * @return {Array} - Lista de itens validados.
  * @throws {HttpsError} - Caso items não sejam encontrados ou não sejam um

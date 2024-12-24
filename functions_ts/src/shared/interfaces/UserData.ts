@@ -1,4 +1,4 @@
-// src/interfaces/UserData.ts
+// src/shared/interfaces/UserData.ts
 
 export interface IUserData {
   fcmToken?: string;

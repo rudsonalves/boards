@@ -9,7 +9,28 @@
     "outDir": "lib",
     "sourceMap": true,
     "strict": true,
-    "target": "es2017"
+    "target": "es2017",
+    // "baseUrl": "./src",
+    // "paths": {
+    //   "@auth/*": [
+    //     "auth/*"
+    //   ],
+    //   "@stripe/*": [
+    //     "stripe/*"
+    //   ],
+    //   "@shared/*": [
+    //     "shared/*"
+    //   ],
+    //   "@message/*": [
+    //     "message/*"
+    //   ],
+    //   "@bgnames/*": [
+    //     "bgnames/*"
+    //   ],
+    //   "@interfaces/*": [
+    //     "interfaces/*"
+    //   ]
+    // }
   },
   "compileOnSave": true,
   "include": [

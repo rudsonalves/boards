@@ -1,7 +1,7 @@
-// src/functions/utils/createStripeSession.ts
+// src/stripe/utils/createStripePaymentIntent.ts
 
 import Stripe from "stripe";
-import { IItem } from "../../interfaces/IItem";
+import { IItem } from "../interfaces/IItem";
 
 /**
  * Cria um PaymentIntent no Stripe.

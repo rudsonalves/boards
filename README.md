@@ -78,6 +78,94 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/24 - version: 0.5.04+38
+
+Refactor backend functions structure by organizing into specific modules (auth, stripe, bgnames) and update project configurations for enhanced maintainability and functionality.
+
+### Changes made:
+
+1. **.vscode/launch.json**:
+   - Renamed the default configuration to "Flutter: Default Configuration".
+   - Added a new configuration "Flutter: Launch with no Impeller" to disable Impeller rendering.
+   - Updated profile and release mode configurations for better clarity and consistency.
+
+2. **functions_ts/package.json**:
+   - Ensured proper formatting by adding a newline at the end of the file.
+
+3. **functions_ts/src/functions/assignDefaultUserRole.ts → functions_ts/src/auth/functions/assignDefaultUserRole.ts**:
+   - Renamed the `assignDefaultUserRole.ts` file to reside under the `auth/functions` directory.
+   - Updated import paths to reflect the new directory structure.
+
+4. **functions_ts/src/auth/functions/changeUserRole.ts**:
+   - Added a new Cloud Function `changeUserRole` to allow admins to change user roles.
+   - Implemented authentication and authorization checks to ensure only admins can perform role changes.
+   - Included comprehensive error handling and logging for better traceability.
+
+5. **functions_ts/src/functions/utils/verifyAuth.ts → functions_ts/src/auth/utils/verifyAuth.ts**:
+   - Moved the `verifyAuth.ts` utility to the `auth/utils` directory.
+   - Updated import paths accordingly.
+
+6. **functions_ts/src/bgnames/functions/deleteBGName.ts**:
+   - Added a new Cloud Function `deleteBGName` to handle deletion of boardgame names from the `bgnames` collection upon boardgame deletion.
+   - Implemented Firestore triggers and comprehensive logging for successful and failed operations.
+
+7. **functions_ts/src/bgnames/functions/syncCreateBGNames.ts**:
+   - Introduced `syncCreateBGNames.ts` to synchronize newly created boardgames with the `bgnames` collection.
+   - Ensured validation of necessary fields before syncing and included error handling.
+
+8. **functions_ts/src/index.ts**:
+   - Updated imports to reflect the new locations of `assignDefaultUserRole`, `changeUserRole`, `notifySpecificUser`, `syncCreateBGNames`, and `deleteBGName`.
+   - Exported the newly added functions to make them accessible.
+
+9. **functions_ts/src/interfaces/IBoardgame.ts → functions_ts/src/shared/interfaces/IBoardgame.ts**:
+   - Moved the `IBoardgame` interface to the `shared/interfaces` directory for better reusability across modules.
+
+10. **functions_ts/src/interfaces/MessageData.ts → functions_ts/src/shared/interfaces/MessageData.ts**:
+    - Relocated the `IMessageData` interface to the `shared/interfaces` directory to maintain consistency.
+
+11. **functions_ts/src/interfaces/UserData.ts → functions_ts/src/shared/interfaces/UserData.ts**:
+    - Transferred the `IUserData` interface to the `shared/interfaces` directory for centralized access.
+
+12. **functions_ts/src/functions/createPaymentIntent.ts → functions_ts/src/stripe/functions/createPaymentIntent.ts**:
+    - Renamed and moved `createPaymentIntent.ts` to the `stripe/functions` directory.
+    - Updated import paths to align with the new directory structure.
+
+13. **functions_ts/src/interfaces/IItem.ts → functions_ts/src/stripe/interfaces/IItem.ts**:
+    - Moved the `IItem` interface to the `stripe/interfaces` directory to associate it with Stripe-related functionalities.
+
+14. **functions_ts/src/functions/utils/calculateTotal.ts → functions_ts/src/stripe/utils/calculateTotal.ts**:
+    - Renamed and relocated `calculateTotal.ts` to the `stripe/utils` directory.
+    - Adjusted import paths and updated comments to reflect the new location.
+
+15. **functions_ts/src/functions/utils/createStripePaymentIntent.ts → functions_ts/src/stripe/utils/createStripePaymentIntent.ts**:
+    - Moved `createStripePaymentIntent.ts` to the `stripe/utils` directory.
+    - Updated import paths to match the new file location.
+
+16. **functions_ts/src/functions/utils/createStripeSession.ts → functions_ts/src/stripe/utils/createStripeSession.ts**:
+    - Renamed and transferred `createStripeSession.ts` to the `stripe/utils` directory.
+    - Modified import paths accordingly.
+
+17. **functions_ts/src/functions/utils/fetchAndValidateItems.ts → functions_ts/src/stripe/utils/fetchAndValidateItems.ts**:
+    - Relocated `fetchAndValidateItems.ts` to the `stripe/utils` directory.
+    - Updated import paths and revised comments for clarity.
+
+18. **functions_ts/src/functions/utils/initializeStripe.ts → functions_ts/src/stripe/utils/initializeStripe.ts**:
+    - Moved `initializeStripe.ts` to the `stripe/utils` directory.
+    - Adjusted import statements to align with the new structure.
+
+19. **functions_ts/src/functions/utils/reserveItems.ts → functions_ts/src/stripe/utils/reserveItems.ts**:
+    - Transferred `reserveItems.ts` to the `stripe/utils` directory.
+    - Updated import paths and comments to reflect the relocation.
+
+20. **functions_ts/tsconfig.json**:
+    - Updated the `target` configuration with proper formatting.
+    - Added commented-out `baseUrl` and `paths` for potential future module aliasing.
+
+### Conclusion:
+
+Successfully reorganized backend functions into dedicated modules (auth, stripe, bgnames), enhanced code maintainability, and updated project configurations to support the new structure. These changes facilitate better scalability and clearer separation of concerns within the codebase.
+
+
 ## 2024/12/24 - version: 0.5.04+37
 
 Refactor backend functions by migrating from Go to TypeScript and enhance UI components for improved user experience.

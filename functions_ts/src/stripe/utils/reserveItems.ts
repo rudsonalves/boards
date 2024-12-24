@@ -1,10 +1,10 @@
-// src/functions/utils/reserveItems.ts
+// src/stripe/utils/reserveItems.ts
 
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { HttpsError } from "firebase-functions/v2/https";
-
-import { IItem } from "../../interfaces/IItem";
 import { logger } from "firebase-functions/v2";
+
+import { IItem } from "../interfaces/IItem";
 
 /**
  * Reserva os itens selecionados pelo usuário, decrementando a quantidade

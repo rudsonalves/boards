@@ -1,4 +1,4 @@
-// src/functions/assignDefaultUserRole.ts
+// src/auth/functions/assignDefaultUserRole.ts
 
 import {
   onCall,
@@ -6,7 +6,8 @@ import {
 } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import { getAuth } from "firebase-admin/auth";
-import { verifyAuth } from "./utils/verifyAuth";
+import { verifyAuth } from "../utils/verifyAuth";
+
 
 /**
  * Função para atribuir o papel padrão "user" a um usuário autenticado.

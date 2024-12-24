@@ -1,4 +1,4 @@
-// src/functions/utils/initializeStripe.ts
+// src/stripe/utils/initializeStripe.ts
 
 import Stripe from "stripe";
 
