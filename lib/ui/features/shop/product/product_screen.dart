@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../../components/widgets/app_snackbar.dart';
 import '../../bag/bag_screen.dart';
 import '../../../../logic/managers/bag_manager.dart';
 import '../../../../data/models/ad.dart';
@@ -58,6 +59,13 @@ class _ProductScreenState extends State<ProductScreen> {
 
   Future<void> _addBag() async {
     await ctrl.addBag();
+    if (!mounted) return;
+    AppSnackbar.show(
+      context,
+      title: 'Minha Sacola',
+      iconTitle: Symbols.shopping_bag,
+      message: '"${ad.title}" foi adicionado a sua sacola',
+    );
   }
 
   void _toBagPage() {
@@ -119,6 +127,8 @@ class _ProductScreenState extends State<ProductScreen> {
                     ],
                   ),
                   TitleProduct(title: ad.title),
+                  Text('Disponível: ${ad.quantity} '
+                      'unidade${ad.quantity > 1 ? 's' : ''}'),
                   const Divider(indent: indent, endIndent: indent),
                   DescriptionProduct(description: ad.description),
                   if (ad.boardgameId != null)
@@ -127,7 +137,6 @@ class _ProductScreenState extends State<ProductScreen> {
                       indent: indent,
                     ),
                   const Divider(indent: indent, endIndent: indent),
-                  // const SubTitleProduct(subtile: 'Anunciante'),
                   UserCard(
                     name: ad.ownerName!,
                     createAt: ad.ownerCreateAt!,

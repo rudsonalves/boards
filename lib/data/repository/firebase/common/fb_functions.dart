@@ -46,11 +46,8 @@ class FbFunctions {
   ///
   /// Returns:
   /// - A [DataResult<void>] indicating success or failure.
-  static Future<DataResult<void>> assignDefaultUserRole(String uid) async {
+  static Future<DataResult<void>> assignDefaultUserRole() async {
     try {
-      if (uid.isEmpty) {
-        throw Exception('User ID cannot be empty.');
-      }
       // Get authenticated user
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {

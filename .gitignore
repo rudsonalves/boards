@@ -50,4 +50,6 @@ app.*.map.json
 /node_modules/
 
 # Ignorar node_modules dentro da pasta functions
-/functions/node_modules/
+/functions_ts/node_modules/
+# /functions_ts/tests/serviceAccountKey.json
+/functions_ts/lib/

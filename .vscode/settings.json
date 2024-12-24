@@ -1,14 +1,22 @@
 {
   "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode", // ou outra extensão para JS
-    "editor.formatOnSave": true
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.rulers": [
+      80
+    ]
   },
   "[java]": {
     "editor.defaultFormatter": "redhat.java",
     "editor.formatOnSave": true
   },
+  "[typescript]": {
+    "editor.rulers": [
+      80
+    ]
+  },
   "eslint.enable": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   }
 }

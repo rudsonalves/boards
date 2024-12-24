@@ -157,7 +157,7 @@ class FbUserRepository implements IUserRepository {
       await newUser.sendEmailVerification();
 
       // Call to add the custom claim via Cloud Function
-      final result = await FbFunctions.assignDefaultUserRole(newUser.uid);
+      final result = await FbFunctions.assignDefaultUserRole();
       if (result.isFailure) {
         await signOut();
         _handleError(

@@ -65,7 +65,7 @@ class _BagScreenState extends State<BagScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Carrinho'),
+        title: Text('Minha Sacola'),
         centerTitle: true,
         // elevation: 5,
       ),
