@@ -24,14 +24,27 @@ export async function createStripePaymentIntent(
   userId: string,
   items: IItem[],
 ): Promise<Stripe.Response<Stripe.PaymentIntent>> {
-  return stripeInstance.paymentIntents.create({
-    amount: totalAmount,
-    payment_method_types: ["card", "boleto"],
-    description: "Compra de produtos",
-    currency: "brl",
-    metadata: {
-      userId,
-      items: JSON.stringify(items),
-    },
-  });
+  if (totalAmount <= 0) {
+    throw new Error("Total amount must be greater than zero.");
+  }
+
+  if (!userId) {
+    throw new Error("User ID is required.");
+  }
+
+  try {
+    return stripeInstance.paymentIntents.create({
+      amount: totalAmount,
+      payment_method_types: ["card", "boleto"],
+      description: "Compra de produtos",
+      currency: "brl",
+      metadata: {
+        userId,
+        items: JSON.stringify(items),
+      },
+    });
+  } catch (error) {
+    console.error("Error creating PaymentIntent:", error);
+    throw new Error("Failed to create PaymentIntent.");
+  }
 }

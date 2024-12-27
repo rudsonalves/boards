@@ -1,4 +1,4 @@
-// src/functions/stripe/createPaymentIntent.ts
+// src/functions/payment/createPaymentIntent.ts
 
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
@@ -31,7 +31,12 @@ export const createPaymentIntent = onCall(
   ): Promise<{ clientSecret: string }> => {
     try {
       // Inicializa o Stripe usando a secret do ambiente
-      const stripeInstance = initializeStripe();
+      const stripeApiKey = request.env.STRIPE_API_KEY;
+      if (!stripeApiKey) {
+        throw new HttpsError(
+          "internal", "Stripe API Key is missing from secret.");
+      }
+      const stripeInstance = initializeStripe(stripeApiKey);
 
       // Verifica a autenticação do usuário
       const userId = verifyAuth(request);

@@ -1,9 +1,9 @@
 // src/stripe/utils/createStripeSession.ts
 
 import { HttpsError } from "firebase-functions/v2/https";
-import { initializeStripe } from "./initializeStripe";
 import { IItem } from "../interfaces/IItem";
 import { logger } from "firebase-functions/v2";
+import Stripe from "stripe";
 
 /**
  * Cria uma sessão de checkout no Stripe com base nos itens reservados.
@@ -13,6 +13,7 @@ import { logger } from "firebase-functions/v2";
  * @param {IItem[]} items - Lista de itens reservados para checkout, contendo
  *                          title, unit_price e quantity.
  * @param {string} userId - UID do usuário autenticado.
+ * @param {Stripe} stripeInstance - Instância do Stripe.
  * @return {Promise<string>} - Retorna a URL da sessão de checkout do Stripe.
  * @throws {HttpsError} - Caso a chave da API do Stripe não esteja configurada
  *                        ou haja falha na criação da sessão.
@@ -20,10 +21,10 @@ import { logger } from "firebase-functions/v2";
 export async function createStripeSession(
   items: IItem[],
   userId: string,
+  stripeInstance: Stripe,
 ): Promise<string | null> {
   const now = Math.floor(Date.now() / 1000); // Tempo atual em segundos
   const expiresAt = now + 30 * 60; // 30 minutos em segundos
-  const stripeInstance = initializeStripe();
 
   // Validação simples
   if (items.length === 0) {
