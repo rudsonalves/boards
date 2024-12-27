@@ -25,7 +25,10 @@
       "port": 9099
     },
     "functions": {
-      "port": 5001
+      "port": 5001,
+      "enable": true,
+      "inspectFunctions": true,
+      "ignoreUnknownEvents": true
     },
     "firestore": {
       "port": 8080
@@ -52,6 +55,9 @@
     {
       "source": "functions_ts",
       "codebase": "functions_ts",
+      "healthChecks": {
+        "initialDelaySeconds": 120
+      },
       "ignore": [
         "node_modules",
         ".git",

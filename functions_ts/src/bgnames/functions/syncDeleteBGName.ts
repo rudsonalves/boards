@@ -1,4 +1,4 @@
-// src/bgnames/functions/deleteBGName.ts
+// src/bgnames/functions/syncDeleteBGName.ts
 
 import { onDocumentDeleted } from "firebase-functions/v2/firestore";
 import { getFirestore } from "firebase-admin/firestore";
@@ -8,7 +8,7 @@ import { logger } from "firebase-functions/v2";
  * Deleta o documento correspondente em "bgnames/{boardgameId}" ao apagar
  * um boardgame.
  *
- * @function deleteBGName
+ * @function syncDeleteBGName
  * @param {object} event - Evento Firestore onDocumentDeleted.
  * @param {string} event.params.boardgameId - ID do boardgame deletado.
  * @description
@@ -16,7 +16,7 @@ import { logger } from "firebase-functions/v2";
  * busca o documento correspondente em "bgnames/{boardgameId}" e o deleta,
  * caso exista.
  */
-export const deleteBGName = onDocumentDeleted(
+export const syncDeleteBGName = onDocumentDeleted(
   {
     document: "boardgames/{boardgameId}",
     region: "southamerica-east1",
@@ -25,7 +25,7 @@ export const deleteBGName = onDocumentDeleted(
     const boardgameId = event.params.boardgameId;
     const bgNameRef = firestore.collection("bgnames").doc(boardgameId);
 
-    logger.info(`Triggered deleteBGName for boardgameId: ${boardgameId}`);
+    logger.info(`Triggered syncDeleteBGName for boardgameId: ${boardgameId}`);
 
     try {
       const bgNameSnap = await bgNameRef.get();

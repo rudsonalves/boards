@@ -78,6 +78,98 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/27 - version: 0.5.04+39
+
+Refactor and enhance project configurations by updating Firebase settings, modifying project scripts, reorganizing function modules, and adding new webhook functionalities to improve maintainability and functionality.
+
+### Changes made:
+
+1. **firebase.json**:
+   - Updated the `functions` emulator configuration to enable it, enable function inspection, and ignore unknown events.
+   - Added `healthChecks` with an `initialDelaySeconds` of 120 to the `functions_ts` codebase.
+
+2. **functions_ts/.gitignore**:
+   - Modified to remove the hyphen before `*.local`.
+   - Added `.env.local` to the ignore patterns to exclude local environment variables.
+
+3. **functions_ts/package.json**:
+   - Updated `serve` script to set `NODE_ENV=production` before running the build and starting the functions emulator.
+   - Updated `shell` script to set `NODE_ENV=development` before running the build and starting the functions shell.
+   - Modified `start` script to set `NODE_ENV=development` and run the `shell` script.
+   - Updated `deploy` script to set `NODE_ENV=production` before deploying functions.
+   - Ensured proper formatting by adding a newline at the end of the file.
+
+4. **functions_ts/src/bgnames/functions/syncCreateBGNames.ts → functions_ts/src/bgnames/functions/syncCreateBGName.ts**:
+   - Renamed `syncCreateBGNames.ts` to `syncCreateBGName.ts` for naming consistency.
+   - Updated function name in the file from `syncCreateBGNames` to `syncCreateBGName`.
+
+5. **functions_ts/src/bgnames/functions/deleteBGName.ts → functions_ts/src/bgnames/functions/syncDeleteBGName.ts**:
+   - Renamed `deleteBGName.ts` to `syncDeleteBGName.ts` to align with naming conventions.
+   - Updated function name in the file from `deleteBGName` to `syncDeleteBGName`.
+   - Modified logger messages to reflect the new function name.
+
+6. **functions_ts/src/index.ts**:
+   - Imported `dotenv` and configured it to load `.env.local` when not in production.
+   - Added imports for `stripeWebhook` and updated the function exports to include new functions: `syncDeleteBGName`, `stripeWebhook`.
+   - Commented out unused function imports (`createPaymentIntent`, `createCheckoutSession`).
+
+7. **functions_ts/src/payment/functions/createCheckoutSession.ts**:
+   - Added a new Cloud Function `createCheckoutSession` to handle Stripe checkout sessions.
+   - Implemented steps to verify user authentication, validate items, reserve items, and create a Stripe session.
+   - Included comprehensive error handling and logging for better traceability.
+
+8. **functions_ts/src/stripe/functions/createPaymentIntent.ts → functions_ts/src/payment/functions/createPaymentIntent.ts**:
+   - Renamed and moved `createPaymentIntent.ts` to the `payment/functions` directory.
+   - Updated import paths to align with the new directory structure.
+   - Modified the function to accept `stripeApiKey` from `request.env` and added error handling for invalid amounts and missing user IDs.
+
+9. **functions_ts/src/stripe/interfaces/IItem.ts → functions_ts/src/payment/interfaces/IItem.ts**:
+   - Moved the `IItem` interface to the `payment/interfaces` directory to associate it with payment-related functionalities.
+
+10. **functions_ts/src/stripe/utils/calculateTotal.ts → functions_ts/src/payment/utils/calculateTotal.ts**:
+    - Renamed and moved `calculateTotal.ts` to the `payment/utils` directory.
+
+11. **functions_ts/src/stripe/utils/createStripePaymentIntent.ts → functions_ts/src/payment/utils/createStripePaymentIntent.ts**:
+    - Renamed and relocated `createStripePaymentIntent.ts` to the `payment/utils` directory.
+    - Added validation to ensure the total amount is greater than zero and the user ID is provided.
+    - Implemented error handling for PaymentIntent creation failures.
+
+12. **functions_ts/src/stripe/utils/createStripeSession.ts → functions_ts/src/payment/utils/createStripeSession.ts**:
+    - Renamed and transferred `createStripeSession.ts` to the `payment/utils` directory.
+    - Added Stripe import to the utility file.
+
+13. **functions_ts/src/stripe/utils/fetchAndValidateItems.ts → functions_ts/src/payment/utils/fetchAndValidateItems.ts**:
+    - Renamed and moved `fetchAndValidateItems.ts` to the `payment/utils` directory.
+
+14. **functions_ts/src/stripe/utils/initializeStripe.ts → functions_ts/src/payment/utils/initializeStripe.ts**:
+    - Renamed and moved `initializeStripe.ts` to the `payment/utils` directory.
+    - Updated the function to accept `stripeApiKey` as a parameter.
+
+15. **functions_ts/src/stripe/utils/reserveItems.ts → functions_ts/src/payment/utils/reserveItems.ts**:
+    - Renamed and transferred `reserveItems.ts` to the `payment/utils` directory.
+
+16. **functions_ts/src/webhook/functions/stripeWebhook.ts**:
+    - Added a new Cloud Function `stripeWebhook` to handle Stripe webhooks.
+    - Implemented request parsing, signature verification, and event processing for Stripe events.
+    - Included error handling for missing secrets, invalid signatures, and processing failures.
+
+17. **functions_ts/src/webhook/utils/handlePaymentFailure.ts**:
+    - Added `handlePaymentFailure.ts` utility to handle Stripe payment failures by restoring item stock and removing reservations.
+
+18. **functions_ts/src/webhook/utils/handlePaymentSuccess.ts**:
+    - Introduced `handlePaymentSuccess.ts` utility to handle successful Stripe payments by removing item reservations.
+
+19. **functions_ts/src/webhook/utils/processStripeEvent.ts**:
+    - Added `processStripeEvent.ts` utility to process different types of Stripe events, delegating to appropriate handlers.
+
+20. **functions_ts/src/webhook/utils/validateWebhook.ts**:
+    - Implemented `validateWebhook.ts` utility to validate incoming Stripe webhook events using the webhook secret.
+
+### Conclusion:
+
+Successfully refactored and enhanced project configurations by updating Firebase emulator settings, modifying deployment scripts, reorganizing backend functions into dedicated modules (`auth`, `payment`, `bgnames`, `webhook`), and adding new webhook functionalities. These changes improve project maintainability, scalability, and functionality, ensuring a more robust and organized codebase.
+
+
 ## 2024/12/24 - version: 0.5.04+38
 
 Refactor backend functions structure by organizing into specific modules (auth, stripe, bgnames) and update project configurations for enhanced maintainability and functionality.

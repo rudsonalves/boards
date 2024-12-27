@@ -1,4 +1,4 @@
-// src/bgnames/functions/syncCreateBGNames.ts
+// src/bgnames/functions/syncCreateBGName.ts
 
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import { getFirestore } from "firebase-admin/firestore";
@@ -10,7 +10,7 @@ import { logger } from "firebase-functions/v2";
  *
  * @param event - Evento Firestore onDocumentCreated.
  */
-export const syncCreateBGNames = onDocumentCreated(
+export const syncCreateBGName = onDocumentCreated(
   {
     document: "boardgames/{boardgameId}",
     region: "southamerica-east1",
@@ -21,7 +21,7 @@ export const syncCreateBGNames = onDocumentCreated(
     const boardgameId = event.params.boardgameId;
 
     logger.info(
-      `Triggered syncCreateBGNames for boardgameId: ${boardgameId}`
+      `Triggered syncCreateBGName for boardgameId: ${boardgameId}`
     );
 
     // Validação dos campos necessários
