@@ -78,6 +78,130 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/29 - version: 0.5.04+40
+
+Refactor and enhance project configurations by updating VSCode settings, modifying Firebase configurations, reorganizing backend functions into dedicated modules, implementing new authentication and notification functionalities, removing deprecated TypeScript-based functions, and preparing for future TypeScript implementation to improve maintainability and scalability.
+
+### Changes made:
+
+1. **.vscode/settings.json**:
+   - **Added**:
+     - `"editor.formatOnSave": true` to enable automatic formatting on file save.
+     - `"eslint.packageManager": "npm"` to specify npm as the package manager for ESLint.
+     - `"eslint.validate"` array to include `"javascript"`, `"javascriptreact"`, `"typescript"`, and `"typescriptreact"` for ESLint validation on these file types.
+
+2. **firebase.json**:
+   - **Added**:
+     - `"storage"` configuration with `"rules": "storage.rules"` to define Firebase Storage security rules.
+   - **Modified**:
+     - Changed `functions` source from `"functions_ts"` to `"functions"` and codebase to `"default"`.
+     - Removed `"healthChecks"` from the `functions_ts` codebase and integrated it appropriately.
+     - Updated `predeploy` scripts by removing the build step, ensuring only linting runs before deployment.
+
+3. **functions_ts/.gitignore**:
+   - **Modified**:
+     - Corrected the pattern by removing the hyphen before `*.local`.
+   - **Added**:
+     - `.env.local` to exclude local environment variables from version control.
+
+4. **functions/.eslintrc.js**:
+   - **Added**:
+     - Configured ESLint with environments for ES6 and Node.js.
+     - Set parser options for ECMAScript 2018.
+     - Extended `eslint:recommended` and `google` configurations.
+     - Defined custom rules to restrict certain globals, prefer arrow functions, and enforce double quotes with template literals allowed.
+     - Added overrides for test files to support Mocha environment.
+
+5. **functions/.gitignore**:
+   - **Added**:
+     - `node_modules/` to exclude dependencies.
+     - `.env.local` to ignore local environment variables.
+
+6. **functions/auth/assignDefaultUserRole.js**:
+   - **Added**:
+     - New Cloud Function `assignDefaultUserRole` to assign a default role (`user`) to authenticated users.
+     - Implemented authentication checks and error handling to ensure only authenticated users receive roles.
+
+7. **functions/auth/changeUserRole.js**:
+   - **Added**:
+     - New Cloud Function `changeUserRole` allowing admins to modify user roles.
+     - Implemented authentication and authorization checks to restrict role changes to admins only.
+     - Included comprehensive error handling and logging for traceability.
+
+8. **functions/boardgames/syncCreateBGNames.js**:
+   - **Added**:
+     - New Cloud Function `syncCreateBGNames` to synchronize newly created boardgames with the `bgnames` collection.
+     - Implemented Firestore triggers, field validations, and error handling to ensure accurate synchronization.
+
+9. **functions/boardgames/syncDeleteBGName.js**:
+   - **Added**:
+     - New Cloud Function `syncDeleteBGName` to handle deletion of boardgame names from the `bgnames` collection upon boardgame deletion.
+     - Implemented Firestore triggers and error handling to maintain data integrity.
+
+10. **functions/boardgames/syncUpdateBGNames.js**:
+    - **Added**:
+      - New Cloud Function `syncUpdateBGNames` to update the `bgnames` collection when boardgame details are modified.
+      - Ensured field validations and comprehensive logging for successful updates.
+
+11. **functions/index.js**:
+    - **Added**:
+      - Configured `dotenv` to load environment variables from `.env.local` in non-production environments.
+      - Initialized Firebase Admin SDK.
+      - Imported and exported newly added functions: `notifySpecificUser`, `syncCreateBGNames`, `syncDeleteBGName`, `syncUpdateBGNames`, `assignDefaultUserRole`, `changeUserRole`, and `createPaymentIntent`.
+      - Commented out unused function imports (`createCheckoutSession`).
+
+12. **functions/notification/notifySpecificUser.js**:
+    - **Added**:
+      - New Cloud Function `notifySpecificUser` to send push notifications to specific users upon receiving new messages.
+      - Implemented Firestore triggers, user data retrieval, and Firebase Cloud Messaging integration with error handling.
+
+13. **functions/package.json**:
+    - **Added**:
+      - New `package.json` for the `functions` directory with scripts for linting, serving, shell, starting, deploying, and viewing logs.
+      - Specified Node.js engine version `18`.
+      - Defined dependencies: `firebase-admin` (v13.0.2), `firebase-functions` (v6.2.0).
+      - Included devDependencies: `eslint`, `eslint-config-google`, and `firebase-functions-test`.
+      - Set `"private": true` to prevent accidental publishing.
+
+14. **functions/payments/createPaymentIntent.js**:
+    - **Added**:
+      - New Cloud Function `createPaymentIntent` to create Stripe PaymentIntents.
+      - Implemented authentication verification, item validation, total calculation, and Stripe PaymentIntent creation with comprehensive error handling and logging.
+
+15. **functions/payments/utils/**:
+    - **Added**:
+      - **calculateTotal.js**: Utility to compute the total amount in cents based on provided items.
+      - **createStripePaymentIntent.js**: Utility to create Stripe PaymentIntents with necessary validations.
+      - **createStripeSession.js**: Utility to create Stripe Checkout Sessions based on reserved items.
+      - **db.js**: Utility to initialize and export Firestore database and FieldValue.
+      - **fetchAndValidateItems.js**: Utility to validate and retrieve items from requests.
+      - **handlePaymentFailure.js**: Utility to handle Stripe payment failures by restoring stock and removing reservations.
+      - **handlePaymentSuccess.js**: Utility to handle successful Stripe payments by clearing reservations.
+      - **initializeStripe.js**: Utility to initialize Stripe with the provided API key.
+      - **processStripeEvent.js**: Utility to process different types of Stripe events by delegating to appropriate handlers.
+      - **validateWebhook.js**: Utility to validate incoming Stripe webhook events using the webhook secret.
+      - **verifyAuth.js**: Utility to verify user authentication from request context.
+
+16. **package.json & package-lock.json**:
+    - **Updated**:
+      - Incremented versions of `firebase-admin` to `13.0.2` and `firebase-functions` to `6.2.0` for enhanced features and security patches.
+      - Ensured consistency in dependency versions across both files.
+
+17. **Removed**:
+    - **parse_server/cloud/main.js**:
+      - Deleted the deprecated Parse Server cloud code file, removing legacy backend integrations and transitioning fully to Firebase Cloud Functions.
+
+18. **Remoção de `functions-ts`**:
+    - **Removed**:
+      - All TypeScript-based Cloud Functions from the `functions-ts` directory have been removed.
+    - **Note**:
+      - TypeScript will be implemented in a future version. The project will continue using JavaScript for Cloud Functions in the current version.
+
+### Conclusion:
+
+Successfully refactored the project by updating VSCode and Firebase configurations, reorganizing backend functions into modular directories (`auth`, `boardgames`, `notification`, `payments`), implementing new authentication and notification functionalities, integrating Stripe for payment processing, removing outdated TypeScript-based `functions-ts` integrations, and preparing the codebase for future TypeScript implementation. These changes enhance code maintainability, scalability, and functionality, providing a more robust and organized codebase aligned with modern best practices.
+
+
 ## 2024/12/27 - version: 0.5.04+39
 
 Refactor and enhance project configurations by updating Firebase settings, modifying project scripts, reorganizing function modules, and adding new webhook functionalities to improve maintainability and functionality.

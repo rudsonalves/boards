@@ -678,7 +678,7 @@ exports.notifySpecificUser = onDocumentCreated(
  *
  * @throws {Error} - Caso faltem campos obrigatórios (name, publishYear).
  */
-exports.syncBoardgameToBGNames = onDocumentCreated(
+exports.syncCreateBGNames = onDocumentCreated(
     {
       document: "boardgames/{boardgameId}",
       region: "southamerica-east1",
@@ -729,7 +729,7 @@ exports.syncBoardgameToBGNames = onDocumentCreated(
  *
  * @throws {Error} - Caso haja falha ao deletar o documento de "bgnames".
  */
-exports.deleteBGName = onDocumentDeleted(
+exports.syncDeleteBGName = onDocumentDeleted(
     {
       document: "boardgames/{boardgameId}",
       region: "southamerica-east1",
