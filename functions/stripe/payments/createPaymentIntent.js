@@ -1,6 +1,6 @@
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
 
-const {initializeStripe} = require("./utils/initializeStripe");
+const {initializeStripe} = require("../ultils/initializeStripe");
 const {verifyAuth} = require("./utils/verifyAuth");
 const {fetchAndValidateItems} = require("./utils/fetchAndValidateItems");
 const {calculateTotal} = require("./utils/calculateTotal");
@@ -35,15 +35,15 @@ exports.createPaymentIntent = onCall(
         console.log("Request Data:", request.data);
         console.log("Request Auth:", request.auth);
 
-        // Inicie o Stripe usando a secret do ambiente
+        // Validar stripeApiKey
         const stripeApiKey = process.env.STRIPE_API_KEY;
-
         if (!stripeApiKey) {
           const message = "Stripe API key not configured.";
           console.error(message);
           throw new Error(message);
         }
 
+        // Inicie o Stripe usando a secret do ambiente
         const stripeInstance = initializeStripe(stripeApiKey);
 
         // Verificar autenticação do usuário

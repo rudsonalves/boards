@@ -1,4 +1,4 @@
-const {db, FieldValue} = require("./db");
+const {db, FieldValue} = require("../../ultils/db");
 
 /**
  * Trata eventos de falha ou expiração do checkout do Stripe, restaurando o

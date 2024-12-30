@@ -1,4 +1,4 @@
-const {db} = require("./db");
+const {db} = require("../../ultils/db");
 
 /**
  * Trata o evento de sucesso no pagamento do Stripe, removendo reservas

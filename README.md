@@ -78,6 +78,71 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/30 - version: 0.5.05+41
+
+Refactor Stripe payment functions by reorganizing directories and updating implementations.
+
+### Changes made:
+
+1. **functions/index.js**:
+   - Updated import paths for Stripe payment functions to reflect the new directory structure.
+   - Added `createCheckoutSession` and `stripeWebhook` exports for handling Stripe checkout sessions and webhooks.
+
+2. **functions/stripe/payments/createCheckoutSession.js**:
+   - Added `createCheckoutSession` Cloud Function to handle Stripe checkout session creation.
+   - Implemented authentication verification, item validation, reservation of items, and Stripe session creation within the function.
+
+3. **functions/stripe/payments/createPaymentIntent.js**:
+   - Renamed from `functions/payments/createPaymentIntent.js` to `functions/stripe/payments/createPaymentIntent.js`.
+   - Updated import path for `initializeStripe` utility.
+   - Enhanced error handling by validating the Stripe API key before initializing the Stripe instance.
+
+4. **functions/stripe/payments/utils/calculateTotal.js**:
+   - Renamed from `functions/payments/utils/calculateTotal.js` to `functions/stripe/payments/utils/calculateTotal.js`.
+
+5. **functions/stripe/payments/utils/createStripePaymentIntent.js**:
+   - Renamed from `functions/payments/utils/createStripePaymentIntent.js` to `functions/stripe/payments/utils/createStripePaymentIntent.js`.
+
+6. **functions/stripe/payments/utils/createStripeSession.js**:
+   - Renamed from `functions/payments/utils/createStripeSession.js` to `functions/stripe/payments/utils/createStripeSession.js`.
+   - Updated import path for `initializeStripe` utility.
+   - Modified `createStripeSession` function to accept `stripeApiKey` as a parameter and initialize Stripe with it.
+
+7. **functions/stripe/webhook/stripeWebhook.js**:
+   - Added `stripeWebhook` Cloud Function to handle incoming Stripe webhooks.
+   - Implemented webhook validation, event processing, and error handling within the function.
+
+8. **functions/stripe/webhook/utils/handlePaymentFailure.js**:
+   - Renamed from `functions/payments/utils/handlePaymentFailure.js` to `functions/stripe/webhook/utils/handlePaymentFailure.js`.
+   - Updated import path for `db` utility.
+
+9. **functions/stripe/webhook/utils/handlePaymentSuccess.js**:
+   - Renamed from `functions/payments/utils/handlePaymentSuccess.js` to `functions/stripe/webhook/utils/handlePaymentSuccess.js`.
+   - Updated import path for `db` utility.
+
+10. **functions/stripe/webhook/utils/processStripeEvent.js**:
+    - Renamed from `functions/payments/utils/processStripeEvent.js` to `functions/stripe/webhook/utils/processStripeEvent.js`.
+
+11. **functions/stripe/webhook/utils/validateWebhook.js**:
+    - Renamed from `functions/payments/utils/validateWebhook.js` to `functions/stripe/webhook/utils/validateWebhook.js`.
+    - Modified `validateWebhook` function to accept `webhookSecret` as a parameter and utilize it for event validation.
+    - Updated import path for `initializeStripe` utility.
+
+12. **functions/stripe/ultils/db.js**:
+    - Renamed from `functions/payments/utils/db.js` to `functions/stripe/ultils/db.js`.
+
+13. **functions/stripe/ultils/initializeStripe.js**:
+    - Renamed from `functions/payments/utils/initializeStripe.js` to `functions/stripe/ultils/initializeStripe.js`.
+
+14. **functions/package.json**:
+    - Updated `deploy` script to remove environment variable export for production.
+    - No other changes detected.
+
+### Conclusion:
+
+Successfully reorganized Stripe payment-related functions into a dedicated `stripe` directory, improved modularity by separating webhook and payment utilities, and enhanced code maintainability through updated import paths and improved error handling.
+
+
 ## 2024/12/29 - version: 0.5.04+40
 
 Refactor and enhance project configurations by updating VSCode settings, modifying Firebase configurations, reorganizing backend functions into dedicated modules, implementing new authentication and notification functionalities, removing deprecated TypeScript-based functions, and preparing for future TypeScript implementation to improve maintainability and scalability.

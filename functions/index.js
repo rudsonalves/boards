@@ -21,7 +21,11 @@ const {syncUpdateBGNames} = require("./boardgames/syncUpdateBGNames");
 const {assignDefaultUserRole} = require("./auth/assignDefaultUserRole");
 const {changeUserRole} = require("./auth/changeUserRole");
 
-const {createPaymentIntent} = require("./payments/createPaymentIntent");
+const {createPaymentIntent} = require("./stripe/payments/createPaymentIntent");
+const {createCheckoutSession} =
+  require("./stripe/payments/createCheckoutSession");
+
+const {stripeWebhook} = require("./stripe/webhook/stripeWebhook");
 
 exports.notifySpecificUser = notifySpecificUser;
 
@@ -33,3 +37,6 @@ exports.assignDefaultUserRole = assignDefaultUserRole;
 exports.changeUserRole = changeUserRole;
 
 exports.createPaymentIntent = createPaymentIntent;
+exports.createCheckoutSession = createCheckoutSession;
+
+exports.stripeWebhook = stripeWebhook;

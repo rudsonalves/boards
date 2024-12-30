@@ -4,16 +4,10 @@
  * @function validateWebhook
  * @param {Object} request - Objeto de requisição HTTP.
  * @param {Object} stripeInstance - Instância do Stripe.
+ * @param {string} webhookSecret - Webhook secret.
  * @return {Object} - Evento validado do Stripe.
  */
-function validateWebhook(request, stripeInstance) {
-  const endpointSecret = process.env.WEBHOOK_SEC;
-
-  if (!endpointSecret) {
-    console.error("WEBHOOK_SEC is not defined.");
-    throw new Error("Webhook secret not configured.");
-  }
-
+function validateWebhook(request, stripeInstance, webhookSecret) {
   const sig = request.headers["stripe-signature"];
 
   if (!request.rawBody || !(request.rawBody instanceof Buffer)) {
@@ -24,7 +18,7 @@ function validateWebhook(request, stripeInstance) {
     return stripeInstance.webhooks.constructEvent(
         request.rawBody,
         sig,
-        endpointSecret,
+        webhookSecret,
     );
   } catch (err) {
     console.error("Erro ao validar webhook:", err.message);
