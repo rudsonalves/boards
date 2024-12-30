@@ -1,4 +1,4 @@
-const {initializeStripe} = require("./initializeStripe");
+const {initializeStripe} = require("../../ultils/initializeStripe");
 
 /**
  * Cria uma sessão de checkout no Stripe com base nos itens reservados.
@@ -8,14 +8,15 @@ const {initializeStripe} = require("./initializeStripe");
  * @param {Array} items - Lista de itens reservados para checkout, contendo
  *                        title e unit_price.
  * @param {string} userId - UID do usuário autenticado.
+ * @param {string} stripeApiKey - Stripe API key.
  * @return {Promise<string>} - Retorna a URL da sessão de checkout do Stripe.
  * @throws {HttpsError} - Caso a chave da API do Stripe não esteja configurada
  *                        ou haja falha na criação da sessão.
  */
-async function createStripeSession(items, userId) {
+async function createStripeSession(items, userId, stripeApiKey) {
   const now = Math.floor(Date.now() / 1000); // Tempo atual em segundos
   const expiresAt = now + 30 * 60; // 30 minutos em segundos
-  const stripeInstance = initializeStripe();
+  const stripeInstance = initializeStripe(stripeApiKey);
 
   const lineItems = items.map((item) => ({
     price_data: {

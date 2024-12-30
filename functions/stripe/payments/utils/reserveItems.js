@@ -1,4 +1,4 @@
-const {db, FieldValue} = require("./db");
+const {db, FieldValue} = require("../../ultils/db");
 
 /**
  * Reserva os itens selecionados pelo usuário, decrementando a quantidade
