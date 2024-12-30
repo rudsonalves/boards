@@ -19,7 +19,7 @@ export function verifyAuth(request: CallableRequest<unknown>): string {
       "Authentication context is missing.");
   }
 
-  const { uid } = request.auth;
+  const uid = request.auth.uid;
   if (!uid) {
     logger.error("verifyAuth: UID is missing in authentication context.",
       { auth: request.auth });

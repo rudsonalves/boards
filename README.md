@@ -78,6 +78,95 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/30 - version: 0.5.06+43
+
+Refactor and update Stripe payment and authentication functions with improved configurations and error handling.
+
+### Changes made:
+
+1. **functions/package-lock.json**:
+   - Updated `firebase-functions` version from `^6.0.1` to `^6.2.0`.
+   - Added `cross-env` dependency version `^7.0.3`.
+   - Included `cross-env` details including dependencies and binaries.
+
+2. **functions/package.json**:
+   - Updated `serve` script by removing `--runtime nodejs22`.
+   - Changed `deploy` script to include `npx eslint . --fix` before deploying functions.
+   - Updated `firebase-functions` version from `^6.0.1` to `^6.2.0`.
+   - Added `cross-env` as a dev dependency.
+
+3. **functions/stripe/payments/createCheckoutSession.js**:
+   - Added `createCheckoutSession` Cloud Function to handle Stripe checkout session creation.
+   - Implemented authentication verification, item validation, reservation of items, and Stripe session creation within the function.
+
+4. **functions/stripe/payments/createPaymentIntent.js**:
+   - Renamed from `functions/payments/createPaymentIntent.js` to `functions/stripe/payments/createPaymentIntent.js`.
+   - Updated import path for `initializeStripe`.
+   - Enhanced error handling by validating the Stripe API key before initializing the Stripe instance.
+
+5. **functions/stripe/payments/utils/calculateTotal.js**:
+   - Renamed from `functions/payments/utils/calculateTotal.js` to `functions/stripe/payments/utils/calculateTotal.js`.
+
+6. **functions/stripe/payments/utils/createStripePaymentIntent.js**:
+   - Renamed from `functions/payments/utils/createStripePaymentIntent.js` to `functions/stripe/payments/utils/createStripePaymentIntent.js`.
+
+7. **functions/stripe/payments/utils/createStripeSession.js**:
+   - Renamed from `functions/payments/utils/createStripeSession.js` to `functions/stripe/payments/utils/createStripeSession.js`.
+   - Updated import path for `initializeStripe`.
+   - Modified `createStripeSession` function to accept `stripeApiKey` as a parameter and initialize Stripe with it.
+
+8. **functions/stripe/webhook/stripeWebhook.js**:
+   - Added `stripeWebhook` Cloud Function to handle incoming Stripe webhooks.
+   - Implemented webhook validation, event processing, and error handling within the function.
+
+9. **functions/stripe/webhook/utils/handlePaymentFailure.js**:
+   - Renamed from `functions/payments/utils/handlePaymentFailure.js` to `functions/stripe/webhook/utils/handlePaymentFailure.js`.
+   - Updated import path for `db` utility.
+
+10. **functions/stripe/webhook/utils/handlePaymentSuccess.js**:
+    - Renamed from `functions/payments/utils/handlePaymentSuccess.js` to `functions/stripe/webhook/utils/handlePaymentSuccess.js`.
+    - Updated import path for `db` utility.
+
+11. **functions/stripe/webhook/utils/processStripeEvent.js**:
+    - Renamed from `functions/payments/utils/processStripeEvent.js` to `functions/stripe/webhook/utils/processStripeEvent.js`.
+
+12. **functions/stripe/webhook/utils/validateWebhook.js**:
+    - Renamed from `functions/payments/utils/validateWebhook.js` to `functions/stripe/webhook/utils/validateWebhook.js`.
+    - Modified `validateWebhook` function to accept `webhookSecret` as a parameter and utilize it for event validation.
+    - Updated import path for `initializeStripe` utility.
+
+13. **functions/stripe/ultils/db.js**:
+    - Renamed from `functions/payments/utils/db.js` to `functions/stripe/ultils/db.js`.
+
+14. **functions/stripe/ultils/initializeStripe.js**:
+    - Renamed from `functions/payments/utils/initializeStripe.js` to `functions/stripe/ultils/initializeStripe.js`.
+
+15. **functions/src/auth/functions/changeUserRole.ts**:
+    - Added `changeUserRole` Cloud Function to allow admins to change user roles, including authentication and role verification.
+
+16. **functions/src/auth/utils/verifyAuth.ts**:
+    - Updated `verifyAuth` function to correctly extract `uid` from `request.auth`.
+
+17. **functions/src/boardgames/functions/syncCreateBGNames.ts**:
+    - Added `syncCreateBGNames` Firestore trigger to synchronize boardgame data to the `bgnames` collection.
+
+18. **functions/src/boardgames/functions/syncDeleteBGName.ts**:
+    - Added `syncDeleteBGName` Firestore trigger to delete corresponding `bgnames` document upon boardgame deletion.
+
+19. **functions/src/boardgames/functions/syncUpdateBGNames.ts**:
+    - Added `syncUpdateBGNames` Firestore trigger to update the `bgnames` collection when boardgame data is updated.
+
+20. **functions/src/boardgames/interfaces/BoardgameData.ts**:
+    - Created `BoardgameData` interface for boardgame data models.
+
+21. **functions/src/index.ts**:
+    - Imported and exported `changeUserRole`, `syncCreateBGNames`, `syncDeleteBGName`, and `syncUpdateBGNames` Cloud Functions.
+
+### Conclusion:
+
+Successfully updated and refactored Stripe payment and authentication functions by reorganizing directories, enhancing error handling, and implementing new functionalities to improve code maintainability and security.
+
+
 ## 2024/12/30 - version: 0.5.06+42
 
 Refactor project structure by migrating functions from JavaScript to TypeScript and reorganizing directories.

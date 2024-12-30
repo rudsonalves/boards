@@ -15,9 +15,18 @@ admin.initializeApp();
 
 // Importa as funções
 import { assignDefaultUserRole } from "./auth/functions/assignDefaultUserRole";
+import { changeUserRole } from "./auth/functions/changeUserRole";
+
+import { syncCreateBGNames } from "./boardgames/functions/syncCreateBGNames";
+import { syncDeleteBGName } from "./boardgames/functions/syncDeleteBGName";
+import { syncUpdateBGNames } from "./boardgames/functions/syncUpdateBGNames";
 
 
 // Exporta as funções
 export {
   assignDefaultUserRole,
+  changeUserRole,
+  syncCreateBGNames,
+  syncDeleteBGName,
+  syncUpdateBGNames,
 };
