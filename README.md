@@ -78,6 +78,158 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/30 - version: 0.5.06+42
+
+Refactor project structure by migrating functions from JavaScript to TypeScript and reorganizing directories.
+
+### Changes made:
+
+1. **.gitignore**:
+   - Removed `/functions_ts/node_modules/`.
+   - Removed `/functions_ts/lib/`.
+   - Added `/functions_js`.
+   - Added `/functions/lib`.
+
+2. **firebase.json**:
+   - Added `"runtime": "nodejs22"`.
+   - Updated `predeploy` scripts to include `npm run build`.
+
+3. **functions/.eslintrc.js**:
+   - Added `root: true`.
+   - Included `plugin:import/errors`, `plugin:import/warnings`, and `plugin:import/typescript` in `extends`.
+   - Added `@typescript-eslint/parser` with project references.
+   - Included plugins: `@typescript-eslint` and `import`.
+   - Updated rules:
+     - Enforced double quotes.
+     - Disabled `import/no-unresolved`.
+     - Set indentation to 2 spaces.
+     - Turned off `object-curly-spacing` and `padded-blocks`.
+
+4. **functions/.gitignore**:
+   - Added ignores for compiled JavaScript files: `lib/**/*.js` and `lib/**/*.js.map`.
+   - Added ignores for TypeScript declaration files: `typings/`.
+   - Added ignores for Node.js dependency directory: `node_modules/`.
+   - Changed from ignoring `.env.local` to `*.local`.
+
+5. **functions/auth/assignDefaultUserRole.js**:
+   - Deleted file.
+
+6. **functions/auth/changeUserRole.js**:
+   - Deleted file.
+
+7. **functions/boardgames/syncCreateBGNames.js**:
+   - Deleted file.
+
+8. **functions/boardgames/syncDeleteBGName.js**:
+   - Deleted file.
+
+9. **functions/boardgames/syncUpdateBGNames.js**:
+   - Deleted file.
+
+10. **functions/index.js**:
+    - Deleted file.
+
+11. **functions/notification/notifySpecificUser.js**:
+    - Deleted file.
+
+12. **functions/package.json**:
+    - Updated scripts:
+      - Added `build` and `build:watch` scripts for TypeScript compilation.
+      - Modified `serve` and `shell` scripts to include `npm run build`.
+      - Updated `deploy` script to use `--runtime nodejs22`.
+    - Updated `engines.node` from `18` to `22`.
+    - Changed `main` from `index.js` to `lib/index.js`.
+    - Updated dependencies:
+      - Upgraded `firebase-admin` to `^12.6.0`.
+      - Upgraded `firebase-functions` to `^6.0.1`.
+    - Updated devDependencies:
+      - Added `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser`.
+      - Added `eslint-plugin-import`.
+      - Added `typescript` version `^4.9.0`.
+      - Updated existing ESLint packages.
+
+13. **functions/package-lock.json**:
+    - Upgraded `firebase-admin` to `^12.6.0`.
+    - Downgraded `firebase-functions` to `^6.0.1`.
+    - Added repository URL for `word-wrap`.
+
+14. **functions/src/auth/functions/assignDefaultUserRole.ts**:
+    - Added `assignDefaultUserRole` TypeScript function:
+      - Verifies user authentication.
+      - Assigns default role `"user"` to authenticated users.
+      - Logs success or errors accordingly.
+
+15. **functions/src/auth/utils/verifyAuth.ts**:
+    - Added `verifyAuth` TypeScript utility:
+      - Checks if the user is authenticated.
+      - Retrieves and returns the user's UID.
+      - Logs authentication status and errors.
+
+16. **functions/src/index.ts**:
+    - Added TypeScript entry point:
+      - Initializes Firebase Admin SDK.
+      - Imports and exports `assignDefaultUserRole` function.
+
+17. **functions/tsconfig.dev.json**:
+    - Added TypeScript development configuration to include `.eslintrc.js`.
+
+18. **functions/tsconfig.json**:
+    - Added TypeScript compiler configuration:
+      - Set module to `NodeNext` and target to `es2017`.
+      - Enabled strict type-checking.
+      - Configured output directory to `lib`.
+      - Included source files from `src`.
+
+19. **functions/stripe/payments/createCheckoutSession.js**:
+    - Deleted file.
+
+20. **functions/stripe/payments/createPaymentIntent.js**:
+    - Deleted file.
+
+21. **functions/stripe/payments/utils/calculateTotal.js**:
+    - Deleted file.
+
+22. **functions/stripe/payments/utils/createStripePaymentIntent.js**:
+    - Deleted file.
+
+23. **functions/stripe/payments/utils/createStripeSession.js**:
+    - Deleted file.
+
+24. **functions/stripe/payments/utils/fetchAndValidateItems.js**:
+    - Deleted file.
+
+25. **functions/stripe/payments/utils/reserveItems.js**:
+    - Deleted file.
+
+26. **functions/stripe/payments/utils/verifyAuth.js**:
+    - Deleted file.
+
+27. **functions/stripe/ultils/db.js**:
+    - Deleted file.
+
+28. **functions/stripe/ultils/initializeStripe.js**:
+    - Deleted file.
+
+29. **functions/stripe/webhook/stripeWebhook.js**:
+    - Deleted file.
+
+30. **functions/stripe/webhook/utils/handlePaymentFailure.js**:
+    - Deleted file.
+
+31. **functions/stripe/webhook/utils/handlePaymentSuccess.js**:
+    - Deleted file.
+
+32. **functions/stripe/webhook/utils/processStripeEvent.js**:
+    - Deleted file.
+
+33. **functions/stripe/webhook/utils/validateWebhook.js**:
+    - Deleted file.
+
+### Conclusion:
+
+Successfully migrated backend functions from JavaScript to TypeScript, reorganized directory structure for enhanced modularity, updated configuration files to support TypeScript and Node.js 22 runtime, and improved code maintainability through better type safety and tooling integration.
+
+
 ## 2024/12/30 - version: 0.5.05+41
 
 Refactor Stripe payment functions by reorganizing directories and updating implementations.
