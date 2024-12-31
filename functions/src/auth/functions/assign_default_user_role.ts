@@ -1,9 +1,9 @@
-// src/auth/functions/assignDefaultUserRole.ts
+// src/auth/functions/assign_default_user_role.ts
 
 import { onCall, CallableRequest } from "firebase-functions/v2/https";
 import { getAuth } from "firebase-admin/auth";
 import { logger } from "firebase-functions/v2";
-import { verifyAuth } from "../utils/verifyAuth";
+import { verifyAuth } from "../utils/verify_auth";
 
 /**
  * Tipagem de possível resposta da função.

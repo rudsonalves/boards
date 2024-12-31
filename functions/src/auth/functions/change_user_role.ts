@@ -1,4 +1,4 @@
-// src/auth/functions/changeUserRole.ts
+// src/auth/functions/change_user_role.ts
 
 import { onCall, CallableRequest } from "firebase-functions/v2/https";
 import { getAuth } from "firebase-admin/auth";

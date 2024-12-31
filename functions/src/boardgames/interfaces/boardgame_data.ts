@@ -1,4 +1,4 @@
-// src/boardgames/interfaces/BoardgameData.ts
+// src/boardgames/interfaces/noardgame_data.ts
 
 export interface BoardgameData {
   name: string;

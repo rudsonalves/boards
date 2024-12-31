@@ -1,4 +1,4 @@
-// src/boardgames/functions/syncDeleteBGName.ts
+// src/boardgames/functions/sync_delete_bg_name.ts
 
 import { onDocumentDeleted } from "firebase-functions/v2/firestore";
 import { logger } from "firebase-functions/v2";

@@ -1,4 +1,4 @@
-// src/functions/utils/verifyAuth.ts
+// src/functions/utils/verify_auth.ts
 
 import { CallableRequest, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";

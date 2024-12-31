@@ -78,6 +78,109 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2024/12/31 - version: 0.5.06+44
+
+Refactor authentication, notification, and Stripe webhook functions with updated naming conventions and improved configurations.
+
+### Changes made:
+
+1. **functions/index.js**:
+   - Updated import paths for Stripe payment functions to reflect the new directory structure.
+   - Added `createCheckoutSession` and `stripeWebhook` exports for handling Stripe checkout sessions and webhooks.
+
+2. **functions/package-lock.json**:
+   - Updated `firebase-functions` version from `^6.0.1` to `^6.2.0`.
+   - Added `cross-env` dependency version `^7.0.3`.
+   - Included `cross-env` details including dependencies and binaries.
+
+3. **functions/package.json**:
+   - Updated `serve` script by removing `--runtime nodejs22`.
+   - Changed `deploy` script to include `npx eslint . --fix` before deploying functions.
+   - Updated `firebase-functions` version from `^6.0.1` to `^6.2.0`.
+   - Added `cross-env` as a dev dependency.
+
+4. **functions/src/auth/functions/assignDefaultUserRole.ts → functions/src/auth/functions/assign_default_user_role.ts**:
+   - Renamed file for consistent snake_case naming convention.
+   - Updated import path for `verify_auth` utility.
+
+5. **functions/src/auth/functions/changeUserRole.ts → functions/src/auth/functions/change_user_role.ts**:
+   - Renamed file to maintain naming consistency.
+
+6. **functions/src/auth/utils/verifyAuth.ts → functions/src/auth/utils/verify_auth.ts**:
+   - Renamed utility function for consistency.
+
+7. **functions/src/boardgames/functions/syncCreateBGNames.ts → functions/src/boardgames/functions/sync_create_bg_bames.ts**:
+   - Renamed file to follow snake_case naming.
+
+8. **functions/src/boardgames/functions/syncDeleteBGName.ts → functions/src/boardgames/functions/sync_delete_bg_name.ts**:
+   - Renamed file for consistent naming.
+
+9. **functions/src/boardgames/functions/syncUpdateBGNames.ts → functions/src/boardgames/functions/sync_update_bg_names.ts**:
+   - Renamed file to maintain naming convention.
+
+10. **functions/src/boardgames/interfaces/BoardgameData.ts → functions/src/boardgames/interfaces/boardgame_data.ts**:
+    - Renamed interface file to snake_case.
+
+11. **functions/src/env.config.ts**:
+    - Added `loadEnvIfLocal` function to manage environment variables for local development and production.
+
+12. **functions/src/auth/functions/change_user_role.ts**:
+    - Added `changeUserRole` Cloud Function to allow admins to change user roles, including authentication and role verification.
+
+13. **functions/src/notification/functions/notify_specific_user.ts**:
+    - Added `notifySpecificUser` Cloud Function to send notifications to users about new messages.
+
+14. **functions/src/notification/interfaces/message_data.ts**:
+    - Created `MessageData` interface for message data structures.
+
+15. **functions/src/notification/interfaces/user_data.ts**:
+    - Created `UserData` interface for user data structures.
+
+16. **functions/src/stripe/utils/initialize_stripe.ts**:
+    - Added `initializeStripe` utility to initialize Stripe with API keys.
+
+17. **functions/src/stripe/webhook/functions/stripe_webhook.ts**:
+    - Added `stripeWebhook` Cloud Function to handle incoming Stripe webhooks.
+    - Implemented webhook validation, event processing, and error handling.
+
+18. **functions/src/stripe/webhook/interfaces/stripe_session_data.ts**:
+    - Created `StripeSessionData` interface for Stripe session data.
+
+19. **functions/src/stripe/webhook/types/stripe_webhook_request.ts**:
+    - Defined `StripeWebhookRequest` type to include `rawBody` for webhook requests.
+
+20. **functions/src/stripe/webhook/utils/handle_payment_failure.ts**:
+    - Added `handlePaymentFailure` utility to restore stock and remove reservations on payment failure.
+
+21. **functions/src/stripe/webhook/utils/handle_payment_success.ts**:
+    - Added `handlePaymentSuccess` utility to remove reservations on successful payment.
+
+22. **functions/src/stripe/webhook/utils/process_stripe_event.ts**:
+    - Added `processStripeEvent` utility to process Stripe events based on event type.
+
+23. **functions/src/stripe/webhook/utils/validate_webhook.ts**:
+    - Added `validateWebhook` utility to validate Stripe webhook signatures.
+
+24. **functions/src/boardgames/functions/sync_create_bg_bames.ts**:
+    - Added `syncCreateBGNames` Firestore trigger to synchronize boardgame data to `bgnames` collection.
+
+25. **functions/src/boardgames/functions/sync_delete_bg_name.ts**:
+    - Added `syncDeleteBGName` Firestore trigger to delete corresponding `bgnames` document upon boardgame deletion.
+
+26. **functions/src/boardgames/functions/sync_update_bg_names.ts**:
+    - Added `syncUpdateBGNames` Firestore trigger to update `bgnames` collection when boardgame data is updated.
+
+27. **functions/src/boardgames/interfaces/boardgame_data.ts**:
+    - Created `boardgame_data` interface for boardgame data models.
+
+28. **functions/src/index.ts**:
+    - Imported and exported `change_user_role`, `sync_create_bg_bames`, `sync_delete_bg_name`, `sync_update_bg_names`, `notify_specific_user`, and `stripe_webhook` Cloud Functions.
+
+### Conclusion:
+
+Successfully refactored and organized authentication, notification, and Stripe webhook functionalities with consistent naming conventions, improved configurations, enhanced error handling, and updated dependencies and scripts to enhance code maintainability and scalability.
+
+
 ## 2024/12/30 - version: 0.5.06+43
 
 Refactor and update Stripe payment and authentication functions with improved configurations and error handling.

@@ -1,25 +1,25 @@
 // src/index.ts
 
 import * as admin from "firebase-admin";
-import { logger } from "firebase-functions/v2";
 
-if (process.env.FUNCTIONS_EMULATOR) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require("dotenv").config({ path: ".env.local" });
-  logger.info("Loaded .env.local for development or testing.");
-} else {
-  logger.info("Running in production. Using Firebase Secrets.");
-}
+import { loadEnvIfLocal } from "./env.config";
+loadEnvIfLocal();
 
 admin.initializeApp();
 
 // Importa as funções
-import { assignDefaultUserRole } from "./auth/functions/assignDefaultUserRole";
-import { changeUserRole } from "./auth/functions/changeUserRole";
+import { assignDefaultUserRole }
+  from "./auth/functions/assign_default_user_role";
+import { changeUserRole } from "./auth/functions/change_user_role";
 
-import { syncCreateBGNames } from "./boardgames/functions/syncCreateBGNames";
-import { syncDeleteBGName } from "./boardgames/functions/syncDeleteBGName";
-import { syncUpdateBGNames } from "./boardgames/functions/syncUpdateBGNames";
+import { syncCreateBGNames } from "./boardgames/functions/sync_create_bg_bames";
+import { syncDeleteBGName } from "./boardgames/functions/sync_delete_bg_name";
+import { syncUpdateBGNames } from "./boardgames/functions/sync_update_bg_names";
+
+import { notifySpecificUser }
+  from "./notification/functions/notify_specific_user";
+
+import { stripeWebhook } from "./stripe/webhook/functions/stripe_webhook";
 
 
 // Exporta as funções
@@ -29,4 +29,6 @@ export {
   syncCreateBGNames,
   syncDeleteBGName,
   syncUpdateBGNames,
+  notifySpecificUser,
+  stripeWebhook,
 };
