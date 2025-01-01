@@ -72,6 +72,7 @@ class BagItemModel {
 
   Map<String, dynamic> toPaymentParameters() {
     return <String, dynamic>{
+      'adId': adId,
       'title': title,
       'unit_price': unitPrice,
       'quantity': quantity,

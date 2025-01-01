@@ -2,10 +2,10 @@
 
 import { onRequest } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
-import Stripe from "stripe";
 import { IncomingMessage, ServerResponse } from "http";
 
 import { initializeStripe } from "../../utils/initialize_stripe";
+import Stripe from "stripe";
 import { processStripeEvent } from "../utils/process_stripe_event";
 
 /**
@@ -22,18 +22,16 @@ export const stripeWebhook = onRequest(
   {
     region: "southamerica-east1",
     maxInstances: 1,
-    // secrets: ["WEBHOOK_SEC", "STRIPE_API_KEY"],
+    secrets: ["WEBHOOK_SEC", "STRIPE_API_KEY"],
   },
   async (request: IncomingMessage, response: ServerResponse) => {
     try {
-      logger.info("Iniciando webhook...");
+      logger.info("Iniciando stripeWebhook");
       logger.info("Cabeçalhos:", JSON.stringify(request.headers));
 
       // Acessando os segredos via process.env
-      const webhookSecret = "whsec_9367673349dc5c1368e506aa223e7e2c0667bc69" +
-        "f7135d8b11312ed4ef5b8cb7";
-      const stripeApiKey = "sk_test_51QPU8mF03CCCOh0h4xD1vx1UXHobp2M0nf5z2E" +
-        "PUYW1sVVnvL50nJuA1k7EK06zLuKa1mBVngOjv9UafhTWtJ2Ev00HHZIGhuE";
+      const webhookSecret = process.env.WEBHOOK_SEC;
+      const stripeApiKey = process.env.STRIPE_API_KEY;
 
       if (!stripeApiKey) {
         const errorMessage = "Chave de API do Stripe não está configurada.";
@@ -53,7 +51,19 @@ export const stripeWebhook = onRequest(
       }
 
       const stripeInstance = initializeStripe(stripeApiKey);
-      logger.info("Instância do Stripe inicializada.");
+      logger.info(
+        `Instância do Stripe inicializada: ${!stripeInstance}`,
+      );
+
+      try {
+        const stripeInstance = new Stripe(
+          stripeApiKey, { apiVersion: "2024-12-18.acacia" });
+        const success = !stripeInstance;
+        logger.info(`Stripe instance initialized successfully. ${success}`);
+      } catch (error) {
+        logger.error("Failed to initialize Stripe:", error);
+        throw new Error("Stripe initialization failed");
+      }
 
       // Coletar o corpo da requisição em formato bruto (Buffer)
       const chunks: Buffer[] = [];

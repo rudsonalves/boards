@@ -78,6 +78,75 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2025/01/01 - version: 0.6.00+45
+
+Enhance Stripe payment integration and update project dependencies and configurations.
+
+### Changes made:
+
+1. **functions/.eslintrc.js**:
+   - Added `tsconfigRootDir: __dirname` to `parserOptions` to specify the root directory for TypeScript configurations.
+
+2. **functions/package-lock.json**:
+   - Added `stripe` dependency version `17.5.0`.
+   - Updated `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` to version `^5.62.0`.
+   - Updated `eslint` to version `^8.57.1`.
+   - Added `node_modules/stripe` with necessary dependencies and engine requirements.
+
+3. **functions/package.json**:
+   - Added `stripe` dependency version `17.5.0`.
+   - Updated `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` to version `^5.62.0`.
+   - Updated `eslint` to version `^8.57.1`.
+
+4. **functions/src/index.ts**:
+   - Reformatted import statements for `assignDefaultUserRole` and `notifySpecificUser`.
+   - Added imports for `createPaymentIntent` and `createCheckoutSession`.
+   - Exported `createPaymentIntent` and `createCheckoutSession` functions.
+
+5. **functions/src/stripe/payments/functions/create_checkout_session.ts**:
+   - Added `createCheckoutSession` Cloud Function to handle Stripe checkout session creation, including item reservation and session URL return.
+
+6. **functions/src/stripe/payments/functions/create_payment_intent.ts**:
+   - Added `createPaymentIntent` Cloud Function to create a Stripe PaymentIntent, handling user authentication, item validation, and total calculation.
+
+7. **functions/src/stripe/payments/interfaces/payment_item.ts**:
+   - Defined `PaymentItem` and `PaymentData` interfaces to represent payment-related data structures.
+
+8. **functions/src/stripe/payments/interfaces/reserve_date.ts**:
+   - Defined `ReserveData` interface for reservation data structures.
+
+9. **functions/src/stripe/payments/utils/calculate_total.ts**:
+   - Added `calculateTotal` utility function to compute the total payment amount in cents based on provided items.
+
+10. **functions/src/stripe/payments/utils/create_stripe_payment_intent.ts**:
+    - Implemented `createStripePaymentIntent` utility to interact with Stripe's PaymentIntent API, creating intents with user and item metadata.
+
+11. **functions/src/stripe/payments/utils/create_stripe_session.ts**:
+    - Added `createStripeSession` utility to create Stripe checkout sessions, configuring payment methods, line items, URLs, and metadata.
+
+12. **functions/src/stripe/payments/utils/fetch_and_validate_items.ts**:
+    - Implemented `fetchAndValidateItems` utility function to validate items from function requests.
+
+13. **functions/src/stripe/payments/utils/reserve_items.ts**:
+    - Developed `reserveItems` utility to reserve items in Firestore, updating stock quantities and reservation records atomically.
+
+14. **functions/src/stripe/utils/initialize_stripe.ts**:
+    - Modified `initializeStripe` function to specify Stripe API version `"2024-12-18.acacia"` during initialization.
+
+15. **functions/src/stripe/webhook/functions/stripe_webhook.ts**:
+    - Updated `stripeWebhook` Cloud Function to improve Stripe initialization and error handling, including correct API version specification and logging.
+
+16. **lib/data/models/bag_item.dart**:
+    - Added `'adId': adId` to `toPaymentParameters` method to include ad ID in payment parameters.
+
+17. **lib/data/services/payment/payment_stripe_service.dart**:
+    - Updated `PaymentStripeService` to map items using `item.toPaymentParameters()` instead of manual mapping.
+
+### Conclusion:
+
+Enhanced Stripe integration by adding comprehensive payment functions, updated dependencies to maintain compatibility, and improved project configurations for better code quality and maintainability.
+
+
 ## 2024/12/31 - version: 0.5.06+44
 
 Refactor authentication, notification, and Stripe webhook functions with updated naming conventions and improved configurations.
