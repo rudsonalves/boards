@@ -27,14 +27,7 @@ class PaymentStripeService implements IPaymentService {
       final callable = _firebaseFuncs.httpsCallable('createCheckoutSession');
 
       final response = await callable.call({
-        'items': items
-            .map((item) => {
-                  'adId': item.adId,
-                  'title': item.title,
-                  'unit_price': item.unitPrice,
-                  'quantity': item.quantity,
-                })
-            .toList(),
+        'items': items.map((item) => item.toPaymentParameters()).toList(),
       });
 
       final sessionUrl = response.data['url'] as String?;

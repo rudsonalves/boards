@@ -18,5 +18,5 @@ export function initializeStripe(stripeApiKey: string): Stripe {
     throw new Error(message);
   }
 
-  return new Stripe(stripeApiKey);
+  return new Stripe(stripeApiKey, { apiVersion: "2024-12-18.acacia" });
 }

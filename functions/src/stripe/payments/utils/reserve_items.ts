@@ -1,0 +1,111 @@
+// src/stripe/payments/utils/reserve_items.ts
+
+import { getFirestore } from "firebase-admin/firestore";
+import { logger } from "firebase-functions/v2";
+
+import { PaymentItem } from "../interfaces/payment_item";
+import { ReserveData } from "../interfaces/reserve_date";
+
+/**
+ * Reserva os itens selecionados pelo usuário, decrementando a quantidade
+ * em estoque e criando/atualizando um registro de reserva no Firestore.
+ *
+ * @async
+ * @function reserveItems
+ * @param {PaymentItem[]} items - Lista de itens, cada item contendo adId e
+ *                                    quantity.
+ * @param {string} userId - UID do usuário que está fazendo a reserva.
+ * @return {Promise<void>} - Completa quando a reserva estiver confirmada.
+ * @throws {Error} - Caso o item não exista, não haja estoque suficiente ou se
+ *                   userId estiver ausente.
+ */
+export async function reserveItems(
+  items: PaymentItem[],
+  userId: string,
+): Promise<void> {
+  if (!userId) {
+    throw new Error("User ID is required for reservation.");
+  }
+
+  const firestore = getFirestore();
+  const batch = firestore.batch();
+
+  // Defina no início
+  const now = Date.now();
+  const reservedUntil = new Date(now + 30 * 60 * 1000);
+
+  for (const item of items) {
+    const adRef = firestore.collection("ads").doc(item.adId);
+    const reserveRef = adRef.collection("reserve").doc(userId);
+
+    logger.info(`Reserving item for userId=${userId}, adId=${item.adId}`);
+
+    // Baixa o produto e verifica se existe
+    const adDoc = await adRef.get();
+    if (!adDoc.exists) {
+      throw new Error(`Item not found: ${item.adId}`);
+    }
+
+    const adData = adDoc.data();
+    if (!adData) {
+      throw new Error(`Invalid ad data for item: ${item.adId}`);
+    }
+
+    // Verifica se o produto esta ativo
+    if (adData.status !== "active") {
+      throw new Error(`Ad ${item.adId} has status "${adData.status}"`);
+    }
+
+    let stock: number;
+
+    // Recupera a reserva, se existir
+    const existingReserveSnap = await reserveRef.get();
+    if (existingReserveSnap.exists) {
+      logger.info("Update reservation.");
+      const existingReserveData = existingReserveSnap.data();
+      if (!existingReserveData) {
+        const message = "Update reserve error. Reserve data is null:" +
+          ` userId=${userId}, adId=${item.adId}`;
+        logger.error(message);
+        throw new Error(message);
+      }
+
+      // Restaura estoque com a reserva anterior
+      adData.quantity += existingReserveData.quantity;
+
+      // Verifica se existe produto suficiente em estoque
+      stock = adData.quantity - item.quantity;
+      if (stock < 0) {
+        const message =
+          `There is not enough product in stock: adId ${item.adId}`;
+        logger.error(message);
+        throw new Error(message);
+      }
+    } else {
+      logger.info("Creating new reservation.");
+      // Verifica se existe produto suficiente em estoque
+      stock = adData.quantity - item.quantity;
+      if (stock < 0) {
+        const message =
+          `There is not enough product in stock: adId ${item.adId}`;
+        logger.error(message);
+        throw new Error(message);
+      }
+    }
+
+    // Atualizar reserva
+    batch.set(reserveRef, {
+      quantity: item.quantity,
+      reservedUntil: reservedUntil,
+    } as ReserveData);
+
+    // Atualizar Anúncio
+    batch.update(adRef, {
+      quantity: stock,
+      status: stock === 0 ? "reserved" : adData.status,
+    });
+  }
+
+  await batch.commit();
+  logger.info("Items reserved successfully.");
+}
