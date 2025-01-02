@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
-// src/stripe/payments/functions/create_payment_intent.ts
-
 import {
   onCall,
   CallableRequest,
@@ -30,14 +28,14 @@ import { calculateTotal } from "../utils/calculate_total";
 import {
   createStripePaymentIntent,
 } from "../utils/create_stripe_payment_intent";
-import { PaymentItem } from "../interfaces/payment_item";
+import { IItem } from "../interfaces/payment_item";
 
 /**
  * Cria um PaymentIntent no Stripe, retornando um client_secret para realizar o
  * pagamento.
  *
  * @function createPaymentIntent
- * @param {CallableRequest<PaymentItem[]>} request
+ * @param {CallableRequest<IItem[]>} request
  *   Objeto da requisição onCall do Firebase Functions, contendo data e auth.
  * @returns {Promise<{ clientSecret: string }>}
  *   Retorna um objeto contendo o clientSecret do PaymentIntent criado no
@@ -58,7 +56,7 @@ export const createPaymentIntent = onCall(
     secrets: ["STRIPE_API_KEY"],
   },
   async (
-    request: CallableRequest<PaymentItem[]>
+    request: CallableRequest<IItem[]>
   ): Promise<{ clientSecret: string | unknown }> => {
     logger.info("Iniciando função: createPaymentIntent");
 

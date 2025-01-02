@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
-// src/stripe/payments/createCheckoutSession.ts
-
 import {
   onCall,
   CallableRequest,
@@ -28,13 +26,13 @@ import { verifyAuth } from "../../../auth/utils/verify_auth";
 import { fetchAndValidateItems } from "../utils/fetch_and_validate_items";
 import { reserveItems } from "../utils/reserve_items";
 import { createStripeSession } from "../utils/create_stripe_session";
-import { PaymentItem } from "../interfaces/payment_item";
+import { PaymentItems } from "../interfaces/payment_item";
 
 /**
  * Cria uma sessão de checkout no Stripe, reservando itens e retornando a URL.
  *
  * @function createCheckoutSession
- * @param {CallableRequest<PaymentItem[]>} request
+ * @param {CallableRequest<PaymentItems>} request
  *   Objeto da requisição onCall do Firebase Functions, contendo dados e
  *   contexto de auth.
  * @returns {Promise<{ url: string }>}
@@ -52,7 +50,7 @@ export const createCheckoutSession = onCall(
     secrets: ["STRIPE_API_KEY"],
   },
   async (
-    request: CallableRequest<PaymentItem[]>
+    request: CallableRequest<PaymentItems>
   ): Promise<{ url: string }> => {
     logger.info("Iniciando função: createCheckoutSession");
 
@@ -68,7 +66,10 @@ export const createCheckoutSession = onCall(
       const userId = verifyAuth(request);
 
       // 2. Validar os itens
-      const items = fetchAndValidateItems(request.data);
+      logger.info("request.data: ");
+      logger.info(request.data);
+      const reqData = request.data;
+      const items = fetchAndValidateItems(reqData.items);
 
       // 3. Reservar os itens
       await reserveItems(items, userId);

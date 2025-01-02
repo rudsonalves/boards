@@ -1,6 +1,6 @@
 {
   "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "vscode.typescript-language-features",
     "editor.formatOnSave": true,
     "editor.rulers": [
       80
@@ -11,13 +11,14 @@
     "editor.formatOnSave": true
   },
   "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
     "editor.rulers": [
       80
     ]
   },
   "eslint.enable": true,
   "editor.formatOnSave": true,
-  "eslint.packageManager": "npm",
+  // "eslint.packageManager": "npm",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
@@ -26,5 +27,5 @@
     "javascriptreact",
     "typescript",
     "typescriptreact"
-  ]
+  ],
 }
