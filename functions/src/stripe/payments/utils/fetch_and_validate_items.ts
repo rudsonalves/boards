@@ -15,26 +15,26 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
-// src/stripe/payments/utils/fetch_and_validate_items.ts
-
+import { logger } from "firebase-functions/v2";
 import {
-  PaymentItem,
+  IItem,
 } from "../interfaces/payment_item";
 
 /**
  * Valida e retorna os itens enviados na requisição.
  *
  * @function fetchAndValidateItems
- * @param {PaymentItem[]} request - Objeto da requisição
+ * @param {IItem[]} request - Objeto da requisição
  *                                (ex.: onCall) contendo `items`.
- * @return {PaymentItem[]} Lista de itens validados.
+ * @return {IItem[]} Lista de itens validados.
  * @throws {Error} Caso `items` não exista ou não seja um array válido.
  */
 export function fetchAndValidateItems(
-  request: PaymentItem[],
-): PaymentItem[] {
+  request: IItem[],
+): IItem[] {
   const items = request;
   if (!items || !Array.isArray(items)) {
+    logger.error(`Items must be a valid arra: ${items}`);
     throw new Error("Items must be a valid array.");
   }
   return items;

@@ -78,6 +78,84 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2025/01/01 - version: 0.6.01+47
+
+This commit introduces several updates and enhancements across multiple files in the project, focusing on improving functionality, refactoring code, and resolving issues.
+
+### Changes made:
+
+1. **.vscode/launch.json**:
+   - Added the `--no-enable-impeller` argument to the Flutter launch configuration.
+
+2. **.vscode/settings.json**:
+   - Updated the default formatter for JavaScript to `vscode.typescript-language-features`.
+   - Added the same formatter configuration for TypeScript.
+   - Commented out the `eslint.packageManager` configuration.
+   - Fixed formatting issues and added a newline at the end of the file.
+
+3. **Makefile**:
+   - Added a new `stripe_login` command for initiating a Stripe login.
+
+4. **functions/.eslintrc.js**:
+   - Modified the `indent` rule to include a `SwitchCase` property.
+
+5. **functions/.gitignore**:
+   - Added `.env.local` to the ignored files list.
+
+6. **functions/package-lock.json**:
+   - Added the `raw-body` package (version 3.0.0).
+   - Updated dependencies for `raw-body` and related submodules.
+
+7. **functions/package.json**:
+   - Added the `raw-body` package as a dependency.
+
+8. **functions/src/stripe/payments/functions/create_checkout_session.ts**:
+   - Renamed `PaymentItem` to `PaymentItems`.
+   - Added logging for `request.data` for debugging purposes.
+   - Refactored validation to use `reqData.items`.
+
+9. **functions/src/stripe/payments/functions/create_payment_intent.ts**:
+   - Renamed `PaymentItem` to `IItem`.
+
+10. **functions/src/stripe/payments/interfaces/payment_item.ts**:
+    - Renamed `PaymentItem` to `IItem`.
+    - Introduced a new `PaymentItems` interface containing an array of `IItem`.
+
+11. **functions/src/stripe/payments/utils/calculate_total.ts**:
+    - Updated references from `PaymentItem` to `IItem`.
+
+12. **functions/src/stripe/payments/utils/fetch_and_validate_items.ts**:
+    - Updated parameter types from `PaymentItem[]` to `IItem[]`.
+    - Added error logging for invalid items arrays.
+
+13. **functions/src/stripe/payments/utils/reserve_items.ts**:
+    - Updated parameter types from `PaymentItem[]` to `IItem[]`.
+
+14. **functions/src/stripe/webhook/functions/stripe_webhook.ts**:
+    - Streamlined initialization and validation logic for the Stripe instance.
+    - Simplified the webhook response handling.
+    - Added enhanced logging and error messages for validation and processing.
+
+15. **functions/src/stripe/webhook/utils/process_stripe_event.ts**:
+    - Adjusted the indentation and refactored the `switch` statement for clarity.
+
+16. **lib/data/services/payment/interfaces/i_payment_service.dart**:
+    - Fixed minor formatting issues in the comments.
+
+17. **lib/data/services/payment/payment_stripe_service.dart**:
+    - Fixed minor formatting issues in the comments.
+
+18. **lib/ui/features/bag/widgets/quantity_buttons.dart**:
+    - Updated import paths to use absolute paths.
+    - Added logic to determine item availability and adjust button behavior accordingly.
+    - Modified border color dynamically based on theme brightness.
+    - Enhanced button icon color logic based on availability.
+
+### Conclusion:
+
+These changes enhance the project by refining code structure, improving clarity, and addressing functionality gaps. The refactoring and updates align the code with better standards and usability practices.
+
+
 ## 2025/01/01 - version: 0.6.00+45
 
 Enhance Stripe payment integration and update project dependencies and configurations.

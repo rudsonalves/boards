@@ -9,7 +9,9 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
-      "args": []
+      "args": [
+        "--no-enable-impeller"
+      ]
     },
     {
       "name": "Flutter: Launch with no Impeller",

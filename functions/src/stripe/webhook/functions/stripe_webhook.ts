@@ -44,23 +44,13 @@ export const stripeWebhook = onRequest(
   async (request: IncomingMessage, response: ServerResponse) => {
     try {
       logger.info("Iniciando stripeWebhook");
-      logger.info("Cabeçalhos:", JSON.stringify(request.headers));
 
       // Acessando os segredos via process.env
       const webhookSecret = process.env.WEBHOOK_SEC;
       const stripeApiKey = process.env.STRIPE_API_KEY;
 
-      if (!stripeApiKey) {
-        const errorMessage = "Chave de API do Stripe não está configurada.";
-        logger.error(errorMessage);
-        response.statusCode = 500;
-        response.end(errorMessage);
-        return;
-      }
-
-      if (!webhookSecret) {
-        const errorMessage =
-          "Segredo do webhook (WEBHOOK_SEC) não está configurado.";
+      if (!stripeApiKey || !webhookSecret) {
+        const errorMessage = "Configuração do Stripe incompleta.";
         logger.error(errorMessage);
         response.statusCode = 500;
         response.end(errorMessage);
@@ -68,94 +58,63 @@ export const stripeWebhook = onRequest(
       }
 
       const stripeInstance = initializeStripe(stripeApiKey);
-      logger.info(
-        `Instância do Stripe inicializada: ${!stripeInstance}`,
-      );
-
-      try {
-        const stripeInstance = new Stripe(
-          stripeApiKey, { apiVersion: "2024-12-18.acacia" });
-        const success = !stripeInstance;
-        logger.info(`Stripe instance initialized successfully. ${success}`);
-      } catch (error) {
-        logger.error("Failed to initialize Stripe:", error);
-        throw new Error("Stripe initialization failed");
-      }
-
-      // Coletar o corpo da requisição em formato bruto (Buffer)
-      const chunks: Buffer[] = [];
-      request.on("data", (chunk) => {
-        chunks.push(chunk as Buffer);
-      });
-
-      request.on("end", async () => {
-        const rawBody = Buffer.concat(chunks);
-        logger.info("Tipo do Corpo:", typeof rawBody);
-        logger.info("É Buffer:", Buffer.isBuffer(rawBody));
-
-        // Acessar o cabeçalho 'stripe-signature'
-        const signatureHeader = request.headers["stripe-signature"];
-        if (!signatureHeader || Array.isArray(signatureHeader)) {
-          const errorMessage =
-            "Assinatura do Stripe ausente ou inválida nos cabeçalhos.";
-          logger.error(errorMessage);
-          response.statusCode = 400;
-          response.end(errorMessage);
-          return;
-        }
-
-        // Validar o webhook
-        let event: Stripe.Event;
-        try {
-          event = stripeInstance.webhooks.constructEvent(
-            rawBody,
-            signatureHeader,
-            webhookSecret
-          );
-        } catch (err) {
-          const errorMessage =
-            `Erro ao validar webhook: ${(err as Error).message}`;
-          logger.error(errorMessage);
-          response.statusCode = 400;
-          response.end(errorMessage);
-          return;
-        }
-
-        logger.info(`Evento Stripe validado: ${event.type}`);
-
-        // Processar o evento
-        try {
-          await processStripeEvent(event);
-          logger.info(`Evento Stripe processado: ${event.type}`);
-          response.statusCode = 200;
-          response.end("Webhook processado com sucesso");
-        } catch (err) {
-          const errorMessage =
-            `Erro ao processar evento: ${(err as Error).message}`;
-          logger.error(errorMessage);
-          response.statusCode = 500;
-          response.end(errorMessage);
-        }
-      });
-
-      request.on("error", (err) => {
-        logger.error(`Erro ao ler a requisição: ${err.message}`);
+      const isStripe = stripeInstance instanceof Stripe;
+      if (!isStripe) {
+        const errorMessage = "stripeInstance nõ é uma instância de Stripe.";
+        logger.error(errorMessage);
         response.statusCode = 500;
-        response.end("Erro ao ler a requisição");
-      });
-    } catch (error) {
-      const err = error as Error;
-      logger.error(`Erro no webhook: ${err.message}`, error);
-
-      // Substituir "any" por uma interface com statusCode opcional
-      interface HasStatusCode extends Error {
-        statusCode?: number;
+        response.end(errorMessage);
+        return;
       }
-      const hasStatus = error as HasStatusCode;
+      logger.info(`Instância do Stripe inicializada: ${isStripe}`);
 
-      const statusCode = hasStatus.statusCode ?? 500;
-      response.statusCode = statusCode;
-      response.end(`Erro no Webhook: ${err.message}`);
+      // Resposta inicial ao Stripe
+      response.statusCode = 200;
+      response.end("Webhook recebido.");
+
+      // Obter o corpo bruto da requisição
+      const rawBody = (request as any).rawBody;
+
+      const signatureHeader = request.headers["stripe-signature"];
+      if (!signatureHeader) {
+        const errorMessage = "Cabeçalho stripe-signature ausente.";
+        logger.error(errorMessage);
+        response.statusCode = 400;
+        response.end(errorMessage);
+        return;
+      }
+
+      // Validar e construir o evento
+      let event;
+      try {
+        event = stripeInstance.webhooks.constructEvent(
+          rawBody,
+          signatureHeader,
+          webhookSecret
+        );
+      } catch (err) {
+        const errorMessage =
+          `Erro ao validar webhook: ${(err as Error).message}`;
+        logger.error(errorMessage);
+        response.statusCode = 400;
+        response.end(errorMessage);
+        return;
+      }
+
+      logger.info(`Evento Stripe validado: ${event.type}`);
+
+      // Processar o evento Stripe
+      try {
+        await processStripeEvent(event);
+      } catch (err) {
+        logger.error(
+          `Erro ao processar evento Stripe: ${(err as Error).message}`);
+      }
+    } catch (error) {
+      const errorMessage = `Erro inesperado: ${(error as Error).message}`;
+      logger.error(errorMessage);
+      response.statusCode = 500;
+      response.end(errorMessage);
     }
   }
 );

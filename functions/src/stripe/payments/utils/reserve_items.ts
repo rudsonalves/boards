@@ -20,7 +20,7 @@
 import { getFirestore } from "firebase-admin/firestore";
 import { logger } from "firebase-functions/v2";
 
-import { PaymentItem } from "../interfaces/payment_item";
+import { IItem } from "../interfaces/payment_item";
 import { ReserveData } from "../interfaces/reserve_date";
 
 /**
@@ -29,7 +29,7 @@ import { ReserveData } from "../interfaces/reserve_date";
  *
  * @async
  * @function reserveItems
- * @param {PaymentItem[]} items - Lista de itens, cada item contendo adId e
+ * @param {IItem[]} items - Lista de itens, cada item contendo adId e
  *                                    quantity.
  * @param {string} userId - UID do usuário que está fazendo a reserva.
  * @return {Promise<void>} - Completa quando a reserva estiver confirmada.
@@ -37,7 +37,7 @@ import { ReserveData } from "../interfaces/reserve_date";
  *                   userId estiver ausente.
  */
 export async function reserveItems(
-  items: PaymentItem[],
+  items: IItem[],
   userId: string,
 ): Promise<void> {
   if (!userId) {

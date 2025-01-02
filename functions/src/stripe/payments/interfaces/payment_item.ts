@@ -15,20 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
-// src/stripe/payments/interfaces/payment_item.ts
-
 /**
  * Representa um item de pagamento, contendo preço unitário e quantidade.
  */
-export interface PaymentItem {
+export interface IItem {
   adId: string;
   title: string;
   unit_price: number;
   quantity: number;
 }
 
+export interface PaymentItems {
+  items: IItem[];
+}
+
 export interface PaymentData {
   totalAmount: number;
   userId: string;
-  items: PaymentItem[];
+  items: IItem[];
 }
