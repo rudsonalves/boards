@@ -15,12 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:boards/core/singletons/current_user.dart';
-import 'package:boards/data/models/payment_data.dart';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
-import '/core/abstracts/data_result.dart';
+import '/data/models/user.dart';
+import '/core/singletons/current_user.dart';
+import '/data/models/payment_data.dart';
 import '/data/services/payment/interfaces/i_payment_service.dart';
 import '/data/models/bag_item.dart';
 import '/core/singletons/app_settings.dart';
@@ -37,7 +39,9 @@ class PaymentController {
   String? get clientSecret => _clientSecret;
 
   final app = getIt<AppSettings>();
-  final user = getIt<CurrentUser>();
+  final currentUser = getIt<CurrentUser>();
+
+  UserModel get user => currentUser.user!;
 
   final stripe = Stripe.instance;
 
@@ -53,22 +57,40 @@ class PaymentController {
   double get totalAmount =>
       items.fold(0, (sum, item) => sum + (item.quantity * item.unitPrice));
 
-  Future<DataResult<String>> startPayment() async {
-    store.setStateLoading();
-    final pay = PaymentDataModel(
-      buyerId: user.userId,
-      sellerId: items.first.ownerId,
-      items: items,
-    );
-    final result = await _paymentService.createPaymentIntent(pay);
+  Future<bool> startPayment() async {
+    try {
+      store.setStateLoading();
+      final pay = PaymentDataModel(
+        buyerId: currentUser.userId,
+        sellerId: items.first.ownerId,
+        items: items,
+      );
+      final result = await _paymentService.createPaymentIntent(pay);
 
-    if (result.isSuccess) {
+      final clientSecret = result.fold(
+        (failure) => throw Exception(failure.message),
+        (secret) => secret,
+      );
+
+      if (result.isFailure) {
+        throw Exception(result.error?.message ?? 'unknow error');
+      }
       _clientSecret = result.data;
       store.setStateSuccess();
-    } else {
-      store.setError(result.error?.message ?? 'unknow error');
-    }
 
-    return result;
+      final value = await _paymentService.initPaymentSheet(
+        clientSecret: clientSecret,
+        paymentType: store.paymentType.value.name,
+        name: user.name,
+        email: user.email,
+      );
+
+      log(value.toString());
+      return true;
+    } catch (err) {
+      log(err.toString());
+      store.setStateSuccess();
+      return false;
+    }
   }
 }

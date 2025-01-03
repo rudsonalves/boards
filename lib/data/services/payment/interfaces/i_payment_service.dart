@@ -15,10 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:flutter_stripe/flutter_stripe.dart';
+
 import '/data/models/payment_data.dart';
 import '/core/abstracts/data_result.dart';
 
 abstract class IPaymentService {
   Future<DataResult<String>> createPaymentIntent(PaymentDataModel pay);
   Future<DataResult<String>> createCheckoutSession(PaymentDataModel pay);
+  Future<PaymentSheetPaymentOption?> initPaymentSheet({
+    required String clientSecret,
+    required String paymentType,
+    required String? name,
+    required String email,
+  });
 }

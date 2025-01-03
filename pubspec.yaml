@@ -1,7 +1,7 @@
 name: boards
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.6.01+48
+version: 0.6.02+49
 
 environment:
   sdk: '>=3.4.1 <4.0.0'
@@ -40,7 +40,6 @@ dependencies:
   cloud_functions: ^5.1.5
   firebase_storage: ^12.3.7
   firebase_messaging: ^15.1.6
-  # file_picker: ^8.1.5
   file_picker:
     path: ../../Packages/flutter_file_picker
   flutter_stripe: ^11.3.0

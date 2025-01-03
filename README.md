@@ -78,11 +78,69 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
-## 2025/01/01 - version: 0.6.01+48
+## 2025/01/03 - version: 0.6.02+49
+
+This commit introduces several enhancements and fixes across multiple modules, including the payment system, ad management, and data models. Key changes involve the integration of Stripe payments, improved data handling, and refactored imports for better code organization.
+
+### Changes made:
+
+1. **lib/data/models/user.dart**:
+   - Added a new computed property `score` to calculate the user's score based on points and sales.
+
+2. **lib/data/services/payment/interfaces/i_payment_service.dart**:
+   - Added a new method `initPaymentSheet` for initializing the Stripe payment sheet.
+   - Imported `flutter_stripe` to support the new method.
+
+3. **lib/data/services/payment/payment_stripe_service.dart**:
+   - Added `stripeInstance` as a final instance of `Stripe`.
+   - Implemented the `initPaymentSheet` method to support Stripe's payment sheet functionality.
+
+4. **lib/logic/managers/ads_manager.dart**:
+   - Added multiple methods for ad management: `add`, `getMyAds`, `get`, `update`, and `updateStatus`.
+   - Updated import paths to use relative imports with `/`.
+
+5. **lib/ui/features/account/my_ads/my_ads_controller.dart**:
+   - Replaced direct usage of `adRepository` with the newly introduced `adManager`.
+   - Adjusted calls to use `adManager` methods instead of repository methods.
+
+6. **lib/ui/features/edit_ad/edit_ad_controller.dart**:
+   - Switched from `adRepository` to `adsManager` for better separation of concerns.
+   - Adjusted all method calls to reference the `adsManager` instead.
+
+7. **lib/ui/features/edit_ad/edit_ad_store.dart**:
+   - Changed `current` to `currentUser` for naming consistency.
+   - Updated the `ad` initialization to include the user's score (`ownerScore`).
+
+8. **lib/ui/features/payment/payment_controller.dart**:
+   - Refactored the payment initiation logic, using `currentUser` instead of `user`.
+   - Modified the `startPayment` method to return a boolean instead of `DataResult`.
+   - Improved error handling and logging during payment initialization.
+
+9. **lib/ui/features/payment/payment_screen.dart**:
+   - Enhanced the payment screen with new payment options (Card, Boleto, Pix).
+   - Improved the UI layout and messaging, including a success message for successful payments.
+
+10. **lib/ui/features/payment/payment_store.dart**:
+    - Introduced a new `PaymentType` enum to handle multiple payment methods.
+    - Added a `ValueNotifier` for payment selection and a method `setPaymentType`.
+
+11. **lib/ui/features/shop/shop_controller.dart**:
+    - Replaced direct usage of `adRepository` with `adManager` for ad operations.
+    - Updated imports to use relative paths consistently.
+
+12. **pubspec.yaml**:
+    - Removed the commented `file_picker` version and switched to a local package reference.
+    - Updated the `flutter_stripe` dependency to version `^11.3.0`.
+
+### Conclusion:
+These changes enhance the payment process with the Stripe integration, improve the separation of concerns in ad management, and clean up the codebase for better readability and maintainability.
+
+
+## 2025/01/03 - version: 0.6.01+48
 
 Introduced significant refactoring and improvements to the Stripe payment integration and payment data handling across multiple files.
 
-## Changes made:
+### Changes made:
 
 1. **docs/Escrow no Stripe.md**:
    - Added a new documentation file explaining the use of Stripe Connect for escrow payments with delayed transfers and destination charges.
@@ -203,7 +261,7 @@ Introduced significant refactoring and improvements to the Stripe payment integr
 35. **lib/ui/features/shop/product/product_screen.dart**:
     - Updated to use `ownerScore` instead of `ownerRate`.
 
-## Conclusion:
+### Conclusion:
 This commit introduces a comprehensive refactor of the Stripe payment integration, improving data consistency, enhancing error handling, and ensuring better buyer and seller validation. It also replaces the WebView-based payment process with a direct Stripe integration approach using `PaymentDataModel`.
 
 

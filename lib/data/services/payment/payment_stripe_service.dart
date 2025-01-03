@@ -19,6 +19,7 @@ import 'dart:developer';
 
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 import '/data/models/payment_data.dart';
 import 'interfaces/i_payment_service.dart';
@@ -35,6 +36,8 @@ class PaymentStripeService implements IPaymentService {
       return FirebaseFunctions.instanceFor(region: 'southamerica-east1');
     }
   }
+
+  final stripeInstance = Stripe.instance;
 
   @override
   Future<DataResult<String>> createCheckoutSession(
@@ -78,5 +81,40 @@ class PaymentStripeService implements IPaymentService {
       log(message);
       return DataResult.failure(GenericFailure(message: message));
     }
+  }
+
+  @override
+  Future<PaymentSheetPaymentOption?> initPaymentSheet({
+    required String clientSecret,
+    required String paymentType,
+    required String? name,
+    required String email,
+  }) async {
+    await stripeInstance.initPaymentSheet(
+      paymentSheetParameters: SetupPaymentSheetParameters(
+        paymentIntentClientSecret: clientSecret,
+        merchantDisplayName: 'Board Games Store',
+        paymentMethodOrder: [paymentType],
+        // appearance: PaymentSheetAppearance(
+        //   colors: PaymentSheetAppearanceColors(
+        //     primary: Colors.blue,
+        //   ),
+        // ),
+        billingDetails: BillingDetails(
+          name: name,
+          email: email,
+          address: Address(
+            city: null,
+            line1: null,
+            line2: null,
+            postalCode: null,
+            state: null,
+            country: 'BR',
+          ),
+        ),
+      ),
+    );
+
+    return stripeInstance.presentPaymentSheet();
   }
 }

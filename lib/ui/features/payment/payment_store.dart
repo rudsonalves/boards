@@ -15,6 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:flutter/foundation.dart';
+
 import '../../components/state/state_store.dart';
 
-class PaymentStore extends StateStore {}
+enum PaymentType { card, boleto, pix }
+
+class PaymentStore extends StateStore {
+  final paymentType = ValueNotifier<PaymentType>(PaymentType.card);
+
+  void setPaymentType(PaymentType? value) {
+    if (value != null) {
+      paymentType.value = value;
+    }
+  }
+}

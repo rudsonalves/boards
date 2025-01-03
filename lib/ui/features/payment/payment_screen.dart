@@ -15,15 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'dart:developer';
-
-import 'package:boards/data/models/bag_item.dart';
-import 'package:boards/ui/components/buttons/big_button.dart';
-import 'package:boards/ui/components/widgets/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-import '../../../core/theme/app_text_style.dart';
+import '/data/models/bag_item.dart';
+import '/ui/components/buttons/big_button.dart';
+import '/ui/components/widgets/app_snackbar.dart';
+import '/core/theme/app_text_style.dart';
 import 'payment_controller.dart';
 import 'payment_store.dart';
 
@@ -66,10 +64,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<void> _payment() async {
     final result = await ctrl.startPayment();
 
-    if (result.isSuccess) {
-      log('Ok');
+    if (result) {
+      if (!mounted) return;
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        AppSnackbar.show(
+          context,
+          message: 'Seu pagamento está processando.',
+        );
+      });
     } else {
-      log('Fail');
+      if (!mounted) return;
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        AppSnackbar.show(
+          context,
+          message: 'Ocorreu um erro. Tente novamente mais tarde',
+        );
+      });
     }
   }
 
@@ -100,7 +110,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 spacing: 4,
                 children: [
                   Text(
-                    'Vendido por ${ctrl.items[0].ownerName} (${ctrl.items[0].score})',
+                    'Vendido por: ${ctrl.items[0].ownerName}'
+                    ' [⛦ ${ctrl.items[0].score == 0 ? '-' : ctrl.items[0].score}]',
                     style: AppTextStyle.font18SemiBold,
                   ),
                   Text(
@@ -115,14 +126,65 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       return ListTile(
                         title: Text(item.title),
                         subtitle: Text(
-                          '${item.quantity} x ${item.unitPrice.toStringAsFixed(2)}',
+                          '${item.quantity} x'
+                          ' R\$ ${item.unitPrice.toStringAsFixed(2)}',
                         ),
                         trailing: Text(
                           'R\$ ${(item.quantity * item.unitPrice).toStringAsFixed(2)}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: AppTextStyle.font16Bold,
                         ),
                       );
                     },
+                  ),
+                  ListTile(
+                    title: Text(
+                      'Total:',
+                      style: AppTextStyle.font18Bold,
+                    ),
+                    trailing: Text(
+                      'R\$ ${ctrl.totalAmount.toStringAsFixed(2)}',
+                      style: AppTextStyle.font18Bold,
+                    ),
+                  ),
+                  Divider(),
+                  Text(
+                    'Selecione a forma de Pagamento:',
+                    style: AppTextStyle.font16SemiBold,
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: store.paymentType,
+                    builder: (context, paymentType, _) => Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        ListTile(
+                          title: Text('Cartão'),
+                          leading: Radio<PaymentType>(
+                            value: PaymentType.card,
+                            groupValue: paymentType,
+                            onChanged: store.setPaymentType,
+                          ),
+                          onTap: () => store.setPaymentType(PaymentType.card),
+                        ),
+                        ListTile(
+                          title: Text('Boleto'),
+                          leading: Radio<PaymentType>(
+                            value: PaymentType.boleto,
+                            groupValue: paymentType,
+                            onChanged: store.setPaymentType,
+                          ),
+                          onTap: () => store.setPaymentType(PaymentType.boleto),
+                        ),
+                        ListTile(
+                          title: Text('Pix'),
+                          leading: Radio<PaymentType>(
+                            value: PaymentType.pix,
+                            groupValue: paymentType,
+                            onChanged: store.setPaymentType,
+                          ),
+                          onTap: () => store.setPaymentType(PaymentType.pix),
+                        ),
+                      ],
+                    ),
                   ),
                   BigButton(
                     onPressed: _payment,
@@ -132,7 +194,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             height: 26,
                             child: CircularProgressIndicator())
                         : Icon(Icons.payment, size: 26),
-                    label: 'Pagar',
+                    label: 'Seguir para o Pagamento',
                     color: Colors.lightGreen,
                   ),
                 ],

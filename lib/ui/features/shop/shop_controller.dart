@@ -1,39 +1,37 @@
 // Copyright (C) 2025 Rudson Alves
-// 
+//
 // This file is part of boards.
-// 
+//
 // boards is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // boards is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:developer';
 
-import '../../../core/config/app_info.dart';
-import '../../../data/models/ad.dart';
-import '../../../data/models/filter.dart';
-import '../../../data/models/user.dart';
-import '../../../core/singletons/app_settings.dart';
-import '../../../core/singletons/current_user.dart';
-import '../../../core/singletons/search_filter.dart';
-import '../../../logic/managers/ads_manager.dart';
-import '../../../core/get_it.dart';
-import '../../../data/repository/interfaces/remote/i_ads_repository.dart';
+import '/core/config/app_info.dart';
+import '/data/models/ad.dart';
+import '/data/models/filter.dart';
+import '/data/models/user.dart';
+import '/core/singletons/app_settings.dart';
+import '/core/singletons/current_user.dart';
+import '/core/singletons/search_filter.dart';
+import '/logic/managers/ads_manager.dart';
+import '/core/get_it.dart';
 import 'shop_store.dart';
 
 class ShopController {
   final app = getIt<AppSettings>();
   final currentUser = getIt<CurrentUser>();
   final searchFilter = getIt<SearchFilter>();
-  final adRepository = getIt<IAdsRepository>();
   final adManager = getIt<AdsManager>();
 
   late final ShopStore store;

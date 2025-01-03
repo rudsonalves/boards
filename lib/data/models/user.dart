@@ -62,6 +62,8 @@ class UserModel {
         ' createdAt: $createdAt';
   }
 
+  double get score => points / (sales != 0 ? sales : 1);
+
   UserModel copyWith({
     String? id,
     String? name,
