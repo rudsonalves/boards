@@ -1,37 +1,37 @@
 // Copyright (C) 2025 Rudson Alves
-// 
+//
 // This file is part of boards.
-// 
+//
 // boards is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // boards is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
 
-import '../../../data/models/ad.dart';
-import '../../../data/models/address.dart';
-import '../../../data/models/boardgame.dart';
-import '../../../data/models/user.dart';
+import '/data/models/ad.dart';
+import '/data/models/address.dart';
+import '/data/models/boardgame.dart';
+import '/data/models/user.dart';
 import '/core/singletons/current_user.dart';
 import '/core/utils/validators.dart';
 import '../../components/state/state_store.dart';
-import '../../../core/get_it.dart';
+import '/core/get_it.dart';
 
 class EditAdStore extends StateStore {
   late AdModel ad;
 
-  final current = getIt<CurrentUser>();
-  UserModel get user => current.user!;
-  AddressModel? get userAddress => current.selectedAddress;
+  final currentUser = getIt<CurrentUser>();
+  UserModel get user => currentUser.user!;
+  AddressModel? get userAddress => currentUser.selectedAddress;
 
   final errorName = ValueNotifier<String?>(null);
   final errorDescription = ValueNotifier<String?>(null);
@@ -55,6 +55,8 @@ class EditAdStore extends StateStore {
           mechanicsIds: [],
           price: 0,
         );
+    // Updates user score even if is an edit.
+    this.ad.ownerScore = user.score;
   }
 
   @override

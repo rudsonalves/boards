@@ -1,17 +1,17 @@
 // Copyright (C) 2025 Rudson Alves
-// 
+//
 // This file is part of boards.
-// 
+//
 // boards is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // boards is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -20,23 +20,23 @@ import 'dart:developer';
 import 'package:boards/data/models/user.dart';
 import 'package:flutter/material.dart';
 
-import '../../../data/repository/interfaces/remote/i_ads_repository.dart';
-import '../../../core/abstracts/data_result.dart';
-import '../../components/form_controllers/currency_text_controller.dart';
+import '/core/abstracts/data_result.dart';
+import '/logic/managers/ads_manager.dart';
+import '/ui/components/form_controllers/currency_text_controller.dart';
 import 'edit_ad_store.dart';
 import '/core/singletons/current_user.dart';
-import '../../../data/models/ad.dart';
-import '../../../data/models/mechanic.dart';
-import '../../../core/get_it.dart';
-import '../../../logic/managers/boardgames_manager.dart';
-import '../../../logic/managers/mechanics_manager.dart';
+import '/data/models/ad.dart';
+import '/data/models/mechanic.dart';
+import '/core/get_it.dart';
+import '/logic/managers/boardgames_manager.dart';
+import '/logic/managers/mechanics_manager.dart';
 
 class EditAdController {
   late final EditAdStore store;
   final bgManager = getIt<BoardgamesManager>();
   final mechanicsManager = getIt<MechanicsManager>();
   final currentUser = getIt<CurrentUser>();
-  final adRepository = getIt<IAdsRepository>();
+  final adsManager = getIt<AdsManager>();
 
   String _selectedAddressId = '';
 
@@ -78,9 +78,9 @@ class EditAdController {
       store.setStateLoading();
       DataResult<AdModel?> result;
       if (store.ad.id == null) {
-        result = await adRepository.add(store.ad);
+        result = await adsManager.add(store.ad);
       } else {
-        result = await adRepository.update(store.ad);
+        result = await adsManager.update(store.ad);
       }
       if (result.isFailure) {
         throw Exception(result.error);

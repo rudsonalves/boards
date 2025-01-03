@@ -1,34 +1,34 @@
 // Copyright (C) 2025 Rudson Alves
-// 
+//
 // This file is part of boards.
-// 
+//
 // boards is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // boards is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:developer';
 
-import '../../../../data/repository/firebase/common/constantes.dart';
-import '../../../../data/models/ad.dart';
-import '../../../../data/models/filter.dart';
+import '/logic/managers/ads_manager.dart';
+import '/data/repository/firebase/common/constantes.dart';
+import '/data/models/ad.dart';
+import '/data/models/filter.dart';
 import '/core/singletons/current_user.dart';
-import '../../../../core/get_it.dart';
-import '../../../../data/repository/interfaces/remote/i_ads_repository.dart';
+import '/core/get_it.dart';
 import 'my_ads_store.dart';
 
 class MyAdsController {
   late final MyAdsStore store;
 
-  final adRepository = getIt<IAdsRepository>();
+  final adManager = getIt<AdsManager>();
 
   final currentUser = getIt<CurrentUser>().user!;
 
@@ -62,7 +62,7 @@ class MyAdsController {
   }
 
   Future<void> _getAds() async {
-    final result = await adRepository.getMyAds(
+    final result = await adManager.getMyAds(
       ownerId: currentUser.id!,
       status: _productStatus,
     );
@@ -101,7 +101,7 @@ class MyAdsController {
 
   Future<void> _getMoreAds() async {
     _adsDataBasePage++;
-    final result = await adRepository.get(
+    final result = await adManager.get(
       filter: FilterModel(),
       search: '',
       page: _adsDataBasePage,
@@ -123,7 +123,7 @@ class MyAdsController {
     int currentPage = _adsDataBasePage;
     try {
       store.setStateLoading();
-      final result = await adRepository.updateStatus(
+      final result = await adManager.updateStatus(
         adsId: ad.id!,
         status: ad.status,
         quantity: ad.quantity,
@@ -154,7 +154,7 @@ class MyAdsController {
     try {
       store.setStateLoading();
       ad.status = AdStatus.deleted;
-      await adRepository.updateStatus(
+      await adManager.updateStatus(
         adsId: ad.id!,
         status: ad.status,
         quantity: ad.quantity,
