@@ -15,32 +15,26 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * Representa um item de pagamento, contendo preço unitário e quantidade.
- */
-export interface IItem {
-  adId: string;
-  title: string;
-  unit_price: number;
-  quantity: number;
-}
+import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
-/**
- * Representa os dados de uma compra, usado para receber dados do frontend.
- */
-export interface PaymentData {
-  buyerId: string;
-  sellerId: string;
-  items: IItem[];
-}
+import '/core/singletons/app_settings.dart';
+import '/core/get_it.dart';
+import 'payment_session_store.dart';
 
-/**
- * Representa os dados de uma compra, usado para passar dados entre funções. O
- * totalAmount é calculado internamente, verificando os preços no firestore.
- */
-export interface PaymentItems {
-  buyerId: string;
-  sellerId: string;
-  totalAmount: number;
-  items: IItem[];
+class PaymentSessionController {
+  late final WebViewController webview;
+  late final PaymentSessionStore store;
+
+  final app = getIt<AppSettings>();
+
+  final stripe = Stripe.instance;
+
+  void init(
+    BuildContext context, {
+    required PaymentSessionStore store,
+  }) {
+    this.store = store;
+  }
 }

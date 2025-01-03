@@ -1,40 +1,24 @@
 // Copyright (C) 2025 Rudson Alves
-// 
+//
 // This file is part of boards.
-// 
+//
 // boards is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // boards is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
-
-// Copyright (C) 2024 rudson
-//
-// This file is part of xlo_mobx.
-//
-// xlo_mobx is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// xlo_mobx is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with xlo_mobx.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import '/data/models/bag_item.dart';
 import '/ui/features/splash/splash_page_screen.dart';
 import 'data/models/address.dart';
 import 'data/models/ad.dart';
@@ -53,6 +37,7 @@ import 'ui/features/addresses/addresses_screen.dart';
 import 'ui/features/account/my_ads/my_ads_screen.dart';
 import 'ui/features/account/my_data/my_data_screen.dart';
 import 'ui/features/payment/payment_screen.dart';
+import 'ui/features/payment_session/payment_session_screen.dart';
 import 'ui/features/shop/product/product_screen.dart';
 import 'ui/features/filters/filters_screen.dart';
 import 'ui/features/account/mechanics/mechanics_screen.dart';
@@ -116,8 +101,15 @@ class _AppState extends State<App> {
               switch (settings.name) {
                 case PaymentScreen.routeName:
                   return MaterialPageRoute(builder: (context) {
-                    final sessionUrl = settings.arguments as String;
+                    final bag = settings.arguments as List<BagItemModel>;
                     return PaymentScreen(
+                      items: bag,
+                    );
+                  });
+                case PaymentSessionScreen.routeName:
+                  return MaterialPageRoute(builder: (context) {
+                    final sessionUrl = settings.arguments as String;
+                    return PaymentSessionScreen(
                       sessionUrl: sessionUrl,
                     );
                   });

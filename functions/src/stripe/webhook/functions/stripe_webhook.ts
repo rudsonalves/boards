@@ -73,6 +73,7 @@ export const stripeWebhook = onRequest(
       response.end("Webhook recebido.");
 
       // Obter o corpo bruto da requisição
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const rawBody = (request as any).rawBody;
 
       const signatureHeader = request.headers["stripe-signature"];

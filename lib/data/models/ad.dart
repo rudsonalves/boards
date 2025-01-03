@@ -1,17 +1,17 @@
 // Copyright (C) 2025 Rudson Alves
-// 
+//
 // This file is part of boards.
-// 
+//
 // boards is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // boards is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -27,7 +27,7 @@ class AdModel {
   String? id;
   String? ownerId;
   String? ownerName;
-  double? ownerRate;
+  double? ownerScore;
   String? ownerCity;
   String? ownerState;
   DateTime? ownerCreateAt;
@@ -47,7 +47,7 @@ class AdModel {
     this.id,
     this.ownerId,
     this.ownerName,
-    this.ownerRate,
+    this.ownerScore,
     this.ownerCity,
     this.ownerState,
     this.ownerCreateAt,
@@ -81,7 +81,7 @@ class AdModel {
     String? id,
     String? ownerId,
     String? ownerName,
-    double? ownerRate,
+    double? ownerScore,
     String? ownerCity,
     String? ownerState,
     DateTime? ownerCreateAt,
@@ -101,7 +101,7 @@ class AdModel {
       id: id ?? this.id,
       ownerId: ownerId ?? this.ownerId,
       ownerName: ownerName ?? this.ownerName,
-      ownerRate: ownerRate ?? this.ownerRate,
+      ownerScore: ownerScore ?? this.ownerScore,
       ownerCity: ownerCity ?? this.ownerCity,
       ownerState: ownerState ?? this.ownerState,
       ownerCreateAt: ownerCreateAt ?? this.ownerCreateAt,
@@ -124,7 +124,7 @@ class AdModel {
       'id': id,
       'ownerId': ownerId,
       'ownerName': ownerName,
-      'ownerRate': ownerRate,
+      'ownerScore': ownerScore,
       'ownerCity': ownerCity,
       'ownerState': ownerState,
       'ownerCreateAt': ownerCreateAt?.millisecondsSinceEpoch,
@@ -147,7 +147,8 @@ class AdModel {
       id: map['id'] != null ? map['id'] as String : null,
       ownerId: map['ownerId'] != null ? map['ownerId'] as String : null,
       ownerName: map['ownerName'] != null ? map['ownerName'] as String : null,
-      ownerRate: map['ownerRate'] != null ? map['ownerRate'] as double : null,
+      ownerScore:
+          map['ownerScore'] != null ? map['ownerScore'] as double : null,
       ownerCity: map['ownerCity'] != null ? map['ownerCity'] as String : null,
       ownerState:
           map['ownerState'] != null ? map['ownerState'] as String : null,

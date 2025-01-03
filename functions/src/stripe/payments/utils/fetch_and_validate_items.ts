@@ -15,27 +15,53 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
-import { logger } from "firebase-functions/v2";
 import {
   IItem,
 } from "../interfaces/payment_item";
+import { getFirestore } from "firebase-admin/firestore";
 
 /**
  * Valida e retorna os itens enviados na requisição.
  *
  * @function fetchAndValidateItems
- * @param {IItem[]} request - Objeto da requisição
- *                                (ex.: onCall) contendo `items`.
- * @return {IItem[]} Lista de itens validados.
+ * @param {IItem[]} items - Objeto da requisição
+ *                          (ex.: onCall) contendo `items`.
+ * @return {Promise<{ validatedItems: IItem[], totalAmount: number }>}
+ *                        - Lista de itens validados.
  * @throws {Error} Caso `items` não exista ou não seja um array válido.
  */
-export function fetchAndValidateItems(
-  request: IItem[],
-): IItem[] {
-  const items = request;
-  if (!items || !Array.isArray(items)) {
-    logger.error(`Items must be a valid arra: ${items}`);
-    throw new Error("Items must be a valid array.");
-  }
-  return items;
+export async function fetchAndValidateItems(
+  items: IItem[],
+): Promise<{ validatedItems: IItem[]; totalAmount: number }> {
+  const db = getFirestore();
+
+  // Obtendo todas as referências de uma vez
+  const adRefs = items.map((item) => db.collection("ads").doc(item.adId));
+
+  // Executando todas as buscas de uma vez
+  const adSnaps = await Promise.all(adRefs.map((ref) => ref.get()));
+
+  let totalAmount = 0;
+  const validatedItems: IItem[] = [];
+
+  adSnaps.forEach((adSnap, index) => {
+    const item = items[index];
+
+    if (!adSnap.exists) {
+      throw new Error(`Item not found: ${item.adId}`);
+    }
+
+    const adData = adSnap.data();
+    if (!adData || adData.price !== item.unit_price) {
+      throw new Error(`Price mismatch for item: ${item.adId}`);
+    }
+
+    totalAmount += Math.round(adData.price * 100) * item.quantity;
+    validatedItems.push({
+      ...item,
+      unit_price: adData.price,
+    });
+  });
+
+  return { validatedItems, totalAmount };
 }

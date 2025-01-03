@@ -20,7 +20,9 @@
 import { logger } from "firebase-functions/v2";
 import { getFirestore } from "firebase-admin/firestore";
 
-import { StripeSessionData } from "../interfaces/stripe_session_data";
+import { registerSale } from "./register_sale";
+import Stripe from "stripe";
+import { IItem } from "../../payments/interfaces/payment_item";
 
 /**
  * Remove reservas de itens comprados quando o pagamento Stripe é bem-sucedido.
@@ -31,7 +33,7 @@ import { StripeSessionData } from "../interfaces/stripe_session_data";
  * @throws {Error} Se `metadata`, `items` ou `userId` estiverem ausentes.
  */
 export async function handlePaymentSuccess(
-  session: StripeSessionData,
+  session: Stripe.Checkout.Session,
 ): Promise<void> {
   const db = getFirestore();
 
@@ -44,30 +46,52 @@ export async function handlePaymentSuccess(
   }
 
   // items é um array de objetos { adId, quantity }
-  const items = JSON.parse(metadata.items) as Array<{
-    adId: string;
-    quantity: number;
-  }>;
-  const userId = metadata.userId;
+  const items = JSON.parse(metadata.items) as IItem[];
+  const buyerId = metadata.userId;
+  const sellerId = metadata.sellerId;
+  const totalAmount = parseFloat(metadata.totalAmount);
+  const paymentIntentId = session.id;
 
   const batch = db.batch();
 
-  for (const item of items) {
-    const reserveRef = db
-      .collection("ads")
-      .doc(item.adId)
-      .collection("reserve")
-      .doc(userId);
+  try {
+    // Remover reservas e atualizar status dos anúncios
+    for (const item of items) {
+      const adRef = db.collection("ads").doc(item.adId);
+      const reserveRef = adRef.collection("reserve").doc(buyerId);
 
-    // Remove a reserva ao confirmar pagamento
-    batch.delete(reserveRef);
+      // Remove a reserva ao confirmar pagamento
+      await batch.delete(reserveRef);
+      logger.info(`Reservation removed for item: ${item.adId}`);
 
-    logger.info("Reservation removed for item", {
-      userId,
-      adId: item.adId,
+      // Change ad status
+      const adGet = await adRef.get();
+      if (adGet.exists) {
+        const adData = adGet.data();
+        if (adData && (adData.quantity === 0 && adData.status === "reserved")) {
+          batch.update(adRef, { status: "sold" });
+          logger.info("Ad status updated to 'reserved'", { adId: item.adId });
+        } else {
+          logger.info("Ad status remains 'active'", { adId: item.adId });
+        }
+      } else {
+        logger.warn("Ad document does not exist", { adId: item.adId });
+      }
+    }
+
+    await registerSale({
+      paymentIntentId,
+      buyerId,
+      sellerId,
+      totalAmount: totalAmount,
+      items,
     });
-  }
 
-  await batch.commit();
-  logger.info("Payment confirmed and reservations cleared", { userId });
+    await batch.commit();
+
+    logger.info(
+      "Payment confirmed and reservations cleared", { userId: buyerId });
+  } catch (error) {
+    logger.error("Seller Id no defined", error);
+  }
 }

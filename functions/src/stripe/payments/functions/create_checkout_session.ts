@@ -26,13 +26,13 @@ import { verifyAuth } from "../../../auth/utils/verify_auth";
 import { fetchAndValidateItems } from "../utils/fetch_and_validate_items";
 import { reserveItems } from "../utils/reserve_items";
 import { createStripeSession } from "../utils/create_stripe_session";
-import { PaymentItems } from "../interfaces/payment_item";
+import { PaymentData } from "../interfaces/payment_item";
 
 /**
  * Cria uma sessão de checkout no Stripe, reservando itens e retornando a URL.
  *
  * @function createCheckoutSession
- * @param {CallableRequest<PaymentItems>} request
+ * @param {CallableRequest<PaymentData>} request
  *   Objeto da requisição onCall do Firebase Functions, contendo dados e
  *   contexto de auth.
  * @returns {Promise<{ url: string }>}
@@ -50,7 +50,7 @@ export const createCheckoutSession = onCall(
     secrets: ["STRIPE_API_KEY"],
   },
   async (
-    request: CallableRequest<PaymentItems>
+    request: CallableRequest<PaymentData>
   ): Promise<{ url: string }> => {
     logger.info("Iniciando função: createCheckoutSession");
 
@@ -68,16 +68,24 @@ export const createCheckoutSession = onCall(
       // 2. Validar os itens
       logger.info("request.data: ");
       logger.info(request.data);
-      const reqData = request.data;
-      const items = fetchAndValidateItems(reqData.items);
+      const { buyerId, sellerId, items } = request.data;
+      const { validatedItems, totalAmount } =
+        await fetchAndValidateItems(items);
+      // userId deve ser o mesmo que o buyerId
+      if (userId !== buyerId) {
+        logger.warn(
+          `Usuário comprador está inconsistente: ${userId}/${buyerId}`);
+      }
 
       // 3. Reservar os itens
-      await reserveItems(items, userId);
+      await reserveItems(validatedItems, userId);
 
       // 4. Criar sessão no Stripe
       const sessionUrl = await createStripeSession(
-        items,
-        userId,
+        buyerId,
+        sellerId,
+        totalAmount,
+        validatedItems,
         stripeApiKey,
       );
 

@@ -15,10 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
-import '../../../models/bag_item.dart';
+import '/data/models/payment_data.dart';
 import '/core/abstracts/data_result.dart';
 
 abstract class IPaymentService {
-  Future<DataResult<String>> createPaymentIntent(List<BagItemModel> items);
-  Future<DataResult<String>> createCheckoutSession(List<BagItemModel> items);
+  Future<DataResult<String>> createPaymentIntent(PaymentDataModel pay);
+  Future<DataResult<String>> createCheckoutSession(PaymentDataModel pay);
 }
