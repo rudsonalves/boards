@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // Copyright (C) 2025 Rudson Alves
 //
 // This file is part of boards.
@@ -15,32 +16,24 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * Representa um item de pagamento, contendo preço unitário e quantidade.
- */
-export interface IItem {
-  adId: string;
-  title: string;
-  unit_price: number;
-  quantity: number;
-}
+import 'bag_item.dart';
 
-/**
- * Representa os dados de uma compra, usado para receber dados do frontend.
- */
-export interface PaymentData {
-  buyerId: string;
-  sellerId: string;
-  items: IItem[];
-}
+class PaymentDataModel {
+  String buyerId;
+  String sellerId;
+  List<BagItemModel> items;
 
-/**
- * Representa os dados de uma compra, usado para passar dados entre funções. O
- * totalAmount é calculado internamente, verificando os preços no firestore.
- */
-export interface PaymentItems {
-  buyerId: string;
-  sellerId: string;
-  totalAmount: number;
-  items: IItem[];
+  PaymentDataModel({
+    required this.buyerId,
+    required this.sellerId,
+    required this.items,
+  });
+
+  Map<String, dynamic> toPaymentMap() {
+    return <String, dynamic>{
+      'buyerId': buyerId,
+      'sellerId': sellerId,
+      'items': items.map((item) => item.toPaymentParameters()).toList(),
+    };
+  }
 }

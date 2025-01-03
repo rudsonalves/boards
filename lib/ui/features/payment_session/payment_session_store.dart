@@ -15,32 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * Representa um item de pagamento, contendo preço unitário e quantidade.
- */
-export interface IItem {
-  adId: string;
-  title: string;
-  unit_price: number;
-  quantity: number;
-}
+import '../../components/state/state_store.dart';
 
-/**
- * Representa os dados de uma compra, usado para receber dados do frontend.
- */
-export interface PaymentData {
-  buyerId: string;
-  sellerId: string;
-  items: IItem[];
-}
-
-/**
- * Representa os dados de uma compra, usado para passar dados entre funções. O
- * totalAmount é calculado internamente, verificando os preços no firestore.
- */
-export interface PaymentItems {
-  buyerId: string;
-  sellerId: string;
-  totalAmount: number;
-  items: IItem[];
-}
+class PaymentSessionStore extends StateStore {}

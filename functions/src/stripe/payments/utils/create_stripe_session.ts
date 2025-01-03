@@ -20,31 +20,28 @@
 import { Stripe } from "stripe";
 import { initializeStripe } from "../../utils/initialize_stripe";
 
-/**
- * Interface para cada item reservado.
- */
-export interface CheckoutItem {
-  title: string;
-  unit_price: number;
-  quantity: number;
-}
+import { IItem } from "../interfaces/payment_item";
 
 /**
  * Cria uma sessão de checkout no Stripe com base nos itens reservados.
  *
  * @async
  * @function createStripeSession
- * @param {CheckoutItem[]} items - Lista de itens reservados para checkout,
+ * @param {string} buyerId - UID do usuário autenticado comprador.
+ * @param {string} sellerId - UID do usuário vendedor.
+ * @param {number} totalAmount - total da compra
+ * @param {IItem[]} items - Lista de itens reservados para checkout,
  *                                 contendo title, unit_price e quantity.
- * @param {string} userId - UID do usuário autenticado.
  * @param {string} stripeApiKey - Chave de API do Stripe.
  * @return {Promise<string>} - Retorna a URL da sessão de checkout do Stripe.
  * @throws {Error} - Caso a chave da API do Stripe não esteja configurada
  *                   ou haja falha na criação da sessão.
  */
 export async function createStripeSession(
-  items: CheckoutItem[],
-  userId: string,
+  buyerId: string,
+  sellerId: string,
+  totalAmount: number,
+  items: IItem[],
   stripeApiKey: string
 ): Promise<string> {
   const now = Math.floor(Date.now() / 1000); // Tempo atual em segundos
@@ -75,7 +72,9 @@ export async function createStripeSession(
         },
       },
       metadata: {
-        userId,
+        buyerId,
+        sellerId,
+        totalAmount: totalAmount.toString(),
         items: JSON.stringify(items),
       },
       expires_at: expiresAt,

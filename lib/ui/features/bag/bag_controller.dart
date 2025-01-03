@@ -1,20 +1,22 @@
 // Copyright (C) 2025 Rudson Alves
-// 
+//
 // This file is part of boards.
-// 
+//
 // boards is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // boards is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
+import '/core/singletons/current_user.dart';
+import '/data/models/payment_data.dart';
 import '/data/services/payment/interfaces/i_payment_service.dart';
 import '/core/abstracts/data_result.dart';
 import '/data/models/ad.dart';
@@ -29,6 +31,7 @@ class BagController {
   final bagManager = getIt<BagManager>();
   final adManager = getIt<AdsManager>();
   final payment = getIt<IPaymentService>();
+  final user = getIt<CurrentUser>();
 
   Set<BagItemModel> items(String sellerId) => bagManager.bagBySeller[sellerId]!;
 
@@ -52,7 +55,12 @@ class BagController {
   Future<String?> createPaymentIntent(List<BagItemModel> items) async {
     try {
       store.setStateLoading();
-      final result = await payment.createPaymentIntent(items);
+      final pay = PaymentDataModel(
+        buyerId: user.userId,
+        sellerId: items.first.ownerId,
+        items: items,
+      );
+      final result = await payment.createPaymentIntent(pay);
       if (result.isFailure) {
         throw Exception(
             'makePayment erro: ${result.error?.toString() ?? 'unknow error!'}');
@@ -68,7 +76,12 @@ class BagController {
   Future<String?> createCheckoutSession(List<BagItemModel> items) async {
     try {
       store.setStateLoading();
-      final result = await payment.createCheckoutSession(items);
+      final pay = PaymentDataModel(
+        buyerId: user.userId,
+        sellerId: items.first.ownerId,
+        items: items,
+      );
+      final result = await payment.createCheckoutSession(pay);
       if (result.isFailure || result.data == null) {
         store.setError('Ocorreu um erro. Tente maios tarde.');
         return null;

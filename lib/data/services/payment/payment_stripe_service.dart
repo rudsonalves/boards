@@ -20,7 +20,7 @@ import 'dart:developer';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 
-import '/data/models/bag_item.dart';
+import '/data/models/payment_data.dart';
 import 'interfaces/i_payment_service.dart';
 import '/core/abstracts/data_result.dart';
 
@@ -38,14 +38,12 @@ class PaymentStripeService implements IPaymentService {
 
   @override
   Future<DataResult<String>> createCheckoutSession(
-    List<BagItemModel> items,
+    PaymentDataModel pay,
   ) async {
     try {
       final callable = _firebaseFuncs.httpsCallable('createCheckoutSession');
 
-      final response = await callable.call({
-        'items': items.map((item) => item.toPaymentParameters()).toList(),
-      });
+      final response = await callable.call(pay.toPaymentMap());
 
       final sessionUrl = response.data['url'] as String?;
       if (sessionUrl == null) {
@@ -61,18 +59,11 @@ class PaymentStripeService implements IPaymentService {
   }
 
   @override
-  Future<DataResult<String>> createPaymentIntent(
-      List<BagItemModel> items) async {
+  Future<DataResult<String>> createPaymentIntent(PaymentDataModel pay) async {
     try {
-      final parameters = {
-        'items': items.map((item) => item.toPaymentParameters()).toList(),
-      };
-
       final result = await _firebaseFuncs
-          .httpsCallable(
-            'createPaymentIntent',
-          )
-          .call(parameters);
+          .httpsCallable('createPaymentIntent')
+          .call(pay.toPaymentMap());
 
       final clientSecret = result.data['clientSecret'] as String?;
 

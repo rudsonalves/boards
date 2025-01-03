@@ -26,5 +26,7 @@ export interface StripeSessionData {
   metadata?: {
     items?: string;
     userId?: string;
-  } | null;
+    sallerId?: string;
+    amountTotal?: number;
+  };
 }

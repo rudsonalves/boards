@@ -19,8 +19,7 @@
 
 import Stripe from "stripe";
 
-import { PaymentData } from "../interfaces/payment_item";
-
+import { PaymentItems } from "../interfaces/payment_item";
 
 /**
  * Cria um PaymentIntent no Stripe.
@@ -34,20 +33,22 @@ import { PaymentData } from "../interfaces/payment_item";
  */
 export async function createStripePaymentIntent(
   stripeInstance: Stripe,
-  { totalAmount, userId, items }: PaymentData
+  { buyerId, sellerId, totalAmount, items }: PaymentItems
 ): Promise<Stripe.PaymentIntent> {
-  if (!totalAmount || !userId || !items || items.length === 0) {
+  if (!sellerId || !totalAmount || !buyerId || !items || items.length === 0) {
     throw new Error("Missing or invalid parameters for creating PaymentIntent");
   }
 
   // Cria o PaymentIntent no Stripe
   return stripeInstance.paymentIntents.create({
     amount: totalAmount,
+    currency: "brl",
     payment_method_types: ["card"],
     description: "Compra de produtos",
-    currency: "brl",
     metadata: {
-      userId,
+      buyerId,
+      sellerId,
+      totalAmount: totalAmount.toString(),
       items: JSON.stringify(items),
     },
   });

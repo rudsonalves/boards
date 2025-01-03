@@ -1,17 +1,17 @@
 // Copyright (C) 2025 Rudson Alves
-// 
+//
 // This file is part of boards.
-// 
+//
 // boards is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // boards is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -21,7 +21,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../../../core/get_it.dart';
+import '/core/get_it.dart';
 import '/core/abstracts/data_result.dart';
 import '../../models/user.dart';
 import 'common/data_functions.dart';
@@ -45,9 +45,13 @@ extension ToUserModel on User {
 class FbUserRepository implements IUserRepository {
   final _firebaseAuth = FirebaseAuth.instance;
   final _firebaseFirestore = FirebaseFirestore.instance;
+  final userCollection = FirebaseFirestore.instance.collection(keyUsers);
 
   static const keyUsers = 'users';
-  static const keyUnverifiedPhone = 'unverifiedPhoneNumber';
+  static const keyUserUnverifiedPhone = 'unverifiedPhoneNumber';
+  static const keyUserFcmToken = 'fcmToken';
+  static const keyUserSales = 'sales';
+  static const keyUserPoints = 'points';
 
   final _messagesService = getIt<FirebaseMessagingService>();
 
@@ -143,7 +147,7 @@ class FbUserRepository implements IUserRepository {
 
   Future<UserModel> _signInUsers(UserModel user) async {
     // Save users informations
-    final usersDoc = _firebaseFirestore.collection(keyUsers).doc(user.id!);
+    final usersDoc = userCollection.doc(user.id!);
 
     // Check if uid document already exists, to avoid overwriting data.
     final docSnapshot = await usersDoc.get();
@@ -151,8 +155,14 @@ class FbUserRepository implements IUserRepository {
       throw Exception('users uid don`t exists!');
     }
 
-    return user.copyWith(
-        phone: docSnapshot.data()![keyUnverifiedPhone] as String?);
+    final data = docSnapshot.data();
+    return data != null
+        ? user.copyWith(
+            phone: data[keyUserUnverifiedPhone] as String?,
+            sales: (data[keyUserSales] as int?) ?? 0,
+            points: (data[keyUserPoints] as int?) ?? 0,
+          )
+        : user.copyWith();
   }
 
   @override
@@ -185,7 +195,11 @@ class FbUserRepository implements IUserRepository {
       }
 
       // Save users informations
-      final usersData = {keyUnverifiedPhone: user.phone};
+      final usersData = {
+        keyUserUnverifiedPhone: user.phone,
+        keyUserSales: 0,
+        keyUserPoints: 0,
+      };
       await _signUpUsers(newUser.uid, usersData);
 
       // sign out
@@ -244,16 +258,18 @@ class FbUserRepository implements IUserRepository {
 
   Future<void> _signUpUsers(String uid, Map<String, dynamic> data) async {
     // Save users informations
-    final usersDoc = _firebaseFirestore.collection(keyUsers).doc(uid);
+    final usersDoc = userCollection.doc(uid);
 
     // Check if uid document already exists, to avoid overwriting data.
-    await _firebaseFirestore.runTransaction((transaction) async {
-      final docSnapshot = await transaction.get(usersDoc);
-      if (docSnapshot.exists) {
-        throw Exception('users uid exists!');
-      }
-      transaction.set(usersDoc, data);
-    });
+    await _firebaseFirestore.runTransaction(
+      (transaction) async {
+        final docSnapshot = await transaction.get(usersDoc);
+        if (docSnapshot.exists) {
+          throw Exception('users uid exists!');
+        }
+        transaction.set(usersDoc, data);
+      },
+    );
   }
 
   @override
@@ -399,14 +415,40 @@ class FbUserRepository implements IUserRepository {
     }
   }
 
+  Future<DataResult<void>> updateUserInformation(UserModel user) async {
+    try {
+      final docRef = userCollection.doc(user.id);
+      await docRef.update({
+        "phone": user.phone,
+        "sales": user.sales,
+        "points": user.points,
+      });
+      return DataResult.success(null);
+    } catch (err) {
+      return _handleError(
+        'updateUserInformation',
+        err,
+        ErrorCodes.unknownError,
+      );
+    }
+  }
+
   Future<UserModel> _getUserFrom(User user) async {
     await user.reload();
+
+    final userSnapshot = await userCollection.doc(user.uid).get();
+    final data = userSnapshot.data();
+    if (data == null) {
+      throw Exception('User data informations not found.');
+    }
 
     return UserModel(
       id: user.uid,
       name: user.displayName,
       email: user.email!,
-      phone: user.phoneNumber,
+      phone: user.phoneNumber ?? data[keyUserUnverifiedPhone],
+      points: data[keyUserPoints] ?? 0,
+      sales: data[keyUserSales] ?? 0,
       createdAt: user.metadata.creationTime,
     );
   }

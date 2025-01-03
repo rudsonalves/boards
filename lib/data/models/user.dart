@@ -1,17 +1,17 @@
 // Copyright (C) 2025 Rudson Alves
-// 
+//
 // This file is part of boards.
-// 
+//
 // boards is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // boards is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -28,6 +28,8 @@ class UserModel {
   bool isPhoneVerified;
   String? password;
   UserRole role;
+  int sales;
+  int points;
   String? fcmToken;
   DateTime? createdAt;
 
@@ -41,6 +43,8 @@ class UserModel {
     this.password,
     DateTime? createdAt,
     this.role = UserRole.user,
+    this.sales = 0,
+    this.points = 0,
     this.fcmToken,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -52,6 +56,8 @@ class UserModel {
         ' phone: $phone (verified: $isPhoneVerified),'
         ' password: $password,'
         ' role: ${role.name},'
+        ' sales: $sales,'
+        ' points: $points,'
         ' token: $fcmToken,'
         ' createdAt: $createdAt';
   }
@@ -65,6 +71,8 @@ class UserModel {
     bool? isPhoneVerified,
     String? password,
     UserRole? role,
+    int? sales,
+    int? points,
     String? fcmToken,
     DateTime? createdAt,
   }) {
@@ -77,6 +85,8 @@ class UserModel {
       phone: phone ?? this.phone,
       isPhoneVerified: isPhoneVerified ?? this.isPhoneVerified,
       role: role ?? this.role,
+      sales: sales ?? this.sales,
+      points: points ?? this.points,
       fcmToken: fcmToken ?? this.fcmToken,
       createdAt: createdAt ?? this.createdAt,
     );

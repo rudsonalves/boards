@@ -24,18 +24,17 @@ import { logger } from "firebase-functions/v2";
 import { initializeStripe } from "../../utils/initialize_stripe";
 import { verifyAuth } from "../../../auth/utils/verify_auth";
 import { fetchAndValidateItems } from "../utils/fetch_and_validate_items";
-import { calculateTotal } from "../utils/calculate_total";
 import {
   createStripePaymentIntent,
 } from "../utils/create_stripe_payment_intent";
-import { IItem } from "../interfaces/payment_item";
+import { PaymentData } from "../interfaces/payment_item";
 
 /**
  * Cria um PaymentIntent no Stripe, retornando um client_secret para realizar o
  * pagamento.
  *
  * @function createPaymentIntent
- * @param {CallableRequest<IItem[]>} request
+ * @param {CallableRequest<PaymentData>} request
  *   Objeto da requisição onCall do Firebase Functions, contendo data e auth.
  * @returns {Promise<{ clientSecret: string }>}
  *   Retorna um objeto contendo o clientSecret do PaymentIntent criado no
@@ -56,14 +55,11 @@ export const createPaymentIntent = onCall(
     secrets: ["STRIPE_API_KEY"],
   },
   async (
-    request: CallableRequest<IItem[]>
+    request: CallableRequest<PaymentData>
   ): Promise<{ clientSecret: string | unknown }> => {
     logger.info("Iniciando função: createPaymentIntent");
 
     try {
-      logger.info("Request Data:", request.data);
-      logger.info("Request Auth:", request.auth);
-
       // Validar stripeApiKey
       const stripeApiKey = process.env.STRIPE_API_KEY;
       if (!stripeApiKey) {
@@ -78,19 +74,26 @@ export const createPaymentIntent = onCall(
       // Verificar autenticação do usuário
       const userId = verifyAuth(request);
 
-      // Verificar se os itens foram enviados e são válidos
-      const items = fetchAndValidateItems(request.data);
+      // Validar e coletar informações
+      const { buyerId, sellerId, items } = request.data;
+      const { validatedItems, totalAmount } =
+        await fetchAndValidateItems(items);
 
-      // Calcula o valor total em centavos
-      const totalAmount = calculateTotal(items);
+      // userId deve ser o mesmo que o buyerId
+      if (userId !== buyerId) {
+        logger.warn(
+          `Usuário comprador está inconsistente: ${userId}/${buyerId}`);
+      }
 
       // Cria um PaymentIntent no Stripe
       const paymentIntent = await createStripePaymentIntent(stripeInstance, {
+        buyerId,
+        sellerId,
         totalAmount,
-        userId: userId,
-        items,
+        items: validatedItems,
       });
 
+      logger.info("PaymentIntent criado com sucesso.");
       return { clientSecret: paymentIntent.client_secret };
     } catch (error) {
       logger.error("Error in createPaymentIntent:", error);

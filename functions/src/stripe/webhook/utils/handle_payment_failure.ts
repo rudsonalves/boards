@@ -19,20 +19,21 @@
 
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { logger } from "firebase-functions/v2";
+import Stripe from "stripe";
 
-import { StripeSessionData } from "../interfaces/stripe_session_data";
 
 /**
- * Restaura estoque e remove reservas quando o pagamento Stripe falha ou expira.
+ * Restaura estoque e remove reservas quando o pagamento Stripe falha ou
+ * expira.
  *
- * @param {StripeSessionData} session - Objeto de sessão do Stripe, contendo
- *                            `metadata.items` (JSON) e `metadata.userId`.
+ * @param {Stripe.Checkout.Session} session - Objeto de sessão do Stripe,
+ *                      contendo `metadata.items` (JSON) e `metadata.userId`.
  * @return {Promise<void>} - Resolve quando o estoque é restaurado e as
- *                            reservas removidas.
+ *                           reservas removidas.
  * @throws {Error} Se `metadata`, `items` ou `userId` estiverem ausentes.
  */
 export async function handlePaymentFailure(
-  session: StripeSessionData,
+  session: Stripe.Checkout.Session,
 ): Promise<void> {
   const db = getFirestore();
 
@@ -57,11 +58,6 @@ export async function handlePaymentFailure(
     const adRef = db.collection("ads").doc(item.adId);
     const reserveRef = adRef.collection("reserve").doc(userId);
 
-    // Restaura o estoque
-    batch.update(adRef, {
-      quantity: FieldValue.increment(item.quantity),
-    });
-
     // Remove reserva
     batch.delete(reserveRef);
 
@@ -70,6 +66,21 @@ export async function handlePaymentFailure(
       adId: item.adId,
       quantity: item.quantity,
     });
+
+    // atualiza ad status e estoque
+    const adGet = await adRef.get();
+    if (adGet.exists) {
+      batch.update(adRef, {
+        quantity: FieldValue.increment(item.quantity),
+        status: "active",
+      });
+      logger.info("Stock restored and status updated to 'active'.", {
+        adId: item.adId,
+        restoredQuantity: item.quantity,
+      });
+    } else {
+      logger.warn("Ad document does not exist", { adId: item.adId });
+    }
   }
 
   await batch.commit();

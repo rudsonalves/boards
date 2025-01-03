@@ -69,7 +69,7 @@ export async function reserveItems(
     }
 
     // Verifica se o produto esta ativo
-    if (adData.status !== "active") {
+    if (adData.status !== "active" && adData.status !== "reserved") {
       throw new Error(`Ad ${item.adId} has status "${adData.status}"`);
     }
 

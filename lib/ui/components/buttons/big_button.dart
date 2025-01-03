@@ -1,17 +1,17 @@
 // Copyright (C) 2025 Rudson Alves
-// 
+//
 // This file is part of boards.
-// 
+//
 // boards is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // boards is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -22,7 +22,7 @@ class BigButton extends StatelessWidget {
   final String label;
   final VoidCallback onPressed;
   final FocusNode? focusNode;
-  final IconData? iconData;
+  final Widget? icon;
 
   const BigButton({
     super.key,
@@ -30,7 +30,7 @@ class BigButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.focusNode,
-    this.iconData,
+    this.icon,
   });
 
   @override
@@ -58,13 +58,10 @@ class BigButton extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (iconData != null)
+                    if (icon != null)
                       Padding(
                         padding: const EdgeInsets.only(right: 12),
-                        child: Icon(
-                          iconData,
-                          size: 22,
-                        ),
+                        child: icon,
                       ),
                     Text(
                       label,

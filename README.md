@@ -78,7 +78,136 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
-## 2025/01/01 - version: 0.6.01+47
+## 2025/01/01 - version: 0.6.01+48
+
+Introduced significant refactoring and improvements to the Stripe payment integration and payment data handling across multiple files.
+
+## Changes made:
+
+1. **docs/Escrow no Stripe.md**:
+   - Added a new documentation file explaining the use of Stripe Connect for escrow payments with delayed transfers and destination charges.
+
+2. **functions/src/stripe/payments/functions/create_checkout_session.ts**:
+   - Renamed `PaymentItems` to `PaymentData`.
+   - Adjusted parameters in the `createCheckoutSession` function for better handling of `buyerId` and `sellerId`.
+   - Added additional validation for buyer and seller IDs.
+
+3. **functions/src/stripe/payments/functions/create_payment_intent.ts**:
+   - Renamed `IItem` and `PaymentItems` to `PaymentData`.
+   - Removed the `calculateTotal` function and integrated the total calculation directly within the validation process.
+   - Improved the validation and extraction of buyer and seller IDs.
+
+4. **functions/src/stripe/payments/interfaces/payment_item.ts**:
+   - Introduced new interfaces `PaymentData` and `PaymentItems`.
+   - Clarified comments and usage for these interfaces to better represent purchase data flow.
+
+5. **functions/src/stripe/payments/utils/calculate_total.ts**:
+   - Deleted this file since total calculation is now integrated into the `fetchAndValidateItems` function.
+
+6. **functions/src/stripe/payments/utils/create_stripe_payment_intent.ts**:
+   - Replaced `PaymentData` with `PaymentItems`.
+   - Added `buyerId` and `sellerId` as mandatory fields for creating a payment intent.
+
+7. **functions/src/stripe/payments/utils/create_stripe_session.ts**:
+   - Replaced `userId` with `buyerId` and `sellerId`.
+   - Improved metadata storage for Stripe sessions.
+
+8. **functions/src/stripe/payments/utils/fetch_and_validate_items.ts**:
+   - Enhanced the function to include total amount calculation directly while validating the items.
+   - Optimized Firestore queries using batched reads for efficiency.
+
+9. **functions/src/stripe/payments/utils/reserve_items.ts**:
+   - Adjusted item reservation logic to account for reserved status as well as active status.
+
+10. **functions/src/stripe/webhook/functions/stripe_webhook.ts**:
+    - Added a suppression for the TypeScript `any` warning to handle raw request bodies correctly.
+
+11. **functions/src/stripe/webhook/interfaces/sale_data.ts**:
+    - Added a new interface `SaleData` for capturing detailed sale data after a successful payment.
+
+12. **functions/src/stripe/webhook/interfaces/stripe_session_data.ts**:
+    - Added `sellerId` and `amountTotal` fields in the metadata structure for improved tracking.
+
+13. **functions/src/stripe/webhook/utils/handle_payment_failure.ts**:
+    - Updated the logic to restore product stock and change the advertisement status to `active` after payment failure.
+
+14. **functions/src/stripe/webhook/utils/handle_payment_success.ts**:
+    - Enhanced the payment success handler to verify and update the advertisement status correctly.
+    - Added new logic to register a sale after a successful payment.
+
+15. **functions/src/stripe/webhook/utils/register_sale.ts**:
+    - Created a new utility to register successful sales in Firestore with complete buyer and seller information.
+
+16. **lib/app.dart**:
+    - Adjusted routing to support the `PaymentSessionScreen`.
+    - Updated the `PaymentScreen` to use the new `BagItemModel`.
+
+17. **lib/core/abstracts/data_result.dart**:
+    - Renamed `fnFailure` and `fnData` to `onFailure` and `onSuccess` for clarity.
+    - Added a `when` method for more flexible state handling.
+
+18. **lib/data/models/ad.dart**:
+    - Renamed `ownerRate` to `ownerScore` throughout the model for clarity.
+
+19. **lib/data/models/bag_item.dart**:
+    - Added a new `_score` field for tracking seller ratings.
+
+20. **lib/data/models/payment_data.dart**:
+    - Introduced a new `PaymentDataModel` class to encapsulate payment data.
+
+21. **lib/data/models/user.dart**:
+    - Added `sales` and `points` fields to the `UserModel` for extended user tracking.
+
+22. **lib/data/repository/firebase/fb_user_repository.dart**:
+    - Added support for the new `sales` and `points` fields in Firestore interactions.
+    - Introduced a new `updateUserInformation` method for updating user data.
+
+23. **lib/data/services/payment/interfaces/i_payment_service.dart**:
+    - Changed method signatures to use `PaymentDataModel` instead of raw lists of items.
+
+24. **lib/data/services/payment/payment_stripe_service.dart**:
+    - Updated payment creation methods to work with `PaymentDataModel`.
+
+25. **lib/ui/components/buttons/big_button.dart**:
+    - Replaced `iconData` with a more flexible `icon` widget.
+
+26. **lib/ui/components/collection_views/shop_grid_view/widgets/ad_shop_view.dart**:
+    - Adjusted to use `ownerScore` instead of `ownerRate`.
+
+27. **lib/ui/features/bag/bag_controller.dart**:
+    - Integrated the `PaymentDataModel` for payment processing.
+    - Added a reference to the current user for better buyer identification.
+
+28. **lib/ui/features/bag/bag_screen.dart**:
+    - Updated to use the new payment handling with `PaymentDataModel`.
+
+29. **lib/ui/features/edit_ad/edit_ad_form/edit_ad_form.dart**:
+    - Replaced `iconData` with the new `icon` widget structure.
+
+30. **lib/ui/features/payment/payment_controller.dart**:
+    - Removed the WebView-based approach for payments and replaced it with Stripe direct payment handling.
+
+31. **lib/ui/features/payment/payment_screen.dart**:
+    - Fully refactored to handle payment using `PaymentDataModel` and direct Stripe integration.
+    - Removed WebView and replaced it with a button-driven payment flow.
+
+32. **lib/ui/features/payment_session/payment_session_controller.dart**:
+    - Added a new controller for handling the payment session through WebView.
+
+33. **lib/ui/features/payment_session/payment_session_screen.dart**:
+    - Created a new screen for WebView-based payment sessions.
+
+34. **lib/ui/features/payment_session/payment_session_store.dart**:
+    - Added a state management store for the payment session.
+
+35. **lib/ui/features/shop/product/product_screen.dart**:
+    - Updated to use `ownerScore` instead of `ownerRate`.
+
+## Conclusion:
+This commit introduces a comprehensive refactor of the Stripe payment integration, improving data consistency, enhancing error handling, and ensuring better buyer and seller validation. It also replaces the WebView-based payment process with a direct Stripe integration approach using `PaymentDataModel`.
+
+
+## 2025/01/03 - version: 0.6.01+47
 
 This commit introduces several updates and enhancements across multiple files in the project, focusing on improving functionality, refactoring code, and resolving issues.
 
