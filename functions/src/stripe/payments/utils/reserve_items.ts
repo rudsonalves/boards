@@ -22,6 +22,8 @@ import { logger } from "firebase-functions/v2";
 
 import { IItem } from "../interfaces/payment_item";
 import { ReserveData } from "../interfaces/reserve_date";
+import { COLLECTIONS } from "../../../utils/collections";
+import { ADSTATUS } from "../../../utils/ad_status";
 
 /**
  * Reserva os itens selecionados pelo usuário, decrementando a quantidade
@@ -52,8 +54,12 @@ export async function reserveItems(
   const reservedUntil = new Date(now + 30 * 60 * 1000);
 
   for (const item of items) {
-    const adRef = firestore.collection("ads").doc(item.adId);
-    const reserveRef = adRef.collection("reserve").doc(userId);
+    const adRef = firestore
+      .collection(COLLECTIONS.ADS)
+      .doc(item.adId);
+    const reserveRef = adRef
+      .collection(COLLECTIONS.RESERVE)
+      .doc(userId);
 
     logger.info(`Reserving item for userId=${userId}, adId=${item.adId}`);
 
@@ -69,7 +75,8 @@ export async function reserveItems(
     }
 
     // Verifica se o produto esta ativo
-    if (adData.status !== "active" && adData.status !== "reserved") {
+    if (adData.status !== ADSTATUS.ACTIVE &&
+      adData.status !== ADSTATUS.RESERVED) {
       throw new Error(`Ad ${item.adId} has status "${adData.status}"`);
     }
 
@@ -119,7 +126,7 @@ export async function reserveItems(
     // Atualizar Anúncio
     batch.update(adRef, {
       quantity: stock,
-      status: stock === 0 ? "reserved" : adData.status,
+      status: stock === 0 ? ADSTATUS.RESERVED : adData.status,
     });
   }
 

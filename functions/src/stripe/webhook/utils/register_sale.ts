@@ -19,6 +19,7 @@ import { getFirestore } from "firebase-admin/firestore";
 import { logger } from "firebase-functions/v2";
 
 import { SaleData } from "../interfaces/sale_data";
+import { COLLECTIONS } from "../../../utils/collections";
 
 /**
  * Registra uma venda no Firestore após a confirmação do pagamento.
@@ -31,7 +32,9 @@ import { SaleData } from "../interfaces/sale_data";
  */
 export async function registerSale(saleData: SaleData): Promise<void> {
   const db = getFirestore();
-  const saleRef = db.collection("sales").doc(saleData.paymentIntentId);
+  const saleRef = db
+    .collection(COLLECTIONS.SALES)
+    .doc(saleData.paymentIntentId);
 
   try {
     await saleRef.set({
@@ -39,6 +42,7 @@ export async function registerSale(saleData: SaleData): Promise<void> {
       sallerId: saleData.sellerId,
       amount: saleData.totalAmount,
       items: saleData.items,
+      status: saleData.status,
       createdAt: new Date(),
     });
 

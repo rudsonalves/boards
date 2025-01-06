@@ -15,10 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
+import { getFirestore } from "firebase-admin/firestore";
+
+import { COLLECTIONS } from "../../../utils/collections";
 import {
   IItem,
 } from "../interfaces/payment_item";
-import { getFirestore } from "firebase-admin/firestore";
 
 /**
  * Valida e retorna os itens enviados na requisição.
@@ -36,7 +38,9 @@ export async function fetchAndValidateItems(
   const db = getFirestore();
 
   // Obtendo todas as referências de uma vez
-  const adRefs = items.map((item) => db.collection("ads").doc(item.adId));
+  const adRefs = items.map((item) => db
+    .collection(COLLECTIONS.ADS)
+    .doc(item.adId));
 
   // Executando todas as buscas de uma vez
   const adSnaps = await Promise.all(adRefs.map((ref) => ref.get()));

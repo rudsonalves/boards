@@ -28,6 +28,7 @@ import {
   createStripePaymentIntent,
 } from "../utils/create_stripe_payment_intent";
 import { PaymentData } from "../interfaces/payment_item";
+import { reserveItems } from "../utils/reserve_items";
 
 /**
  * Cria um PaymentIntent no Stripe, retornando um client_secret para realizar o
@@ -84,6 +85,12 @@ export const createPaymentIntent = onCall(
         logger.warn(
           `Usuário comprador está inconsistente: ${userId}/${buyerId}`);
       }
+
+      // Criar reserva dos produtos
+      await reserveItems(
+        items,
+        buyerId,
+      );
 
       // Cria um PaymentIntent no Stripe
       const paymentIntent = await createStripePaymentIntent(stripeInstance, {

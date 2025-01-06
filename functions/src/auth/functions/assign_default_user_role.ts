@@ -21,6 +21,7 @@ import { onCall, CallableRequest } from "firebase-functions/v2/https";
 import { getAuth } from "firebase-admin/auth";
 import { logger } from "firebase-functions/v2";
 import { verifyAuth } from "../utils/verify_auth";
+import { ROLES } from "../../utils/roles";
 
 /**
  * Tipagem de possível resposta da função.
@@ -47,7 +48,7 @@ export const assignDefaultUserRole = onCall(
       const userId = verifyAuth(request);
 
       // Definir o role como "user"
-      const role = "user";
+      const role = ROLES.USER;
 
       //  Definir custom claims para o usuário
       const auth = getAuth();

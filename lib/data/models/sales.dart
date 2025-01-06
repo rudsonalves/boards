@@ -32,10 +32,13 @@ import 'bag_item.dart';
 ///   after delivery confirmed or dispute closing).
 enum SaleStatus {
   pending,
-  payment,
+  paid,
   delivered,
   confirmedDelivery,
   inDispute,
+  escrowHeld,
+  released,
+  refunded,
   closed
 }
 
@@ -75,7 +78,7 @@ class SaleModel {
     _status = newStatus;
 
     // Sets expectedCreditDate when changing to 'payment'
-    if (newStatus == SaleStatus.payment) {
+    if (newStatus == SaleStatus.paid) {
       expectedCreditDate = DateTime.now().add(Duration(days: 30));
     }
 

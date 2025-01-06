@@ -21,6 +21,8 @@ import { onDocumentDeleted } from "firebase-functions/v2/firestore";
 import { logger } from "firebase-functions/v2";
 import { getFirestore } from "firebase-admin/firestore";
 
+import { COLLECTIONS } from "../../utils/collections";
+
 /**
  * Sincroniza informações de boardgames para a coleção "bgnames".
  */
@@ -39,7 +41,9 @@ export const syncDeleteBGName = onDocumentDeleted(
     }
 
     const firestore = getFirestore();
-    const bgNameRef = firestore.collection("bgnames").doc(boardgameId);
+    const bgNameRef = firestore
+      .collection(COLLECTIONS.BGNAMES)
+      .doc(boardgameId);
 
     try {
       const bgNamesSnap = await bgNameRef.get();

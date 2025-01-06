@@ -15,9 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with boards.  If not, see <https://www.gnu.org/licenses/>.
 
-import '../../core/utils/extensions.dart';
-import '../../logic/managers/mechanics_manager.dart';
-import '../../core/get_it.dart';
+import '/core/utils/extensions.dart';
+import '/logic/managers/mechanics_manager.dart';
+import '/core/get_it.dart';
 
 enum AdStatus { pending, active, sold, deleted, reserved }
 

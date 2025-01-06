@@ -21,6 +21,10 @@ import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { logger } from "firebase-functions/v2";
 import Stripe from "stripe";
 
+import { COLLECTIONS } from "../../../utils/collections";
+import { ADSTATUS } from "../../../utils/ad_status";
+import { IItem } from "../../payments/interfaces/payment_item";
+
 
 /**
  * Restaura estoque e remove reservas quando o pagamento Stripe falha ou
@@ -46,17 +50,18 @@ export async function handlePaymentFailure(
   }
 
   // items é um array de objetos { adId, quantity }
-  const items = JSON.parse(metadata.items) as Array<{
-    adId: string;
-    quantity: number;
-  }>;
+  const items = JSON.parse(metadata.items) as IItem[];
 
   const userId = metadata.userId;
   const batch = db.batch();
 
   for (const item of items) {
-    const adRef = db.collection("ads").doc(item.adId);
-    const reserveRef = adRef.collection("reserve").doc(userId);
+    const adRef = db
+      .collection(COLLECTIONS.ADS)
+      .doc(item.adId);
+    const reserveRef = adRef
+      .collection(COLLECTIONS.RESERVE)
+      .doc(userId);
 
     // Remove reserva
     batch.delete(reserveRef);
@@ -72,11 +77,12 @@ export async function handlePaymentFailure(
     if (adGet.exists) {
       batch.update(adRef, {
         quantity: FieldValue.increment(item.quantity),
-        status: "active",
+        status: ADSTATUS.ACTIVE,
       });
       logger.info("Stock restored and status updated to 'active'.", {
         adId: item.adId,
         restoredQuantity: item.quantity,
+        status: ADSTATUS.ACTIVE,
       });
     } else {
       logger.warn("Ad document does not exist", { adId: item.adId });

@@ -23,9 +23,12 @@ import { getFirestore } from "firebase-admin/firestore";
 import { registerSale } from "./register_sale";
 import Stripe from "stripe";
 import { IItem } from "../../payments/interfaces/payment_item";
+import { COLLECTIONS } from "../../../utils/collections";
+import { SALESTATUS } from "../../../utils/sales_status";
 
 /**
- * Remove reservas de itens comprados quando o pagamento Stripe é bem-sucedido.
+ * Remove reservas de itens comprados quando o pagamento Stripe é bem-sucedido
+ * e atualiza status de "reserved" para "sold", se quantity for zero.
  *
  * @param {StripeSessionData} session - Objeto de sessão do Stripe, contendo
  *                          `metadata.items` (JSON) e `metadata.userId`.
@@ -45,7 +48,7 @@ export async function handlePaymentSuccess(
     throw new Error("Session metadata is incomplete or missing.");
   }
 
-  // items é um array de objetos { adId, quantity }
+  // Restaura parametros
   const items = JSON.parse(metadata.items) as IItem[];
   const buyerId = metadata.userId;
   const sellerId = metadata.sellerId;
@@ -57,8 +60,12 @@ export async function handlePaymentSuccess(
   try {
     // Remover reservas e atualizar status dos anúncios
     for (const item of items) {
-      const adRef = db.collection("ads").doc(item.adId);
-      const reserveRef = adRef.collection("reserve").doc(buyerId);
+      const adRef = db
+        .collection(COLLECTIONS.ADS)
+        .doc(item.adId);
+      const reserveRef = adRef
+        .collection(COLLECTIONS.RESERVE)
+        .doc(buyerId);
 
       // Remove a reserva ao confirmar pagamento
       await batch.delete(reserveRef);
@@ -81,6 +88,7 @@ export async function handlePaymentSuccess(
 
     await registerSale({
       paymentIntentId,
+      status: SALESTATUS.PAID,
       buyerId,
       sellerId,
       totalAmount: totalAmount,

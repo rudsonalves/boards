@@ -78,6 +78,82 @@ A estrutura apresentada permite uma manutenção eficiente do código, tornando 
 
 # ChangeLog
 
+## 2025/01/06 - version: 0.6.03+50
+
+Updated the payment flow documentation and refactored multiple TypeScript files for improved constants usage.
+
+### Changes made:
+
+1. **docs/Fluxo de Pagamentos.md**:
+   - Adjusted the `paymentIntentId` handling by specifying its usage as the UID for better tracking with Stripe.
+   - Removed redundant references to `paymentIntentId` as a separate field.
+
+2. **functions/src/auth/functions/assign_default_user_role.ts**:
+   - Replaced the hardcoded `"user"` string with the `ROLES.USER` constant for better maintainability.
+
+3. **functions/src/auth/utils/verify_auth.ts**:
+   - Corrected the JSDoc comment for the return value to clarify possible return values.
+
+4. **functions/src/boardgames/functions/sync_create_bg_bames.ts**:
+   - Replaced the hardcoded `"bgnames"` string with the `COLLECTIONS.BGNAMES` constant for better consistency.
+
+5. **functions/src/boardgames/functions/sync_delete_bg_name.ts**:
+   - Replaced the hardcoded `"bgnames"` string with the `COLLECTIONS.BGNAMES` constant for better maintainability.
+
+6. **functions/src/boardgames/functions/sync_update_bg_names.ts**:
+   - Replaced the hardcoded `"bgnames"` string with the `COLLECTIONS.BGNAMES` constant for improved consistency.
+
+7. **functions/src/notification/functions/notify_specific_user.ts**:
+   - Replaced the hardcoded `"users"` string with the `COLLECTIONS.USERS` constant for better clarity.
+
+8. **functions/src/stripe/payments/functions/create_payment_intent.ts**:
+   - Added a call to `reserveItems` to ensure products are reserved when a payment intent is created.
+
+9. **functions/src/stripe/payments/utils/fetch_and_validate_items.ts**:
+   - Replaced the hardcoded `"ads"` string with the `COLLECTIONS.ADS` constant.
+
+10. **functions/src/stripe/payments/utils/reserve_items.ts**:
+    - Replaced hardcoded `"ads"` and `"reserve"` with `COLLECTIONS.ADS` and `COLLECTIONS.RESERVE`.
+    - Replaced hardcoded `"active"` and `"reserved"` strings with `ADSTATUS.ACTIVE` and `ADSTATUS.RESERVED`.
+
+11. **functions/src/stripe/webhook/interfaces/sale_data.ts**:
+    - Added a `status` field to the `SaleData` interface for better status tracking.
+
+12. **functions/src/stripe/webhook/utils/handle_payment_failure.ts**:
+    - Replaced hardcoded `"ads"` and `"reserve"` with `COLLECTIONS.ADS` and `COLLECTIONS.RESERVE`.
+    - Replaced `"active"` status string with `ADSTATUS.ACTIVE`.
+
+13. **functions/src/stripe/webhook/utils/handle_payment_success.ts**:
+    - Added `SALESTATUS.PAID` to the `registerSale` call.
+    - Replaced `"ads"` and `"reserve"` with `COLLECTIONS.ADS` and `COLLECTIONS.RESERVE`.
+
+14. **functions/src/stripe/webhook/utils/register_sale.ts**:
+    - Replaced hardcoded `"sales"` with `COLLECTIONS.SALES`.
+    - Added the `status` field to the sale registration process.
+
+15. **functions/src/utils/ad_status.ts** (new file):
+    - Added a new constant `ADSTATUS` to manage ad statuses centrally.
+
+16. **functions/src/utils/collections.ts** (new file):
+    - Added a new constant `COLLECTIONS` to manage Firestore collection names centrally.
+
+17. **functions/src/utils/roles.ts** (new file):
+    - Added a new constant `ROLES` to manage user roles centrally.
+
+18. **functions/src/utils/sales_status.ts** (new file):
+    - Added a new constant `SALESTATUS` to manage sales statuses centrally.
+
+19. **lib/data/models/ad.dart**:
+    - Changed relative imports to use absolute imports for better clarity.
+
+20. **lib/data/models/sales.dart**:
+    - Renamed `SaleStatus.payment` to `SaleStatus.paid`.
+    - Updated `setStatus` method to handle the renamed `paid` status properly.
+
+### Conclusion:
+The changes enhance code maintainability by centralizing constants for statuses, roles, and collection names, reducing hardcoded strings. This ensures better consistency and easier future updates across the entire codebase.
+
+
 ## 2025/01/03 - version: 0.6.02+49
 
 This commit introduces several enhancements and fixes across multiple modules, including the payment system, ad management, and data models. Key changes involve the integration of Stripe payments, improved data handling, and refactored imports for better code organization.

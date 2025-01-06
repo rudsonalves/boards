@@ -25,7 +25,6 @@ import { logger } from "firebase-functions/v2";
  *
  * @function verifyAuth
  * @param {any} request - Objeto da requisição do Firebase Functions (onCall).
- * @return {string} - Retorna o UID do usuário autenticado.
  * @return {string} - Retorna o UID do usuário autenticado ou null caso
  *                           não esteja autenticado.
  */

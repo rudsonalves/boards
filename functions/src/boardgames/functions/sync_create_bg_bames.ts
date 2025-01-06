@@ -22,6 +22,7 @@ import { logger } from "firebase-functions/v2";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { BoardgameData } from "../interfaces/boardgame_data";
+import { COLLECTIONS } from "../../utils/collections";
 
 /**
  * Sincroniza informações de boardgames para a coleção "bgnames".
@@ -50,7 +51,10 @@ export const syncCreateBGNames = onDocumentCreated(
 
     try {
       const firestore = getFirestore();
-      await firestore.collection("bgnames").doc(boardgameId).set(bgNameDoc);
+      await firestore
+        .collection(COLLECTIONS.BGNAMES)
+        .doc(boardgameId)
+        .set(bgNameDoc);
       logger.info(`Successfully synced boardgame ${boardgameId} to bgnames`);
     } catch (error) {
       logger.error(`Error syncing boardgame ${boardgameId} to bgnames`, error);

@@ -1,17 +1,15 @@
-
-
 ### ✅ **Fluxo de Pagamentos**
 
 #### 1. **Registrar a Venda no Firebase**
 
 - ✅ Registrar uma nova venda em uma coleção `sales`.
 - ✅ Armazenar:
+  - usar com UID o `paymentIntentId`. Será útil para rastreamento no Stripe.
   - ID do comprador e vendedor.
   - Valor da venda.
   - Itens vendidos (adId, quantidade).
   - Status da venda (`payment_successful` inicialmente).
   - Timestamps importantes (data da venda, agendamento de pagamento, status de entrega).
-  - `paymentIntentId` para rastreamento no Stripe.
 - 🔧 **Refinamento:** Criar um índice no Firestore para garantir buscas eficientes por `buyerId` e `sellerId`.
 
 ---

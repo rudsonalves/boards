@@ -24,6 +24,7 @@ import { getMessaging } from "firebase-admin/messaging";
 
 import { MessageData } from "../interfaces/message_data";
 import { UserData } from "../interfaces/user_data";
+import { COLLECTIONS } from "../../utils/collections";
 
 /**
  * Notifica um usuário específico sobre uma nova mensagem adicionada a um
@@ -56,7 +57,7 @@ export const notifySpecificUser = onDocumentCreated(
 
       const firestore = getFirestore();
       const userDoc = await firestore
-        .collection("users")
+        .collection(COLLECTIONS.USERS)
         .doc(targetUserId)
         .get();
 

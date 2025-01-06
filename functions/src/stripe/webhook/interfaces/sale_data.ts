@@ -19,4 +19,5 @@ import { PaymentItems } from "../../payments/interfaces/payment_item";
 
 export interface SaleData extends PaymentItems {
   paymentIntentId: string;
+  status: string;
 }
